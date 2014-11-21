@@ -1,0 +1,10 @@
+.deps
+*.o
+Makefile
+config.status
+config.log
+etr
+etr_config.h
+pw_dir
+stamp-h1
+Configure
