@@ -302,9 +302,12 @@ void InitConfig (const char *arg0) {
 	// or: param.config_dir = param.prog_dir + SEP + "config";
     if (!DirExists (param.config_dir.c_str()))
 		mkdir (param.config_dir.c_str(), 0775);
+	// jdt: frustrated trying to figure out how this was supposed to work
+    //if (!DirExists (param.data_dir.c_str())) {
         param.data_dir = ETR_DATA_DIR;
-        param.data_dir += SEP;
-        param.data_dir += "etr";
+        //param.data_dir += SEP;
+        //param.data_dir += "etr";
+	//}
 	// param.data_dir = param.prog_dir + SEP + "data";
 	param.configfile = param.config_dir + SEP + "options";
 #endif

@@ -62,7 +62,7 @@ public:
 	virtual void Motion(int x, int y) {}
 	virtual void Jaxis(int axis, double value) {}
 	virtual void Jbutt(int button, int state) {}
-	virtual void Keyb_spec(SDL_keysym sym, bool release) {}
+	virtual void Keyb_spec(SDL_Keysym sym, bool release) {} // jdt: see input migration
 	virtual void Exit() {}
 };
 

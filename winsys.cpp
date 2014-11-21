@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #include "textures.h"
 #include "spx.h"
 #include "course.h"
-#include "SDL/SDL_syswm.h"
+#include "SDL2/SDL_syswm.h"
 #include <iostream>
 
 #define USE_JOYSTICK true
@@ -40,7 +40,8 @@ CWinsys Winsys;
 CWinsys::CWinsys ()
 	: auto_resolution(800, 600)
 {
-	screen = NULL;
+	//screen = NULL;
+	sdlWindow = NULL;
 
 	joystick = NULL;
 	numJoysticks = 0;
@@ -56,10 +57,12 @@ CWinsys::CWinsys ()
 	resolutions[7] = TScreenRes(1400, 1050);
 	resolutions[8] = TScreenRes(1440, 900);
 	resolutions[9] = TScreenRes(1680, 1050);
+	//resolutions[10] = TScreenRes(1920, 1080); // rift dk2
+	// jdt chagne NUM_RESOLUTIONS
 }
 
 const TScreenRes& CWinsys::GetResolution (size_t idx) const {
-	if (idx >= NUM_RESOLUTIONS || (idx == 0 && !param.fullscreen)) return auto_resolution;
+	if (idx == 0 || idx >= NUM_RESOLUTIONS) return auto_resolution;
 	return resolutions[idx];
 }
 
@@ -78,15 +81,18 @@ double CWinsys::CalcScreenScale () const {
 }
 
 void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
-    int bpp = 0;
-    Uint32 video_flags = SDL_OPENGL;
-    if (param.fullscreen) video_flags |= SDL_FULLSCREEN;
+    int bpp = 32;
+    Uint32 video_flags = 0; //SDL_OPENGL; jdt deprecated
+    //if (param.fullscreen) video_flags |= SDL_FULLSCREEN; // jdt
+	/*
 	switch (param.bpp_mode) {
 		case 0:	bpp = 0; break;
 		case 1:	bpp = 16; break;
 		case 2:	bpp = 32; break;
 		default: param.bpp_mode = 0; bpp = 0;
     }
+	*/
+
 
 #ifdef _WIN32
 	SDL_SysWMinfo info;
@@ -98,15 +104,26 @@ void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
 	wglShareLists(info.hglrc, tempRC); // Share resources with old context
 #endif
 
-	if ((screen = SDL_SetVideoMode
-	(resolution_.width, resolution_.height, bpp, video_flags)) == NULL) {
-		Message ("couldn't initialize video",  SDL_GetError());
-		Message ("set to 800 x 600");
-		screen = SDL_SetVideoMode (800, 600, bpp, video_flags);
+	/*
+	// jdt: 
+	//if ((screen = SDL_SetVideoMode
+	//(resolution_.width, resolution_.height, bpp, video_flags)) == NULL) {
+	if ((screen = SDL_CreateRGBSurface
+	(0, resolution_.width, resolution_.height, 32,  //bpp,
+	 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)) == NULL) {
+		Message ("couldn't initialize video. ABORTING: ",  SDL_GetError());
 		param.res_type = 1;
-		SaveConfigFile ();
+		SaveConfigFile (); // don't b0rk teh config
+		SDL_Quit();
 	}
-
+	SDL_Texture *sdlTexture = SDL_CreateTexture(sdlRenderer,
+		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 
+		resolution_.width, resolution_.height);
+	if(sdlTexture == NULL) {
+		Message ("Couldn't initialize texture: ",  SDL_GetError());
+		SDL_Quit();
+	}
+	*/
 #ifdef _WIN32
 	SDL_VERSION(&info.version);
 	SDL_GetWMInfo(&info);
@@ -114,12 +131,25 @@ void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
 	wglDeleteContext(tempRC);
 #endif
 
+	// SDL_RENDERER_SOFTWARE the renderer is a software fallback
+	// SDL_RENDERER_ACCELERATED the renderer uses hardware acceleration
+	// SDL_RENDERER_PRESENTVSYNC present is synchronized with the refresh rate
+	// SDL_RENDERER_TARGETTEXTURE the renderer supports rendering to texture
+	// renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+	//
+	// bitmapSurface = SDL_LoadBMP("img/hello.bmp");
+	// bitmapTex = SDL_CreateTextureFromSurface(renderer, bitmapSurface);
+	// SDL_FreeSurface(bitmapSurface);
+	//
+	// jdt: TODO
+	/*
 	SDL_Surface *surf = SDL_GetVideoSurface ();
 	resolution.width = surf->w;
 	resolution.height = surf->h;
 	if (resolution.width == 0 && resolution.height == 0) {
 		auto_resolution = resolution;
 	}
+	*/
 	scale = CalcScreenScale ();
 	if (param.use_quad_scale) scale = sqrt (scale);
 }
@@ -154,25 +184,89 @@ void CWinsys::InitJoystick () {
 void CWinsys::Init () {
 	Uint32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_TIMER;
     if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
+
+	//if (SDL_GL_LoadLibrary(NULL)) {
+	//	Message("Couldn't load OpenGL library: ", SDL_GetError());
+	//}
+	//
+	resolution = GetResolution (param.res_type);
+	Uint32 window_width = resolution.width;
+	Uint32 window_height = resolution.height;
+	Uint32 window_flags = SDL_WINDOW_OPENGL;
+	if (param.fullscreen) {
+		window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		window_width = window_height = 0; // don't switch display mode.
+	}
+
+	// jdt: TODO from docs: "Extra credit for letting users specify a window for the window: SDL2
+	// also allows you to manage systems with multiple monitors."
+	sdlWindow = SDL_CreateWindow(WINDOW_TITLE, 
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		window_width, window_height, window_flags);
+	if (sdlWindow == NULL) {
+	//if (SDL_CreateWindowAndRenderer(0, 0, 0
+	//	| SDL_WINDOW_FULLSCREEN_DESKTOP
+	//	| SDL_WINDOW_OPENGL
+	//	, &sdlWindow, &sdlRenderer) || !sdlWindow || !sdlRenderer)
+		Message("Failed to create window: ", SDL_GetError());
+		SDL_Quit();
+	}
+
+	/* Apparently according to download/src/oculus2, we don't need 
+	 * a renderer if all we use in OpenGL? 
+	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0
+		//| SDL_RENDERER_SOFTWARE
+		| SDL_RENDERER_ACCELERATED
+		//|SDL_RENDERER_PRESENTVSYNC
+		| SDL_RENDERER_TARGETTEXTURE
+	);
+	if (sdlRenderer == NULL) {
+		Message("Failed to create window: ", SDL_GetError());
+		SDL_Quit();
+	}
+	*/
+
+	// Create an opengl context instead of an sdl renderer.
+	glContext = SDL_GL_CreateContext(sdlWindow);
+	if (!glContext) {
+		Message ("Couldn't initialize OpenGL context: ",  SDL_GetError());
+		SDL_Quit();
+	}
+
+	// Initialize opengl extension wrangling lib for Frame Buffer Object support (rift)
+	glewInit();
+
     SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
 
 	#if defined (USE_STENCIL_BUFFER)
 	    SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
 	#endif
 
-	SetupVideoMode (GetResolution (param.res_type));
-	Reshape (resolution.width, resolution.height);
+	printf("Setting up video mode with res: %ux%u\n", resolution.width, resolution.height);
 
-    SDL_WM_SetCaption (WINDOW_TITLE, WINDOW_TITLE);
+	SetupVideoMode (resolution);
+
+	/*.. Not needed because we use opengl?
+	if (param.fullscreen) {
+		// Set our logical drawing resolution.. only if using SDL_WINDOW_FULLSCREEN_DESKTOP.
+		// This will get scaled to the display resolution and letterboxed if the aspect ratio differs.
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
+		SDL_RenderSetLogicalSize(sdlRenderer, resolution.width, resolution.height);
+	}
+	*/
+
+	Reshape (resolution.width, resolution.height); // OpenGL viewport
+
 	KeyRepeat (false);
 	if (USE_JOYSTICK) InitJoystick ();
 //	SDL_EnableUNICODE (1);
 }
 
 void CWinsys::KeyRepeat (bool repeat) {
-	if (repeat)
-		SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-	else SDL_EnableKeyRepeat (0, 0);
+	// jdt
+	//if (repeat)
+	//	SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+	//else SDL_EnableKeyRepeat (0, 0);
 }
 
 void CWinsys::SetFonttype () {
@@ -215,6 +309,8 @@ void CWinsys::PrintJoystickInfo () const {
 	cout << "Joystick has " << num_axes << " ax" << (num_axes == 1 ? "i" : "e") << "s\n\n";
 }
 
+/*
 unsigned char *CWinsys::GetSurfaceData () const {
 	return (unsigned char*)screen->pixels;
 }
+*/

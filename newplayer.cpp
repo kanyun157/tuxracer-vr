@@ -44,7 +44,7 @@ void QuitAndAddPlayer () {
 	State::manager.RequestEnterState (Regist);
 }
 
-void CNewPlayer::Keyb_spec (SDL_keysym sym, bool release) {
+void CNewPlayer::Keyb_spec (SDL_Keysym sym, bool release) {
 	if (release) return;
 
 	KeyGUI(sym.sym, sym.mod, release);
@@ -140,5 +140,5 @@ void CNewPlayer::Loop(double timestep) {
 		prevleft + prevoffs, prevtop, prevwidth, prevwidth, 2, col);
 
 	DrawGUI();
-    Winsys.SwapBuffers();
+    Winsys.SwapBuffers(); // jdt
 }

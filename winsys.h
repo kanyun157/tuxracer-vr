@@ -39,7 +39,10 @@ private:
 	// sdl window
 	TScreenRes resolutions[NUM_RESOLUTIONS];
 	TScreenRes auto_resolution;
-	SDL_Surface *screen;
+	SDL_Window *sdlWindow;
+	//SDL_Renderer *sdlRenderer;
+	//SDL_Surface *screen;
+	SDL_GLContext glContext;
 	double CalcScreenScale () const;
 public:
 	TScreenRes resolution;
@@ -58,14 +61,16 @@ public:
 	void SetFonttype ();
 	void PrintJoystickInfo () const;
 	void ShowCursor (bool visible) {SDL_ShowCursor (visible);}
-	void SwapBuffers () {SDL_GL_SwapBuffers ();}
+	//void SwapBuffers () {} //jdt: deprecated. see 'Present'  SDL_GL_SwapBuffers ();}
+	// This is used with double-buffered OpenGL contexts, which are the default. 
+	void SwapBuffers () { SDL_GL_SwapWindow(sdlWindow); }
 	void Quit ();
 	void Terminate ();
 	void InitJoystick ();
 	void CloseJoystick ();
 	bool joystick_isActive() const { return joystick_active; }
 	double ClockTime () const {return SDL_GetTicks() * 1.e-3; }
-	unsigned char *GetSurfaceData () const;
+	//unsigned char *GetSurfaceData () const; // jdt: appears unused
 };
 
 extern CWinsys Winsys;

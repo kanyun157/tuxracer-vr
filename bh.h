@@ -55,11 +55,12 @@ GNU General Public License for more details.
 #include <cstdlib>
 #include <cstring>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include "SDL/SDL.h"
-#include "SDL/SDL_joystick.h"
-#include "SDL/SDL_image.h"
+//#include <GL/gl.h>
+#include <GL/glew.h> // provides support past OpenGL 1.1 (needed for fbo)
+//#include <GL/glu.h> // test
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_joystick.h"
+#include "SDL2/SDL_image.h"
 #include "SDL/SDL_mixer.h"
 
 #ifndef HAVE_CONFIG_H

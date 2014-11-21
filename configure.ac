@@ -42,23 +42,24 @@ esac
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([floor getcwd memmove memset mkdir pow sqrt strchr strdup])
 
-AM_PATH_SDL([1.0.0])
+#AM_PATH_SDL([1.0.0])
+AM_PATH_SDL2([2.0.0])
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
-PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
+PKG_CHECK_MODULES([SDLIMAGE], [SDL2_image],
 [
   CFLAGS="${CFLAGS} $SDLIMAGE_CFLAGS"
   LIBS="${LIBS} $SDLIMAGE_LIBS"
 ],
-[AC_MSG_ERROR([SDL_image not found])])
+[AC_MSG_ERROR([SDL2_image not found])])
 
-PKG_CHECK_MODULES([SDLMIXER], [SDL_mixer],
+PKG_CHECK_MODULES([SDLMIXER], [SDL2_mixer],
 [
   CFLAGS="${CFLAGS} $SDLMIXER_CFLAGS"
   LIBS="${LIBS} $SDLMIXER_LIBS"
 ],
-[AC_MSG_ERROR([SDL_mixer not found])])
+[AC_MSG_ERROR([SDL2_mixer not found])])
 
 AC_CHECK_LIB([GL], [glBegin], [],
 [AC_MSG_ERROR([libGL not found])])
@@ -69,6 +70,22 @@ AC_CHECK_LIB([GLU], [gluBeginCurve], [],
 [AC_MSG_ERROR([libGLU not found])])
 
 LIBS="$LIBS -lGLU"
+
+GLEW_CFLAGS=""
+GLEW_LIBS="-lGLEW"
+dnl Include a fallback path for GLEW for the moment while not all distros
+dnl have picked up the .pc file.
+PKG_CHECK_MODULES(GLEW, [glew], [], [
+		  AC_CHECK_HEADER([GL/glew.h],
+		  [],
+		  AC_MSG_ERROR([GLEW required]))
+		  AC_CHECK_LIB([GLEW],
+			       [glewInit],
+			       [],
+			       AC_MSG_ERROR([GLEW required]))
+		  ])
+CFLAGS="$CFLAGS $GLEW_CFLAGS"
+LIBS="$LIBS $GLEW_LIBS"
 
 CPPFLAGS="${CPPFLAGS} -DETR_DATA_DIR=\\\"$datadir\\\""
 
