@@ -257,6 +257,8 @@ void CWinsys::Init () {
 
 	Reshape (resolution.width, resolution.height); // OpenGL viewport
 
+	UpdateRenderTarget (resolution.width, resolution.height); // FrameBufferObj
+
 	KeyRepeat (false);
 	if (USE_JOYSTICK) InitJoystick ();
 //	SDL_EnableUNICODE (1);

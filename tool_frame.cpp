@@ -186,6 +186,10 @@ void RenderSingleFrame (double timestep) {
 	if (!must_render) return;
 	check_gl_error ();
 
+	// jdt: bind to out rift texture
+	//ovrHmd_BeginFrame(hmd, 0); // TODO
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
 	// ------------------ 3d scenery ----------------------------------
 	ScopedRenderMode rm1(TUX);
     ClearRenderContext (colDDBackgr);
@@ -206,6 +210,18 @@ void RenderSingleFrame (double timestep) {
 	ScopedRenderMode rm2(TEXFONT);
 
 	if (FrameHasChanged ()) DrawChanged ();
+
+	// after drawing both eyes into the texture render target, revert to drawing directly to the
+	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
+	// compensated for lens distortion and chromatic abberation onto the HMD screen.
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//jdt; TODO
+	//ovrHmd_EndFrame(hmd, pose, &fb_ovr_tex[0].Texture);
+
+	// workaround for the oculus sdk distortion renderer bug, which uses a shader
+	// program, and doesn't restore the original binding when it's done.
+	glUseProgram(0);
 
 	FT.SetFont ("bold");
 	FT.SetSize (20);

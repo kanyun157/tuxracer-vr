@@ -23,6 +23,9 @@ GNU General Public License for more details.
 #define FAR_CLIP_FUDGE_AMOUNT 5
 #define NEAR_CLIP_DIST 0.1
 
+// jdt TODO: get rid of globals
+extern unsigned int fbo, fb_tex;
+
 enum TRenderMode {
     GUI,
     GAUGE_BARS,
@@ -68,6 +71,7 @@ struct ScopedRenderMode {
 void ClearRenderContext ();
 void ClearRenderContext (const TColor& col);
 void SetupGuiDisplay ();
+void UpdateRenderTarget (int widht, int height);
 void Reshape (int w, int h);
 
 

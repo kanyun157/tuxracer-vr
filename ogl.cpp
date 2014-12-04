@@ -91,6 +91,9 @@ void InitOpenglExtensions () {
 		Message ("No function available for obtaining GL proc addresses", "");
     }
 
+	// jdt init 
+	fbo = 0;
+	fb_tex = 0;
 }
 
 void PrintGLInfo () {
@@ -209,7 +212,7 @@ unsigned int next_pow2(unsigned int x)
 // Author: John Tsiombikas <nuclear@member.fsf.org>
 // LICENSE: This code is in the public domain. Do whatever you like with it.
 // DOC: creates (and/or resizes) the render target used to draw the two stero views.
-static unsigned int fbo, fb_tex, fb_depth;
+unsigned int fbo, fb_tex, fb_depth;
 static int fb_width, fb_height;
 static int fb_tex_width, fb_tex_height;
 void UpdateRenderTarget(int width, int height)
