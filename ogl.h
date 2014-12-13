@@ -25,6 +25,7 @@ GNU General Public License for more details.
 
 // jdt TODO: get rid of globals
 extern unsigned int fbo, fb_tex;
+extern unsigned int fb_width, fb_height;
 
 enum TRenderMode {
     GUI,
@@ -71,7 +72,7 @@ struct ScopedRenderMode {
 void ClearRenderContext ();
 void ClearRenderContext (const TColor& col);
 void SetupGuiDisplay ();
-void UpdateRenderTarget (int widht, int height);
+void UpdateRenderTarget (unsigned int widht, unsigned int height);
 void Reshape (int w, int h);
 
 

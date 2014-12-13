@@ -47,7 +47,7 @@ public:
 	bool headright;
 	bool pitchup;
 	bool pitchdown;
-	void Update (float timestep);
+	void Update (float timestep, bool left=true);
 };
 
 // ---------------------------------------------------------------
@@ -60,7 +60,7 @@ public:
 	CGluCamera ();
 	double distance;
 	double angle;
-	void Update (double timestep);
+	void Update (double timestep, bool left=true);
 
 	bool turnright;
 	bool turnleft;

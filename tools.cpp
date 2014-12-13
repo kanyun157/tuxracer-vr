@@ -73,7 +73,7 @@ void CCamera::RotatePitch (GLfloat step) {
 	vpitch += step;
 }
 
-void CCamera::Update (float timestep) {
+void CCamera::Update (float timestep, bool left) {
 	if (fore)		ZMove (-2 * timestep);
 	if (back)		ZMove (2 * timestep);
 	if (left)		XMove (-1 * timestep);
@@ -101,7 +101,7 @@ CGluCamera::CGluCamera () {
 	farther = false;
 }
 
-void CGluCamera::Update (double timestep) {
+void CGluCamera::Update (double timestep, bool left) {
 	if (turnright) angle += timestep * 2000;
 	if (turnleft) angle -= timestep * 2000;
 	if (nearer) distance -= timestep * 100;
@@ -109,7 +109,7 @@ void CGluCamera::Update (double timestep) {
 	double xx = distance * sin (angle * M_PI / 180);
 	double zz = distance * sin ((90 - angle) * M_PI / 180);
 	glLoadIdentity ();
-	gluLookAt (xx, 0, zz, 0, 0, 0, 0, 1, 0);
+	gluLookAt (xx + (left ? -10 : 10), 0, zz, 0, 0, 0, 0, 1, 0);
 }
 
 // --------------------------------------------------------------------

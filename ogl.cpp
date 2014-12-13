@@ -59,11 +59,14 @@ void init_glfloat_array (int num, GLfloat arr[], ...) {
     va_end (args);
 }
 
-PFNGLLOCKARRAYSEXTPROC glLockArraysEXT_p = NULL;
-PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT_p = NULL;
+// jdt: replaced with glew:
+//PFNGLLOCKARRAYSEXTPROC glLockArraysEXT_p = NULL;
+//PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT_p = NULL;
 
 typedef void (*(*get_gl_proc_fptr_t)(const GLubyte *))();
 void InitOpenglExtensions () {
+
+	/*
 	get_gl_proc_fptr_t get_gl_proc;
 
 	#if defined (HAVE_SDL)
@@ -74,6 +77,7 @@ void InitOpenglExtensions () {
     	get_gl_proc = NULL;
 	#endif
 
+	
     if (get_gl_proc) {
 		glLockArraysEXT_p = (PFNGLLOCKARRAYSEXTPROC)
 		    (*get_gl_proc)((GLubyte*) "glLockArraysEXT");
@@ -90,6 +94,21 @@ void InitOpenglExtensions () {
     } else {
 		Message ("No function available for obtaining GL proc addresses", "");
     }
+	*/
+
+	if (!GLEW_EXT_framebuffer_object) {
+		Message ("Oculus Rift support currently requires high-end cards w/ frame buffer object support.");
+		Message ("This system configuration has been determined not to have this.  Aborting");
+		// jdt TODO: Don't quit if oculus isn't the configured video mode.  give helpful hint otherwise.
+		SDL_Quit();
+	}
+
+	if (!GLEW_EXT_compiled_vertex_array) {
+		Message ("Failed to find OpenGL extension support for GL_EXT_compiled_vertex_array");
+		SDL_Quit();
+	}
+
+
 
 	// jdt init 
 	fbo = 0;
@@ -107,6 +126,7 @@ void PrintGLInfo () {
     Message ("Gl version: ", (char*)glGetString (GL_VERSION));
     string extensions = (char*)glGetString (GL_EXTENSIONS);
     Message ("", "");
+	Message( "Status: Using GLEW: ", (char*)glewGetString(GLEW_VERSION));
 	Message ("Gl extensions:", "");
 	Message ("", "");
 
@@ -213,9 +233,9 @@ unsigned int next_pow2(unsigned int x)
 // LICENSE: This code is in the public domain. Do whatever you like with it.
 // DOC: creates (and/or resizes) the render target used to draw the two stero views.
 unsigned int fbo, fb_tex, fb_depth;
-static int fb_width, fb_height;
+unsigned int fb_width, fb_height;
 static int fb_tex_width, fb_tex_height;
-void UpdateRenderTarget(int width, int height)
+void UpdateRenderTarget(unsigned int width, unsigned int height)
 {
 	// save to globals for the heck of it.  
 	fb_width = width;

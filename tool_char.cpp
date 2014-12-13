@@ -286,6 +286,7 @@ void RenderChar (double timestep) {
 	bool is_visible = false;
 	check_gl_error();
 
+	/*
 	// ------------- 3d scenery ---------------------------------------
 	ScopedRenderMode rm1(TUX);
     ClearRenderContext (colDDBackgr);
@@ -305,6 +306,7 @@ void RenderChar (double timestep) {
 	if (drawcount > 0) TestChar.Draw ();
 	glPopMatrix ();
 	drawcount++;
+	*/
 
 	// --------------- 2d screen --------------------------------------
 	SetupGuiDisplay ();

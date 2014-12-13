@@ -157,6 +157,7 @@ void SetSoundVolumes () {
 void CRacing::Enter (void) {
     CControl *ctrl = Players.GetCtrl (g_game.player_id);
 
+	// jdt TODO: can we make stereo/distortion a different view mode?
     if (param.view_mode < 0 || param.view_mode >= NUM_VIEW_MODES) {
 		param.view_mode = ABOVE;
     }
@@ -306,40 +307,71 @@ void CRacing::Loop (double time_step) {
 	double ycoord = Course.FindYCoord (ctrl->cpos.x, ctrl->cpos.z);
 	bool airborne = (bool) (ctrl->cpos.y > (ycoord + JUMP_MAX_START_HEIGHT));
 
-    check_gl_error();
-    ClearRenderContext ();
-	Env.SetupFog ();
-	Music.Update ();
-	CalcTrickControls (ctrl, time_step, airborne);
+	// jdt TODO adding FBO to the correct method instead of tools_frame:
+	// jdt: bind to out rift texture
+	//ovrHmd_BeginFrame(hmd, 0); // TODO
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	check_gl_error();
 
-	if (!g_game.finish) CalcSteeringControls (ctrl, time_step);
-		else CalcFinishControls (ctrl, time_step, airborne);
-	PlayTerrainSound (ctrl, airborne);
+	for (int i = 0; i < 2; ++i)
+	{
+		// set up left/right viewport targets. jdt TODO: use oculus rendering order
+		// This.. no good
+		if (i % 2) {
+			glViewport(fb_width/2, 0, fb_width/2, fb_height);
+		} else {
+			glViewport(0, 0, fb_width/2, fb_height);
+		}
+		glPushMatrix();
 
-//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	ctrl->UpdatePlayerPos (time_step);
-//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		ClearRenderContext ();
+		Env.SetupFog ();
+		Music.Update ();
+		CalcTrickControls (ctrl, time_step, airborne);
 
-	if (g_game.finish) IncCameraDistance (time_step);
-	update_view (ctrl, time_step);
-	UpdateTrackmarks (ctrl);
+		if (!g_game.finish) CalcSteeringControls (ctrl, time_step);
+			else CalcFinishControls (ctrl, time_step, airborne);
+		PlayTerrainSound (ctrl, airborne);
 
-    SetupViewFrustum (ctrl);
-	if (sky) Env.DrawSkybox (ctrl->viewpos);
-	if (fog) Env.DrawFog ();
-	void SetupLight ();
-	if (terr) RenderCourse ();
-	DrawTrackmarks ();
-	if (trees) DrawTrees ();
-	if (param.perf_level > 2) {
-		update_particles (time_step);
-		draw_particles (ctrl);
-    }
-	Char.Draw (g_game.char_id);
-	UpdateWind (time_step);
-	UpdateSnow (time_step, ctrl);
-	DrawSnow (ctrl);
-	DrawHud (ctrl);
+	//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		ctrl->UpdatePlayerPos (time_step);
+	//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+		if (g_game.finish) IncCameraDistance (time_step);
+		update_view (ctrl, time_step);
+		UpdateTrackmarks (ctrl);
+
+		SetupViewFrustum (ctrl);
+		if (sky) Env.DrawSkybox (ctrl->viewpos);
+		if (fog) Env.DrawFog ();
+		void SetupLight ();
+		if (terr) RenderCourse ();
+		DrawTrackmarks ();
+		if (trees) DrawTrees ();
+		if (param.perf_level > 2) {
+			update_particles (time_step);
+			draw_particles (ctrl);
+		}
+		Char.Draw (g_game.char_id);
+		UpdateWind (time_step);
+		UpdateSnow (time_step, ctrl);
+		DrawSnow (ctrl);
+		DrawHud (ctrl);
+	
+		glPopMatrix();
+	}
+
+	// after drawing both eyes into the texture render target, revert to drawing directly to the
+	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
+	// compensated for lens distortion and chromatic abberation onto the HMD screen.
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//jdt; TODO
+	//ovrHmd_EndFrame(hmd, pose, &fb_ovr_tex[0].Texture);
+
+	// workaround for the oculus sdk distortion renderer bug, which uses a shader
+	// program, and doesn't restore the original binding when it's done.
+	glUseProgram(0);
 
 	Reshape (Winsys.resolution.width, Winsys.resolution.height);
     Winsys.SwapBuffers ();

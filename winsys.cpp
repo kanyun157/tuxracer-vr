@@ -234,7 +234,13 @@ void CWinsys::Init () {
 	}
 
 	// Initialize opengl extension wrangling lib for Frame Buffer Object support (rift)
-	glewInit();
+	GLenum err = glewInit();
+	if (err != GLEW_OK)
+	{
+		Message ("Failed to initialize GLEW library: ", (char*)glewGetErrorString(err));
+		SDL_Quit(); // jdt TODO: proper cleanup and exit
+	}
+	Message ("Status: Using GLEW: ", (char*)glewGetString(GLEW_VERSION));
 
     SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
 

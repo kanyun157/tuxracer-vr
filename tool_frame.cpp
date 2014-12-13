@@ -186,30 +186,43 @@ void RenderSingleFrame (double timestep) {
 	if (!must_render) return;
 	check_gl_error ();
 
+	/*
 	// jdt: bind to out rift texture
 	//ovrHmd_BeginFrame(hmd, 0); // TODO
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-	// ------------------ 3d scenery ----------------------------------
-	ScopedRenderMode rm1(TUX);
-    ClearRenderContext (colDDBackgr);
+	for (int i = 0; i < 2; ++i)
+	{
 
-	const string& hlname = TestFrame.GetHighlightName (curr_joint);
-	TestChar.highlight_node = TestChar.GetNodeName (hlname);
+		// ------------------ 3d scenery ----------------------------------
+		ScopedRenderMode rm1(TUX);
+		ClearRenderContext (colDDBackgr);
 
-	glPushMatrix ();
-	SetToolLight ();
-	GluCamera.Update (timestep);
+		const string& hlname = TestFrame.GetHighlightName (curr_joint);
+		TestChar.highlight_node = TestChar.GetNodeName (hlname);
 
-	TestFrame.CalcKeyframe (curr_frame, &TestChar, ref_position);
-	TestChar.Draw ();
-	glPopMatrix ();
+		glPushMatrix ();
 
-	// ----------------- 2d screen ------------------------------------
-	SetupGuiDisplay ();
-	ScopedRenderMode rm2(TEXFONT);
+		// set up left/right viewport targets
+		if (i % 2 == 0) {
+			glViewport(0, 0, fb_width/2, fb_height);
+		} else {
+			glViewport(fb_width/2, 0, fb_width/2, fb_height);
+		}
 
-	if (FrameHasChanged ()) DrawChanged ();
+		SetToolLight ();
+		GluCamera.Update (timestep, i % 2 == 0); // TODO: better way to signal left/right
+
+		TestFrame.CalcKeyframe (curr_frame, &TestChar, ref_position);
+		TestChar.Draw ();
+		glPopMatrix ();
+
+		// ----------------- 2d screen ------------------------------------
+		SetupGuiDisplay ();
+		ScopedRenderMode rm2(TEXFONT);
+
+		if (FrameHasChanged ()) DrawChanged ();
+	}
 
 	// after drawing both eyes into the texture render target, revert to drawing directly to the
 	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
@@ -222,6 +235,8 @@ void RenderSingleFrame (double timestep) {
 	// workaround for the oculus sdk distortion renderer bug, which uses a shader
 	// program, and doesn't restore the original binding when it's done.
 	glUseProgram(0);
+
+	*/
 
 	FT.SetFont ("bold");
 	FT.SetSize (20);

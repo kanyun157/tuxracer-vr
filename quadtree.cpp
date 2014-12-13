@@ -769,9 +769,10 @@ void quadsquare::DrawTris() {
 	glLockArraysEXT_p (tmp_min_idx, VertexArrayMaxIdx - tmp_min_idx + 1);
 	}
 	*/
-	if (glLockArraysEXT_p) {
+	// jdt: switched to glew.. no need for _p extension anymore.
+	if (glLockArraysEXT) {
 		if (tmp_min_idx == 0) tmp_min_idx = 1;
-		glLockArraysEXT_p (tmp_min_idx, VertexArrayMaxIdx - tmp_min_idx + 1);
+		glLockArraysEXT (tmp_min_idx, VertexArrayMaxIdx - tmp_min_idx + 1);
 	}
 	/*
 	glDrawElements (GL_TRIANGLES, VertexArrayCounter,
@@ -780,7 +781,9 @@ void quadsquare::DrawTris() {
 	*/
 	glDrawElements (GL_TRIANGLES, VertexArrayCounter,
 		GL_UNSIGNED_INT, VertexArrayIndices);
-	if (glUnlockArraysEXT_p) glUnlockArraysEXT_p();
+	// jdt: switched to glew.. no need for _p extension anymore.
+	// jdt TODO: Do we need to check if it exists?  Do we require vertex array support?
+	if (glUnlockArraysEXT) glUnlockArraysEXT();
 }
 
 void quadsquare::DrawEnvmapTris()
