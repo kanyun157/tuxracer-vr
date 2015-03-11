@@ -24,8 +24,9 @@ GNU General Public License for more details.
 #define NEAR_CLIP_DIST 0.1
 
 // jdt TODO: get rid of globals
-extern unsigned int fbo, fb_tex;
+extern unsigned int fbo, fb_tex, fb_depth;
 extern unsigned int fb_width, fb_height;
+extern int fb_tex_width, fb_tex_height;
 
 enum TRenderMode {
     GUI,
@@ -72,8 +73,10 @@ struct ScopedRenderMode {
 void ClearRenderContext ();
 void ClearRenderContext (const TColor& col);
 void SetupGuiDisplay ();
-void UpdateRenderTarget (unsigned int widht, unsigned int height);
+void UpdateRenderTarget (unsigned int width, unsigned int height);
 void Reshape (int w, int h);
 
+// convert a quaternion to a rotation matrix
+void quat_to_matrix(const float *quat, float *mat);
 
 #endif

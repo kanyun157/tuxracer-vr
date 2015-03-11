@@ -187,9 +187,27 @@ TVector3 MakeViewVector () {
 	return ScaleVector (camera_distance, res);
 }
 
-void update_view (CControl *ctrl, double dt) {
+void update_view (CControl *ctrl, double dt, ovrEyeType eye) {
+	// jdt: TODO needs attention
 	if (is_stationary) {
 		glLoadIdentity();
+
+		// 'eye' defaults to ovrEye_Count unless set explicitly.
+		if (eye >= ovrEye_Left && eye < ovrEye_Count)
+		{
+			ovrPosef pose = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye); // TODO: redundant
+			glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x,
+					Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y,
+					Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z);
+			// retrieve the orientation quaternion and convert it to a rotation matrix 
+			float rot_mat[16];
+			quat_to_matrix(&pose.Orientation.x, rot_mat);
+			glMultMatrixf(rot_mat);
+			// translate the view matrix with the positional tracking
+			glTranslatef(-pose.Position.x, -pose.Position.y, -pose.Position.z);
+			// move the camera to the eye level of the user 
+			//glTranslatef(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
+		}
 		glMultMatrixd ((double*) stationary_matrix);
 		return;
 	}
@@ -213,6 +231,7 @@ void update_view (CControl *ctrl, double dt) {
     double course_angle = Course.GetCourseAngle();
 
     switch (ctrl->viewmode) {
+	// jdt: not sure where BEHIND is used... hehe
     case BEHIND: {
 		TVector3 view_vec = MakeViewVector ();
 
@@ -348,7 +367,7 @@ static char p_vertex_code[6];
 
 
 void SetupViewFrustum (const CControl *ctrl) {
-    double aspect = (double) Winsys.resolution.width /Winsys.resolution.height;
+    double aspect = (double) Winsys.resolution.width /Winsys.resolution.height * 2; // jdt added /2
 
 	double near_dist = NEAR_CLIP_DIST;
 	double far_dist = param.forward_clip_distance;

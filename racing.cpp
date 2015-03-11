@@ -71,7 +71,6 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_DOWN: key_braking = !release; break;
 		case SDLK_LEFT: left_turn = !release; break;
 		case SDLK_RIGHT: right_turn = !release; break;
-		case SDLK_SPACE: key_charging = !release; break;
 		case SDLK_t: trick_modifier = !release; break;
 		// mode changing and other actions
 		case SDLK_ESCAPE: if (!release) {
@@ -104,6 +103,11 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_F6: if (!release) fog = !fog; break;
 		case SDLK_F7: if (!release) terr = !terr; break;
 		case SDLK_F8: if (!release) trees = !trees; break;
+		case SDLK_SPACE: //key_charging = !release; break;
+		case SDLK_F9: if (!release) {
+			sky = false;
+			Winsys.ToggleHmdFullscreen();
+		} break;
 	}
 }
 
@@ -307,24 +311,17 @@ void CRacing::Loop (double time_step) {
 	double ycoord = Course.FindYCoord (ctrl->cpos.x, ctrl->cpos.z);
 	bool airborne = (bool) (ctrl->cpos.y > (ycoord + JUMP_MAX_START_HEIGHT));
 
+	// jdt: start oculus frame timing info
+	ovrPosef eyePose[2];
+	ovrHmd_BeginFrame(Winsys.hmd, 0);
+
 	// jdt TODO adding FBO to the correct method instead of tools_frame:
 	// jdt: bind to out rift texture
-	//ovrHmd_BeginFrame(hmd, 0); // TODO
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
 	check_gl_error();
 
-	for (int i = 0; i < 2; ++i)
-	{
-		// set up left/right viewport targets. jdt TODO: use oculus rendering order
-		// This.. no good
-		if (i % 2) {
-			glViewport(fb_width/2, 0, fb_width/2, fb_height);
-		} else {
-			glViewport(0, 0, fb_width/2, fb_height);
-		}
-		glPushMatrix();
-
-		ClearRenderContext ();
+	{ // was in the eye loop
 		Env.SetupFog ();
 		Music.Update ();
 		CalcTrickControls (ctrl, time_step, airborne);
@@ -336,12 +333,58 @@ void CRacing::Loop (double time_step) {
 	//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 		ctrl->UpdatePlayerPos (time_step);
 	//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	
+		// trick to setup view only once for both eyes.  we 
+		// reset this after rendering both eyes below.
+		SetStationaryCamera(true);
+		update_view (ctrl, time_step);
 
 		if (g_game.finish) IncCameraDistance (time_step);
-		update_view (ctrl, time_step);
+
 		UpdateTrackmarks (ctrl);
 
+		if (param.perf_level > 2) {
+			update_particles (time_step);
+		}
+
+		UpdateWind (time_step);
+		UpdateSnow (time_step, ctrl);
+
+		// glClearColor doesn't obey the current glViewport
+		ClearRenderContext ();
+
+	}
+
+	for (int i = 0; i < 2; ++i)
+	//for (int i = 0; i < 1; ++i)
+	{
+		ovrEyeType eye = Winsys.hmd->EyeRenderOrder[i];
+
+		// set up left/right viewport targets. jdt TODO: use oculus rendering order
+		// This.. no good
+		if (eye == ovrEye_Left) {
+			glViewport(0, 0, fb_width/2, fb_height); // left
+		} else {
+			glViewport(fb_width/2, 0, fb_width/2, fb_height); // right
+		}
+
+		glPushMatrix();
+
+		// jdt: TODO: at some point need to load projection matrix from Oculus:
+		// we'll just have to use the projection matrix supplied by the oculus SDK for this eye
+		// note that libovr matrices are the transpose of what OpenGL expects, so we have
+		// to use glLoadTransposeMatrixf instead of glLoadMatrixf to load it.
+		//
+		//ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], 0.5, 500.0, 1);
+		//glMatrixMode(GL_PROJECTION);
+		//glLoadTransposeMatrixf(proj.M[0]);
+		//
+		eyePose[eye] = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye);
+
 		SetupViewFrustum (ctrl);
+
+		update_view (ctrl, time_step, eye);
+
 		if (sky) Env.DrawSkybox (ctrl->viewpos);
 		if (fog) Env.DrawFog ();
 		void SetupLight ();
@@ -349,16 +392,18 @@ void CRacing::Loop (double time_step) {
 		DrawTrackmarks ();
 		if (trees) DrawTrees ();
 		if (param.perf_level > 2) {
-			update_particles (time_step);
 			draw_particles (ctrl);
 		}
 		Char.Draw (g_game.char_id);
-		UpdateWind (time_step);
-		UpdateSnow (time_step, ctrl);
 		DrawSnow (ctrl);
-		DrawHud (ctrl);
+		
+		//DrawHud (ctrl); // jdt: currently causes first viewport to be cleared.
 	
 		glPopMatrix();
+	}
+
+	{
+		SetStationaryCamera(false);
 	}
 
 	// after drawing both eyes into the texture render target, revert to drawing directly to the
@@ -367,7 +412,7 @@ void CRacing::Loop (double time_step) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//jdt; TODO
-	//ovrHmd_EndFrame(hmd, pose, &fb_ovr_tex[0].Texture);
+	ovrHmd_EndFrame(Winsys.hmd, eyePose, &Winsys.fb_ovr_tex[0].Texture);
 
 	// workaround for the oculus sdk distortion renderer bug, which uses a shader
 	// program, and doesn't restore the original binding when it's done.
@@ -382,3 +427,9 @@ void CRacing::Exit() {
 	Sound.HaltAll ();
     break_track_marks ();
 }
+
+void CRacing::ToggleHmd()
+{
+}
+
+

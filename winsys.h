@@ -22,6 +22,20 @@ GNU General Public License for more details.
 
 #define NUM_RESOLUTIONS 10
 
+// TODO: move ovr stuff to a better home
+#ifdef WIN32
+#define OVR_OS_WIN32
+#elif defined(__APPLE__)
+#define OVR_OS_MAC
+#else
+#define OVR_OS_LINUX
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#endif
+
+#include <OVR_CAPI.h>
+#include <OVR_CAPI_GL.h>
+
 extern TVector2 cursor_pos;
 
 struct TScreenRes {
@@ -44,9 +58,21 @@ private:
 	//SDL_Surface *screen;
 	SDL_GLContext glContext;
 	double CalcScreenScale () const;
+
 public:
 	TScreenRes resolution;
 	double scale;			// scale factor for screen, see 'use_quad_scale'
+
+	// jdt: oculus stuff needs better home:
+	void OvrConfigureRendering();
+	void ToggleHmdFullscreen();
+	ovrHmd hmd;
+	ovrSizei eyeres[2];
+	ovrEyeRenderDesc eye_rdesc[2];
+	ovrGLTexture fb_ovr_tex[2];
+	union ovrGLConfig glcfg;
+	unsigned int distort_caps;
+	unsigned int hmd_caps;
 
 	CWinsys ();
 

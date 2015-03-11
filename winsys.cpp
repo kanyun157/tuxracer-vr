@@ -59,6 +59,14 @@ CWinsys::CWinsys ()
 	resolutions[9] = TScreenRes(1680, 1050);
 	//resolutions[10] = TScreenRes(1920, 1080); // rift dk2
 	// jdt chagne NUM_RESOLUTIONS
+
+	// jdt: TODO initialize
+	//ovrHmd hmd;
+	//ovrSizei eyeres[2];
+	//ovrEyeRenderDesc eye_rdesc[2];
+	//ovrGLTexture fb_ovr_tex[2];
+	//union ovrGLConfig glcfg;
+	//
 }
 
 const TScreenRes& CWinsys::GetResolution (size_t idx) const {
@@ -152,6 +160,12 @@ void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
 	*/
 	scale = CalcScreenScale ();
 	if (param.use_quad_scale) scale = sqrt (scale);
+
+	// jdt: added. 
+	printf("resizing SDL window to res: %dx%d\n", resolution_.width, resolution_.height);
+    SDL_SetWindowSize(sdlWindow, resolution_.width, resolution_.height); //hmd->Resolution.w, hmd->Resolution.h);
+    SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
 }
 
 void CWinsys::SetupVideoMode (size_t idx) {
@@ -181,14 +195,109 @@ void CWinsys::InitJoystick () {
 	joystick_active = true;
 }
 
+void CWinsys::OvrConfigureRendering()
+{
+	// enable position and rotation tracking
+	// jdt: re-enable for camera tracking
+	ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, 0);
+	// retrieve the optimal render target resolution for each eye
+	eyeres[0] = ovrHmd_GetFovTextureSize(hmd, ovrEye_Left, hmd->DefaultEyeFov[0], 1.0);
+	eyeres[1] = ovrHmd_GetFovTextureSize(hmd, ovrEye_Right, hmd->DefaultEyeFov[1], 1.0);
+
+	// and create a single render target texture to encompass both eyes 
+	// jdt: fb_width, etc declared in ogl.h
+	fb_width = eyeres[0].w + eyeres[1].w;
+	fb_height = eyeres[0].h > eyeres[1].h ? eyeres[0].h : eyeres[1].h;
+	printf("fb_width: %d\n", fb_width);
+	printf("fb_height: %d\n", fb_height);
+
+	fbo = fb_tex = fb_depth = 0;
+	UpdateRenderTarget(fb_width, fb_height);
+
+	printf("fb_tex_width: %d\n", fb_tex_width);
+	printf("fb_tex_height: %d\n", fb_tex_height);
+	printf("fb_tex: %d\n", fb_tex);
+
+	// fill in the ovrGLTexture structures that describe our render target texture
+	for(int i=0; i<2; i++) {
+		fb_ovr_tex[i].OGL.Header.API = ovrRenderAPI_OpenGL;
+		fb_ovr_tex[i].OGL.Header.TextureSize.w = fb_tex_width;
+		fb_ovr_tex[i].OGL.Header.TextureSize.h = fb_tex_height;
+		// this next field is the only one that differs between the two eyes
+		fb_ovr_tex[i].OGL.Header.RenderViewport.Pos.x = i == 0 ? 0 : fb_width / 2.0;
+		fb_ovr_tex[i].OGL.Header.RenderViewport.Pos.y = 0;
+		fb_ovr_tex[i].OGL.Header.RenderViewport.Size.w = fb_width / 2.0;
+		fb_ovr_tex[i].OGL.Header.RenderViewport.Size.h = fb_height;
+		fb_ovr_tex[i].OGL.TexId = fb_tex;	// both eyes will use the same texture id 
+	}
+
+	// fill in the ovrGLConfig structure needed by the SDK to draw our stereo pair
+	// to the actual HMD display (SDK-distortion mode)
+	memset(&glcfg, 0, sizeof glcfg);
+	glcfg.OGL.Header.API = ovrRenderAPI_OpenGL;
+	glcfg.OGL.Header.BackBufferSize.w = hmd->Resolution.w;
+	glcfg.OGL.Header.BackBufferSize.h = hmd->Resolution.h;
+	glcfg.OGL.Header.Multisample = 1;
+
+#ifdef WIN32
+	glcfg.OGL.Window = GetActiveWindow();
+	glcfg.OGL.DC = wglGetCurrentDC();
+#else
+	glcfg.OGL.Disp = glXGetCurrentDisplay();
+#endif
+
+	if(hmd->HmdCaps & ovrHmdCap_ExtendDesktop) {
+		printf("running in \"extended desktop\" mode\n");
+	} else {
+		// to sucessfully draw to the HMD display in "direct-hmd" mode, we have to
+		// call ovrHmd_AttachToWindow
+		// XXX: this doesn't work properly yet due to bugs in the oculus 0.4.1 sdk/driver
+		//
+#ifdef WIN32
+		ovrHmd_AttachToWindow(hmd, glcfg.OGL.Window, 0, 0);
+#else
+		ovrHmd_AttachToWindow(hmd, (void*)glXGetCurrentDrawable(), 0, 0); // 0.4.4
+#endif
+		printf("running in \"direct-hmd\" mode\n");
+	}
+
+	// enable low-persistence display and dynamic prediction for latency compensation
+	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
+	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
+
+	printf("New HMD capabilities set.\n");
+
+	// configure SDK-rendering and enable chromatic abberation correction, vignetting, and
+	// timewrap, which shifts the image before drawing to counter any latency between the call
+	// to ovrHmd_GetEyePose and ovrHmd_EndFrame.
+	//
+	//distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp |
+	distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive;
+	if(!ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc)) {
+		fprintf(stderr, "failed to configure renderer for Oculus SDK\n");
+	}
+
+	ovrHmd_DismissHSWDisplay(hmd);
+}
+
 void CWinsys::Init () {
+
+	// jdt: oculus init needs better home
+	ovr_Initialize();
+
 	Uint32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_TIMER;
     if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
 
-	//if (SDL_GL_LoadLibrary(NULL)) {
-	//	Message("Couldn't load OpenGL library: ", SDL_GetError());
-	//}
-	//
+	// requiring anything higher than OpenGL 3.0 causes deprecation of 
+	// GL_LIGHTING GL_LIGHT0 GL_NORMALIZE, etc.. need replacements.
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+	#if defined (USE_STENCIL_BUFFER)
+	    SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+	#endif
+
 	resolution = GetResolution (param.res_type);
 	Uint32 window_width = resolution.width;
 	Uint32 window_height = resolution.height;
@@ -198,7 +307,7 @@ void CWinsys::Init () {
 		window_width = window_height = 0; // don't switch display mode.
 	}
 
-	// jdt: TODO from docs: "Extra credit for letting users specify a window for the window: SDL2
+	// jdt: TODO from docs: "Extra credit for letting users specify a screen for the window: SDL2
 	// also allows you to manage systems with multiple monitors."
 	sdlWindow = SDL_CreateWindow(WINDOW_TITLE, 
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -232,8 +341,10 @@ void CWinsys::Init () {
 		Message ("Couldn't initialize OpenGL context: ",  SDL_GetError());
 		SDL_Quit();
 	}
+	SDL_GL_MakeCurrent(sdlWindow, glContext); // jdt: probably not necessary
 
 	// Initialize opengl extension wrangling lib for Frame Buffer Object support (rift)
+	glewExperimental = GL_TRUE; // jdt: probably not necessary
 	GLenum err = glewInit();
 	if (err != GLEW_OK)
 	{
@@ -241,14 +352,19 @@ void CWinsys::Init () {
 		SDL_Quit(); // jdt TODO: proper cleanup and exit
 	}
 	Message ("Status: Using GLEW: ", (char*)glewGetString(GLEW_VERSION));
-
-    SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
-
-	#if defined (USE_STENCIL_BUFFER)
-	    SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
-	#endif
-
 	printf("Setting up video mode with res: %ux%u\n", resolution.width, resolution.height);
+
+	if (!(hmd = ovrHmd_Create(0))) {
+		Message ("No Oculus Rift device found.  Creating fake DK2.");
+		if(!(hmd = ovrHmd_CreateDebug(ovrHmd_DK2))) {
+    		Message("failed to create virtual debug HMD");
+			SDL_Quit(); // jdt TODO
+		}
+	}
+	printf("initialized HMD: %s - %s\n", hmd->Manufacturer, hmd->ProductName);
+
+	resolution.width = hmd->Resolution.w;
+	resolution.height = hmd->Resolution.h;
 
 	SetupVideoMode (resolution);
 
@@ -263,11 +379,15 @@ void CWinsys::Init () {
 
 	Reshape (resolution.width, resolution.height); // OpenGL viewport
 
-	UpdateRenderTarget (resolution.width, resolution.height); // FrameBufferObj
+	// jdt: seems as good a place as any..
+	OvrConfigureRendering();
 
 	KeyRepeat (false);
 	if (USE_JOYSTICK) InitJoystick ();
 //	SDL_EnableUNICODE (1);
+
+	// jdt: Hack to get split screen for now. will fuck up UI. 
+	//resolution.width /= 2;
 }
 
 void CWinsys::KeyRepeat (bool repeat) {
@@ -322,3 +442,42 @@ unsigned char *CWinsys::GetSurfaceData () const {
 	return (unsigned char*)screen->pixels;
 }
 */
+
+void CWinsys::ToggleHmdFullscreen()
+{
+	static int fullscr, prev_x, prev_y;
+	fullscr = !fullscr;
+
+	if(fullscr) {
+		//
+		// going fullscreen on the rift. save current window position, and move it
+		// to the rift's part of the desktop before going fullscreen
+		//
+		SDL_GetWindowPosition(sdlWindow, &prev_x, &prev_y);
+		SDL_SetWindowPosition(sdlWindow, hmd->WindowsPos.x, hmd->WindowsPos.y);
+		SDL_SetWindowFullscreen(sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+#ifdef OVR_OS_LINUX
+		// on linux for now we have to deal with screen rotation during rendering. The docs are promoting
+		// not rotating the DK2 screen globally
+		//
+		glcfg.OGL.Header.BackBufferSize.w = hmd->Resolution.h; // >= 0.4.4
+		glcfg.OGL.Header.BackBufferSize.h = hmd->Resolution.w;
+
+		distort_caps |= ovrDistortionCap_LinuxDevFullscreen;
+		ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc);
+#endif
+	} else {
+		// return to windowed mode and move the window back to its original position
+		SDL_SetWindowFullscreen(sdlWindow, 0);
+		SDL_SetWindowPosition(sdlWindow, prev_x, prev_y);
+
+#ifdef OVR_OS_LINUX
+		glcfg.OGL.Header.BackBufferSize = hmd->Resolution;
+
+		distort_caps &= ~ovrDistortionCap_LinuxDevFullscreen;
+		ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc);
+#endif
+	}
+}
+

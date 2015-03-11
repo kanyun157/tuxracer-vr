@@ -186,6 +186,7 @@ void RenderSingleFrame (double timestep) {
 	if (!must_render) return;
 	check_gl_error ();
 
+	printf("I'm in tool_frame.cpp RenderSingleFrame!\n");
 	/*
 	// jdt: bind to out rift texture
 	//ovrHmd_BeginFrame(hmd, 0); // TODO

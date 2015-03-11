@@ -20,8 +20,11 @@ GNU General Public License for more details.
 
 #include "bh.h"
 
+// jdt: TODO move somewhere more appropriate.
+#include "OVR_CAPI.h"
+
 void set_view_mode (CControl *ctrl, TViewMode mode);
-void update_view (CControl *ctrl, double dt);
+void update_view (CControl *ctrl, double dt, ovrEyeType eye=ovrEye_Count);
 
 void SetStationaryCamera (bool stat); // 0 follow, 1 stationary
 void IncCameraDistance (double timestep);

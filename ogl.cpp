@@ -63,7 +63,7 @@ void init_glfloat_array (int num, GLfloat arr[], ...) {
 //PFNGLLOCKARRAYSEXTPROC glLockArraysEXT_p = NULL;
 //PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT_p = NULL;
 
-typedef void (*(*get_gl_proc_fptr_t)(const GLubyte *))();
+//typedef void (*(*get_gl_proc_fptr_t)(const GLubyte *))();
 void InitOpenglExtensions () {
 
 	/*
@@ -107,12 +107,6 @@ void InitOpenglExtensions () {
 		Message ("Failed to find OpenGL extension support for GL_EXT_compiled_vertex_array");
 		SDL_Quit();
 	}
-
-
-
-	// jdt init 
-	fbo = 0;
-	fb_tex = 0;
 }
 
 void PrintGLInfo () {
@@ -231,10 +225,36 @@ unsigned int next_pow2(unsigned int x)
 // Ripped from:
 // Author: John Tsiombikas <nuclear@member.fsf.org>
 // LICENSE: This code is in the public domain. Do whatever you like with it.
+// DOC: convert a quaternion to a rotation matrix
+void quat_to_matrix(const float *quat, float *mat)
+{
+    mat[0] = 1.0 - 2.0 * quat[1] * quat[1] - 2.0 * quat[2] * quat[2];
+    mat[4] = 2.0 * quat[0] * quat[1] + 2.0 * quat[3] * quat[2];
+    mat[8] = 2.0 * quat[2] * quat[0] - 2.0 * quat[3] * quat[1];
+    mat[12] = 0.0f;
+
+    mat[1] = 2.0 * quat[0] * quat[1] - 2.0 * quat[3] * quat[2];
+    mat[5] = 1.0 - 2.0 * quat[0]*quat[0] - 2.0 * quat[2]*quat[2];
+    mat[9] = 2.0 * quat[1] * quat[2] + 2.0 * quat[3] * quat[0];
+    mat[13] = 0.0f;
+
+    mat[2] = 2.0 * quat[2] * quat[0] + 2.0 * quat[3] * quat[1];
+    mat[6] = 2.0 * quat[1] * quat[2] - 2.0 * quat[3] * quat[0];
+    mat[10] = 1.0 - 2.0 * quat[0]*quat[0] - 2.0 * quat[1]*quat[1];
+    mat[14] = 0.0f;
+
+    mat[3] = mat[7] = mat[11] = 0.0f;
+    mat[15] = 1.0f;
+}
+
+// Ripped from:
+// Author: John Tsiombikas <nuclear@member.fsf.org>
+// LICENSE: This code is in the public domain. Do whatever you like with it.
 // DOC: creates (and/or resizes) the render target used to draw the two stero views.
 unsigned int fbo, fb_tex, fb_depth;
 unsigned int fb_width, fb_height;
-static int fb_tex_width, fb_tex_height;
+int fb_tex_width, fb_tex_height;
+
 void UpdateRenderTarget(unsigned int width, unsigned int height)
 {
 	// save to globals for the heck of it.  
@@ -242,6 +262,8 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
 	fb_height = height;
 
     if(!fbo) {
+		fprintf(stderr,"jdt: Generating new Frame Buffer Objects. %ux%u\n", width, height);
+
         // if fbo does not exist, then nothing does... create every opengl object
         glGenFramebuffers(1, &fbo);
         glGenTextures(1, &fb_tex);
@@ -251,6 +273,8 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
+
+	check_gl_error();
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
@@ -264,13 +288,16 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex, 0);
 
+	check_gl_error();
+
     // create and attach the renderbuffer that will serve as our z-buffer
     glBindRenderbuffer(GL_RENDERBUFFER, fb_depth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, fb_tex_width, fb_tex_height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb_depth);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        fprintf(stderr, "incomplete framebuffer!\n");
+		check_gl_error();
+        fprintf(stderr, "Failed to create Complete Framebuffer!\n");
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
