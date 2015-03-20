@@ -369,20 +369,33 @@ void CRacing::Loop (double time_step) {
 			glViewport(fb_width/2, 0, fb_width/2, fb_height); // right
 		}
 
-		eyePose[eye] = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye);
-
-		glPushMatrix();
-
-		glLoadIdentity();
-		// jdt: TODO: at some point need to load projection matrix from Oculus:
 		// we'll just have to use the projection matrix supplied by the oculus SDK for this eye
 		// note that libovr matrices are the transpose of what OpenGL expects, so we have
 		// to use glLoadTransposeMatrixf instead of glLoadMatrixf to load it.
 		//
-		//ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], 0.5, 500.0, 1);
-		//glMatrixMode(GL_PROJECTION);
-		//glLoadTransposeMatrixf(proj.M[0]);
-		//
+		double far_clip = param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
+		ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], NEAR_CLIP_DIST, far_clip, 1);
+		glMatrixMode(GL_PROJECTION);
+		glLoadTransposeMatrixf(proj.M[0]);
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+
+		eyePose[eye] = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye);
+
+		glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x,
+				Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y,
+				Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z);
+
+		// retrieve the orientation quaternion and convert it to a rotation matrix 
+		float rot_mat[16];
+		quat_to_matrix(&eyePose[eye].Orientation.x, rot_mat);
+		glMultMatrixf(rot_mat);
+		// translate the view matrix with the positional tracking
+		glTranslatef(-eyePose[eye].Position.x, -eyePose[eye].Position.y, -eyePose[eye].Position.z);
+		// move the camera to the eye level of the user 
+		//glTranslatef(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
 
 		update_view (ctrl, time_step, false);
 
