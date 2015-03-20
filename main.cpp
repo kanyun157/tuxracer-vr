@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include "tools.h"
 #include "ogl_test.h"
 #include "winsys.h"
+#include "racing.h"
 #include <iostream>
 #include <ctime>
 

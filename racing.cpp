@@ -341,6 +341,7 @@ void CRacing::Loop (double time_step) {
 
 		if (g_game.finish) IncCameraDistance (time_step);
 
+		UpdateCourse();
 		UpdateTrackmarks (ctrl);
 
 		if (param.perf_level > 2) {
@@ -368,8 +369,11 @@ void CRacing::Loop (double time_step) {
 			glViewport(fb_width/2, 0, fb_width/2, fb_height); // right
 		}
 
+		eyePose[eye] = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye);
+
 		glPushMatrix();
 
+		glLoadIdentity();
 		// jdt: TODO: at some point need to load projection matrix from Oculus:
 		// we'll just have to use the projection matrix supplied by the oculus SDK for this eye
 		// note that libovr matrices are the transpose of what OpenGL expects, so we have
@@ -379,11 +383,10 @@ void CRacing::Loop (double time_step) {
 		//glMatrixMode(GL_PROJECTION);
 		//glLoadTransposeMatrixf(proj.M[0]);
 		//
-		eyePose[eye] = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye);
+
+		update_view (ctrl, time_step, false);
 
 		SetupViewFrustum (ctrl);
-
-		update_view (ctrl, time_step, eye);
 
 		if (sky) Env.DrawSkybox (ctrl->viewpos);
 		if (fog) Env.DrawFog ();
@@ -397,14 +400,14 @@ void CRacing::Loop (double time_step) {
 		Char.Draw (g_game.char_id);
 		DrawSnow (ctrl);
 		
-		//DrawHud (ctrl); // jdt: currently causes first viewport to be cleared.
-	
 		glPopMatrix();
 	}
 
 	{
 		SetStationaryCamera(false);
 	}
+
+	DrawHud (ctrl); // jdt: currently causes first viewport to be cleared.
 
 	// after drawing both eyes into the texture render target, revert to drawing directly to the
 	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
@@ -419,7 +422,7 @@ void CRacing::Loop (double time_step) {
 	glUseProgram(0);
 
 	Reshape (Winsys.resolution.width, Winsys.resolution.height);
-    Winsys.SwapBuffers ();
+//    Winsys.SwapBuffers ();
 	if (g_game.finish == false) g_game.time += time_step;
 }
 // ---------------------------------- term ------------------

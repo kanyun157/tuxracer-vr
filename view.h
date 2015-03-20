@@ -24,7 +24,7 @@ GNU General Public License for more details.
 #include "OVR_CAPI.h"
 
 void set_view_mode (CControl *ctrl, TViewMode mode);
-void update_view (CControl *ctrl, double dt, ovrEyeType eye=ovrEye_Count);
+void update_view (CControl *ctrl, double dt, bool clean=true);
 
 void SetStationaryCamera (bool stat); // 0 follow, 1 stationary
 void IncCameraDistance (double timestep);
@@ -39,6 +39,7 @@ enum clip_result_t {
 };
 
 void SetupViewFrustum (const CControl *ctrl);
+void DrawViewFrustum ();
 clip_result_t clip_aabb_to_view_frustum (const TVector3& min, const TVector3& max);
 
 const TPlane& get_far_clip_plane();

@@ -164,7 +164,7 @@ void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
 	// jdt: added. 
 	printf("resizing SDL window to res: %dx%d\n", resolution_.width, resolution_.height);
     SDL_SetWindowSize(sdlWindow, resolution_.width, resolution_.height); //hmd->Resolution.w, hmd->Resolution.h);
-    SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED); // jdt TODO
 
 }
 
@@ -198,11 +198,23 @@ void CWinsys::InitJoystick () {
 void CWinsys::OvrConfigureRendering()
 {
 	// enable position and rotation tracking
-	// jdt: re-enable for camera tracking
-	ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, 0);
+	ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection, 0); // TODO | ovrTrackingCap_Position, 0);
 	// retrieve the optimal render target resolution for each eye
+	// jdt: I tried reducing pixelsPerDisplayPixel from 1.0 for performance but 
+	// we seem to be CPU bound on the quadtree and actual trees.. setting back to 1
 	eyeres[0] = ovrHmd_GetFovTextureSize(hmd, ovrEye_Left, hmd->DefaultEyeFov[0], 1.0);
 	eyeres[1] = ovrHmd_GetFovTextureSize(hmd, ovrEye_Right, hmd->DefaultEyeFov[1], 1.0);
+
+	// Set etr fov to that of the Oculus Rift
+	float fovTan0 = max(hmd->DefaultEyeFov[0].LeftTan, hmd->DefaultEyeFov[0].RightTan);
+	float fovTan1 = max(hmd->DefaultEyeFov[1].LeftTan, hmd->DefaultEyeFov[1].RightTan);
+	param.fov = floor(abs(2.0f * atan(max(fovTan0, fovTan1)) * (180.0f / M_PI)));
+	//jdt TODO param.fov -= 10; // account for overlap in fov of both eyes.  fudge..
+	//printf("Detected HMD FOV of %d.  Overriding etr fov with it.\n", param.fov);
+	// I'm seeing 95 degrees here.. doesn't look good to me.
+	//param.fov = 85; // cheater.  I think I need to be using the projection matrix 
+	 //               // provided by oculus sdk.
+	printf("Detected HMD FOV of %d.  Overriding etr fov with it.\n", param.fov);
 
 	// and create a single render target texture to encompass both eyes 
 	// jdt: fb_width, etc declared in ogl.h
@@ -214,8 +226,8 @@ void CWinsys::OvrConfigureRendering()
 	fbo = fb_tex = fb_depth = 0;
 	UpdateRenderTarget(fb_width, fb_height);
 
-	printf("fb_tex_width: %d\n", fb_tex_width);
-	printf("fb_tex_height: %d\n", fb_tex_height);
+	printf("fb_tex_width: %d\n", fb_tex_width); // firmware major: 2
+	printf("fb_tex_height: %d\n", fb_tex_height); // minor: 12
 	printf("fb_tex: %d\n", fb_tex);
 
 	// fill in the ovrGLTexture structures that describe our render target texture
@@ -247,7 +259,7 @@ void CWinsys::OvrConfigureRendering()
 #endif
 
 	if(hmd->HmdCaps & ovrHmdCap_ExtendDesktop) {
-		printf("running in \"extended desktop\" mode\n");
+		printf("Running in \"extended desktop\" mode\n");
 	} else {
 		// to sucessfully draw to the HMD display in "direct-hmd" mode, we have to
 		// call ovrHmd_AttachToWindow
@@ -258,11 +270,17 @@ void CWinsys::OvrConfigureRendering()
 #else
 		ovrHmd_AttachToWindow(hmd, (void*)glXGetCurrentDrawable(), 0, 0); // 0.4.4
 #endif
-		printf("running in \"direct-hmd\" mode\n");
+		printf("Running in \"direct-hmd\" mode.  Or maybe oculusd isn't running..?\n");
+#ifdef LINUX
+		printf("RUN oculusd FIRST!! Take this out if Oculus fixes direct mode on Linux\n");
+		SDL_Quit();
+#endif
 	}
 
 	// enable low-persistence display and dynamic prediction for latency compensation
 	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
+	//hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
+	// well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
 	printf("New HMD capabilities set.\n");
@@ -271,8 +289,13 @@ void CWinsys::OvrConfigureRendering()
 	// timewrap, which shifts the image before drawing to counter any latency between the call
 	// to ovrHmd_GetEyePose and ovrHmd_EndFrame.
 	//
-	//distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp |
-	distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive;
+	distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_Overdrive;
+	distort_caps |= ovrDistortionCap_TimeWarp;
+#ifdef WIN32
+	//distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
+#endif
+	//distort_caps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
+	distort_caps |= ovrDistortionCap_HqDistortion;
 	if(!ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc)) {
 		fprintf(stderr, "failed to configure renderer for Oculus SDK\n");
 	}
@@ -286,6 +309,7 @@ void CWinsys::Init () {
 	ovr_Initialize();
 
 	Uint32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_TIMER;
+	sdl_flags |= SDL_INIT_AUDIO; // jdt: added as experiment
     if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
 
 	// requiring anything higher than OpenGL 3.0 causes deprecation of 
@@ -362,9 +386,11 @@ void CWinsys::Init () {
 		}
 	}
 	printf("initialized HMD: %s - %s\n", hmd->Manufacturer, hmd->ProductName);
+	printf("\tdisplay resolution: %dx%d\n", hmd->Resolution.w, hmd->Resolution.h);
+	printf("\tdisplay position: %d,%d\n", hmd->WindowsPos.x, hmd->WindowsPos.y);
 
-	resolution.width = hmd->Resolution.w;
-	resolution.height = hmd->Resolution.h;
+	resolution.width = hmd->Resolution.w; //window_width;
+	resolution.height = hmd->Resolution.h; //window_height;
 
 	SetupVideoMode (resolution);
 
@@ -385,9 +411,6 @@ void CWinsys::Init () {
 	KeyRepeat (false);
 	if (USE_JOYSTICK) InitJoystick ();
 //	SDL_EnableUNICODE (1);
-
-	// jdt: Hack to get split screen for now. will fuck up UI. 
-	//resolution.width /= 2;
 }
 
 void CWinsys::KeyRepeat (bool repeat) {
@@ -410,12 +433,16 @@ void CWinsys::CloseJoystick () {
 }
 
 void CWinsys::Quit () {
+	/* jdt: takes too long to quit...
 	CloseJoystick ();
 	Score.SaveHighScore ();
 	SaveMessages ();
+	ovrHmd_Destroy(hmd);
+	ovr_Shutdown();
 	Audio.Close ();		// frees music and sound as well
 	FT.Clear ();
 	if (g_game.argument < 1) Players.SavePlayers ();
+	*/
 	SDL_Quit ();
 }
 
@@ -454,6 +481,9 @@ void CWinsys::ToggleHmdFullscreen()
 		// to the rift's part of the desktop before going fullscreen
 		//
 		SDL_GetWindowPosition(sdlWindow, &prev_x, &prev_y);
+		printf("Going fullscreen to Rift:\n");
+		printf("\tprev window position: %d,%d\n", prev_x, prev_y);
+		printf("\thmd window position: %d,%d\n", hmd->WindowsPos.x, hmd->WindowsPos.y);
 		SDL_SetWindowPosition(sdlWindow, hmd->WindowsPos.x, hmd->WindowsPos.y);
 		SDL_SetWindowFullscreen(sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
@@ -463,6 +493,7 @@ void CWinsys::ToggleHmdFullscreen()
 		//
 		glcfg.OGL.Header.BackBufferSize.w = hmd->Resolution.h; // >= 0.4.4
 		glcfg.OGL.Header.BackBufferSize.h = hmd->Resolution.w;
+		printf("\tSwapping window resolution to: %dx%d\n", hmd->Resolution.h, hmd->Resolution.w);
 
 		distort_caps |= ovrDistortionCap_LinuxDevFullscreen;
 		ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc);

@@ -187,27 +187,14 @@ TVector3 MakeViewVector () {
 	return ScaleVector (camera_distance, res);
 }
 
-void update_view (CControl *ctrl, double dt, ovrEyeType eye) {
-	// jdt: TODO needs attention
+void update_view (CControl *ctrl, double dt, bool clean) {
 	if (is_stationary) {
-		glLoadIdentity();
-
-		// 'eye' defaults to ovrEye_Count unless set explicitly.
-		if (eye >= ovrEye_Left && eye < ovrEye_Count)
-		{
-			ovrPosef pose = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye); // TODO: redundant
-			glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x,
-					Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y,
-					Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z);
-			// retrieve the orientation quaternion and convert it to a rotation matrix 
-			float rot_mat[16];
-			quat_to_matrix(&pose.Orientation.x, rot_mat);
-			glMultMatrixf(rot_mat);
-			// translate the view matrix with the positional tracking
-			glTranslatef(-pose.Position.x, -pose.Position.y, -pose.Position.z);
-			// move the camera to the eye level of the user 
-			//glTranslatef(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
+		// jdt: piggy back stereo vision on this stationary stuff:
+		if (clean) {
+			// maintain backwards compatibility with non-stereo code.
+			glLoadIdentity();
 		}
+
 		glMultMatrixd ((double*) stationary_matrix);
 		return;
 	}
@@ -231,7 +218,6 @@ void update_view (CControl *ctrl, double dt, ovrEyeType eye) {
     double course_angle = Course.GetCourseAngle();
 
     switch (ctrl->viewmode) {
-	// jdt: not sure where BEHIND is used... hehe
     case BEHIND: {
 		TVector3 view_vec = MakeViewVector ();
 
@@ -367,7 +353,7 @@ static char p_vertex_code[6];
 
 
 void SetupViewFrustum (const CControl *ctrl) {
-    double aspect = (double) Winsys.resolution.width /Winsys.resolution.height * 2; // jdt added /2
+    double aspect = (double) Winsys.resolution.width /Winsys.resolution.height;
 
 	double near_dist = NEAR_CLIP_DIST;
 	double far_dist = param.forward_clip_distance;
@@ -406,6 +392,35 @@ void SetupViewFrustum (const CControl *ctrl) {
 		if (frustum_planes[i].nml.y > 0) p_vertex_code[i] |= 2;
 		if (frustum_planes[i].nml.z > 0) p_vertex_code[i] |= 1;
     }
+}
+
+void DrawViewFrustum() {
+    double aspect = (double) Winsys.resolution.width /Winsys.resolution.height;
+
+	double near_dist = NEAR_CLIP_DIST * 1.01;
+	double far_dist = param.forward_clip_distance * 0.99;
+	double fov = 20; // param.fov;
+    double half_fov = ANGLES_TO_RADIANS (fov * 0.5);
+    double half_fov_horiz = atan (tan (half_fov) * aspect);
+
+	double xnear = near_dist * cos(half_fov_horiz);
+	double ynear = near_dist * sin(half_fov);
+	double xfar = far_dist * cos(half_fov_horiz);
+	double yfar = far_dist * sin(half_fov);
+
+    //for (int i=0; i<6; i++) {
+		glBegin(GL_LINES);
+		glColor3f(0, 0, 0);
+		glVertex3f(xnear, ynear, -near_dist);
+		glVertex3f(xfar, yfar, -far_dist);
+		glVertex3f(xnear, -ynear, -near_dist);
+		glVertex3f(xfar, -yfar, -far_dist);
+		glVertex3f(-xnear, ynear, -near_dist);
+		glVertex3f(-xfar, yfar, -far_dist);
+		glVertex3f(-xnear, -ynear, -near_dist);
+		glVertex3f(-xfar, -yfar, -far_dist);
+		glEnd();
+	//}
 }
 
 clip_result_t clip_aabb_to_view_frustum (const TVector3& min, const TVector3& max) {

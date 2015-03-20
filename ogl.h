@@ -27,6 +27,7 @@ GNU General Public License for more details.
 extern unsigned int fbo, fb_tex, fb_depth;
 extern unsigned int fb_width, fb_height;
 extern int fb_tex_width, fb_tex_height;
+extern unsigned int stereo_gl_list;
 
 enum TRenderMode {
     GUI,

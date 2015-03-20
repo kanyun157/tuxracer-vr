@@ -782,7 +782,6 @@ void quadsquare::DrawTris() {
 	glDrawElements (GL_TRIANGLES, VertexArrayCounter,
 		GL_UNSIGNED_INT, VertexArrayIndices);
 	// jdt: switched to glew.. no need for _p extension anymore.
-	// jdt TODO: Do we need to check if it exists?  Do we require vertex array support?
 	if (glUnlockArraysEXT) glUnlockArraysEXT();
 }
 

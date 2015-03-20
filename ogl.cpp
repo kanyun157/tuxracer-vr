@@ -59,11 +59,7 @@ void init_glfloat_array (int num, GLfloat arr[], ...) {
     va_end (args);
 }
 
-// jdt: replaced with glew:
-//PFNGLLOCKARRAYSEXTPROC glLockArraysEXT_p = NULL;
-//PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT_p = NULL;
 
-//typedef void (*(*get_gl_proc_fptr_t)(const GLubyte *))();
 void InitOpenglExtensions () {
 
 	/*
@@ -254,6 +250,7 @@ void quat_to_matrix(const float *quat, float *mat)
 unsigned int fbo, fb_tex, fb_depth;
 unsigned int fb_width, fb_height;
 int fb_tex_width, fb_tex_height;
+unsigned int stereo_gl_list;
 
 void UpdateRenderTarget(unsigned int width, unsigned int height)
 {
@@ -302,10 +299,19 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     printf("created render target: %dx%d (texture size: %dx%d)\n", width, height, fb_tex_width, fb_tex_height);
+
+	// jdt: cache geometry for second eye.
+	if (glIsList(stereo_gl_list)) {
+		printf("DIDN't THINK iD REACH HERE\n");
+		glDeleteLists(stereo_gl_list, 1);
+	}
+	stereo_gl_list = glGenLists(1);
 }
 
 void Reshape (int w, int h) {
+	// jdt: now done in Racing::Loop.  this is still used elsewhere though
     double far_clip_dist;
+
     glViewport (0, 0, (GLint) w, (GLint) h );
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
