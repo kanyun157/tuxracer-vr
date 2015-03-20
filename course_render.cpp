@@ -93,7 +93,7 @@ void DrawTrees() {
 	unsigned int texture_binds = 0;
 	
 	static int debug_count = 0;
-	static int debug_target = 30;
+	static int debug_target = 100000;
 	if (debug_count % debug_target == 0) {
 		//printf("Total numTrees: %u\n", numTrees); // 769
 	}

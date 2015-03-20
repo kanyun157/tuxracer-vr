@@ -339,6 +339,8 @@ void CRacing::Loop (double time_step) {
 		SetStationaryCamera(true);
 		update_view (ctrl, time_step);
 
+		// TODO: UpdateCourse needs correct view frustum.. see SetupViewFrustum.
+
 		if (g_game.finish) IncCameraDistance (time_step);
 
 		UpdateCourse();
@@ -351,18 +353,33 @@ void CRacing::Loop (double time_step) {
 		UpdateWind (time_step);
 		UpdateSnow (time_step, ctrl);
 
-		// glClearColor doesn't obey the current glViewport
-		ClearRenderContext ();
+		// 
+		// Generate a single display list used by both eyes
+		//
+		glNewList(stereo_gl_list, GL_COMPILE);
 
+		if (sky) Env.DrawSkybox (ctrl->viewpos);
+		if (fog) Env.DrawFog ();
+		void SetupLight ();
+		if (terr) RenderCourse ();
+		DrawTrackmarks ();
+		if (trees) DrawTrees ();
+		if (param.perf_level > 2) {
+			draw_particles (ctrl);
+		}
+		Char.Draw (g_game.char_id);
+		DrawSnow (ctrl);
+
+		glEndList();
 	}
 
+	// glClearColor doesn't obey the current glViewport
+	ClearRenderContext ();
+
 	for (int i = 0; i < 2; ++i)
-	//for (int i = 0; i < 1; ++i)
 	{
 		ovrEyeType eye = Winsys.hmd->EyeRenderOrder[i];
 
-		// set up left/right viewport targets. jdt TODO: use oculus rendering order
-		// This.. no good
 		if (eye == ovrEye_Left) {
 			glViewport(0, 0, fb_width/2, fb_height); // left
 		} else {
@@ -399,19 +416,12 @@ void CRacing::Loop (double time_step) {
 
 		update_view (ctrl, time_step, false);
 
-		SetupViewFrustum (ctrl);
+		// TODO: update ctrl->view_mat to current gl modelview matrix.. tricky
+		// ... actually this should be done above before UpdateCourse.
+	
+		SetupViewFrustum (ctrl); // this doesn't belong here.
 
-		if (sky) Env.DrawSkybox (ctrl->viewpos);
-		if (fog) Env.DrawFog ();
-		void SetupLight ();
-		if (terr) RenderCourse ();
-		DrawTrackmarks ();
-		if (trees) DrawTrees ();
-		if (param.perf_level > 2) {
-			draw_particles (ctrl);
-		}
-		Char.Draw (g_game.char_id);
-		DrawSnow (ctrl);
+		glCallList(stereo_gl_list);
 		
 		glPopMatrix();
 	}
@@ -427,15 +437,12 @@ void CRacing::Loop (double time_step) {
 	// compensated for lens distortion and chromatic abberation onto the HMD screen.
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//jdt; TODO
 	ovrHmd_EndFrame(Winsys.hmd, eyePose, &Winsys.fb_ovr_tex[0].Texture);
 
 	// workaround for the oculus sdk distortion renderer bug, which uses a shader
 	// program, and doesn't restore the original binding when it's done.
 	glUseProgram(0);
 
-	Reshape (Winsys.resolution.width, Winsys.resolution.height);
-//    Winsys.SwapBuffers ();
 	if (g_game.finish == false) g_game.time += time_step;
 }
 // ---------------------------------- term ------------------

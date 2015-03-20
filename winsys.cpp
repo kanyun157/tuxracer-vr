@@ -279,7 +279,7 @@ void CWinsys::OvrConfigureRendering()
 
 	// enable low-persistence display and dynamic prediction for latency compensation
 	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-	//hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
+	hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
 	// well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
@@ -294,8 +294,8 @@ void CWinsys::OvrConfigureRendering()
 #ifdef WIN32
 	//distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
 #endif
-	//distort_caps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
-	distort_caps |= ovrDistortionCap_HqDistortion;
+	distort_caps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
+	//distort_caps |= ovrDistortionCap_HqDistortion;
 	if(!ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc)) {
 		fprintf(stderr, "failed to configure renderer for Oculus SDK\n");
 	}
