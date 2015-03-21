@@ -107,7 +107,6 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_F8: if (!release) trees = !trees; break;
 		case SDLK_SPACE: //key_charging = !release; break;
 		case SDLK_F9: if (!release) {
-			fog = false;
 			Winsys.ToggleHmdFullscreen();
 		} break;
 	}
@@ -314,15 +313,15 @@ void CRacing::Loop (double time_step) {
 	double ycoord = Course.FindYCoord (ctrl->cpos.x, ctrl->cpos.z);
 	bool airborne = (bool) (ctrl->cpos.y > (ycoord + JUMP_MAX_START_HEIGHT));
 
-	// jdt: start oculus frame timing info
+	static unsigned int frame_index = 0;
 	ovrPosef eyePose[2];
 	ovrTrackingState trackingState;
-	ovrHmd_BeginFrame(Winsys.hmd, 0);
+	ovrHmd_BeginFrame(Winsys.hmd, frame_index);
 
-	static unsigned int frame_index = 0;
 	ovrVector3f eye_view_offsets[2] = { Winsys.eye_rdesc[0].HmdToEyeViewOffset,
 										Winsys.eye_rdesc[1].HmdToEyeViewOffset };
-	ovrHmd_GetEyePoses(Winsys.hmd, frame_index++, eye_view_offsets, eyePose, &trackingState);
+	ovrHmd_GetEyePoses(Winsys.hmd, frame_index, eye_view_offsets, eyePose, &trackingState);
+	frame_index++;
 
 	// simple left/right control with head roll
 	float headYaw, headPitch, headRoll;
@@ -334,8 +333,8 @@ void CRacing::Loop (double time_step) {
 
 	check_gl_error();
 
-	{ // was in the eye loop
-		Env.SetupFog ();
+	{
+		if (fog) Env.SetupFog ();
 		Music.Update ();
 		CalcTrickControls (ctrl, time_step, airborne);
 
@@ -343,9 +342,7 @@ void CRacing::Loop (double time_step) {
 			else CalcFinishControls (ctrl, time_step, airborne);
 		PlayTerrainSound (ctrl, airborne);
 
-	//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 		ctrl->UpdatePlayerPos (time_step);
-	//  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	
 		// trick to setup view only once for both eyes.  we 
 		// reset this after rendering both eyes below.
@@ -372,7 +369,7 @@ void CRacing::Loop (double time_step) {
 		glNewList(stereo_gl_list, GL_COMPILE);
 
 		if (sky) Env.DrawSkybox (ctrl->viewpos);
-		if (fog) Env.DrawFog ();
+		//if (fog) Env.DrawFog (); // fog depends on correct frustum
 		Env.SetupLight ();
 		if (terr) RenderCourse ();
 		DrawTrackmarks ();
@@ -386,7 +383,6 @@ void CRacing::Loop (double time_step) {
 		glEndList();
 	}
 
-	// glClearColor doesn't obey the current glViewport
 	ClearRenderContext ();
 
 	for (int i = 0; i < 2; ++i)

@@ -19,6 +19,8 @@ GNU General Public License for more details.
 #include <etr_config.h>
 #endif
 
+#include <algorithm>
+
 #include "textures.h"
 #include "course_render.h"
 #include "course.h"
@@ -82,10 +84,6 @@ void DrawTrees() {
     TCollidable* treeLocs = &Course.CollArr[0];
     size_t numTrees = Course.CollArr.size();
 
-	// was enabled for vertex arrays commented out below..
-	//glEnableClientState(GL_VERTEX_ARRAY);
-	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
 	unsigned int renderedTrees = 0;
 	unsigned int renderedWholeTrees = 0;
 	float avgx = 0;
@@ -93,75 +91,51 @@ void DrawTrees() {
 	unsigned int texture_binds = 0;
 	
 	static int debug_count = 0;
-	static int debug_target = 100000;
+	static int debug_target = 24000;
 	if (debug_count % debug_target == 0) {
-		//printf("Total numTrees: %u\n", numTrees); // 769
+		printf("Total numTrees: %u\n", numTrees); // 769
 	}
 
-    for (int i = 0; i<numTrees; i++) {
-		double dx = ctrl->viewpos.x - treeLocs[i].pt.x;
-		double dz = ctrl->viewpos.z - treeLocs[i].pt.z;
+	int i = 0;
+	vector<TCollidable*> trees;
+
+	while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
+	while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z - fwd_clip_limit) {
+		trees.push_back(&treeLocs[i]);
+		i++;
+	}
+
+	// sort by textures to reduce binds
+	std::sort(trees.begin(), trees.end(), [](const TCollidable *a, const TCollidable *b)
+			{ return a->tree_type < b->tree_type; });
+
+    for (int i = 0; i<trees.size(); i++) {
+		TCollidable &tree = *trees[i];
+		double dx = ctrl->viewpos.x - tree.pt.x;
+		double dz = ctrl->viewpos.z - tree.pt.z;
 		double distsqr = dx * dx + dz * dz;
 
-		if (clip_course) {
-			// jdt: use distance to tree as clipping for 360 head orientation
-			if (distsqr > fwd_clip_limit * fwd_clip_limit) continue;
-//			if (ctrl->viewpos.z - treeLocs[i].pt.z > fwd_clip_limit) continue;
-//		    if (treeLocs[i].pt.z - ctrl->viewpos.z > bwd_clip_limit) continue;
-		}
+		avgx += tree.pt.x;
+		avgz += tree.pt.z;
 
-		avgx += treeLocs[i].pt.x;
-		avgz += treeLocs[i].pt.z;
-
-		if (treeLocs[i].tree_type != tree_type) {
+		if (tree.tree_type != tree_type) {
 			texture_binds++;
-		    tree_type = treeLocs[i].tree_type;
+		    tree_type = tree.tree_type;
 			object_types[tree_type].texture->Bind();
 		}
 
         glPushMatrix();
-        glTranslatef (treeLocs[i].pt.x, treeLocs[i].pt.y, treeLocs[i].pt.z);
+        glTranslatef (tree.pt.x, tree.pt.y, tree.pt.z);
 		if (param.perf_level > 1) glRotatef (1, 0, 1, 0);
 
-        GLfloat treeRadius = treeLocs[i].diam / 2.0;
-        GLfloat treeHeight = treeLocs[i].height;
-		/* newer client-side vertex array implementation from svn trunk.. 
-	       I can't use this inside the opengl display list for caching eye geometry
-		glNormal3i(0, 0, 1);
-
-		static const GLshort tex[] = {
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1,
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1 
-		};
-
-		const GLfloat vtx[] = {
-			-treeRadius, 0.0,        0.0,
-			treeRadius,  0.0,        0.0,
-			treeRadius,  treeHeight, 0.0,
-			-treeRadius, treeHeight, 0.0,
-			0.0,         0.0,        -treeRadius,
-			0.0,         0.0,        treeRadius,
-			0.0,         treeHeight, treeRadius,
-			0.0,         treeHeight, -treeRadius
-		};
-
-		glVertexPointer(3, GL_FLOAT, 0, vtx);
-		glTexCoordPointer(2, GL_SHORT, 0, tex);
-		glDrawArrays(GL_QUADS, 0, 8);
-		*/
-
+        GLfloat treeRadius = tree.diam / 2.0;
+        GLfloat treeHeight = tree.height;
 
 		// orig 0.6 immediate mode extremely slow
 		//TVector3 normal(0, 0, 1);
 		//glNormal3f (normal.x, normal.y, normal.z);
 		// slower but better method of setting the normals
-		TVector3 normal = SubtractVectors (ctrl->viewpos, treeLocs[i].pt);
+		TVector3 normal = SubtractVectors (ctrl->viewpos, tree.pt);
 		NormVector (normal);
 		glNormal3f (normal.x, normal.y, normal.z);
 
@@ -203,31 +177,39 @@ void DrawTrees() {
 
 	}
 
+	texture_binds = 0;
+
 //  items -----------------------------
 	TItem* itemLocs = &Course.NocollArr[0];
 	size_t numItems = Course.NocollArr.size();
 
 	unsigned int renderedItems = 0;
+	vector<TItem*> items;
+	i = 0;
 
-    for (size_t i = 0; i< numItems; i++) {
-		if (itemLocs[i].collectable == 0 || itemLocs[i].drawable == false) continue;
-		if (clip_course) {
-			double dx = ctrl->viewpos.x - itemLocs[i].pt.x;
-			double dz = ctrl->viewpos.z - itemLocs[i].pt.z;
-			if (dx * dx + dz * dz > fwd_clip_limit * fwd_clip_limit) continue;
-		    //if (ctrl->viewpos.z - itemLocs[i].pt.z > fwd_clip_limit) continue;
-		    //if (itemLocs[i].pt.z - ctrl->viewpos.z > bwd_clip_limit) continue;
-		}
+	while(i < numItems && itemLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
+	while(i < numItems && itemLocs[i].pt.z > ctrl->viewpos.z - fwd_clip_limit) {
+		if (itemLocs[i].collectable && itemLocs[i].drawable)
+			items.push_back(&itemLocs[i]);
+		i++;
+	}
 
-		if (itemLocs[i].item_type != item_type) {
-		    item_type = itemLocs[i].item_type;
+	std::sort(items.begin(), items.end(), [](const TItem *a, const TItem *b)
+			{ return a->item_type < b->item_type; });
+
+    for (int i = 0; i<items.size(); i++) {
+		TItem &item = *items[i];
+
+		if (item.item_type != item_type) {
+		    item_type = item.item_type;
 			object_types[item_type].texture->Bind();
+			texture_binds++;
 		}
 
 		glPushMatrix();
-		    glTranslatef (itemLocs[i].pt.x, itemLocs[i].pt.y,  itemLocs[i].pt.z);
-		    GLfloat itemRadius = itemLocs[i].diam / 2;
-		    GLfloat itemHeight = itemLocs[i].height;
+		    glTranslatef (item.pt.x, item.pt.y,  item.pt.z);
+		    GLfloat itemRadius = item.diam / 2;
+		    GLfloat itemHeight = item.height;
 
 			TVector3 normal;
 
@@ -235,33 +217,11 @@ void DrawTrees() {
 				normal = object_types[item_type].normal;
 		    } else {
 //				normal = MakeVector (0, 0, 1);
-				normal = SubtractVectors (ctrl->viewpos, itemLocs[i].pt);
+				normal = SubtractVectors (ctrl->viewpos, item.pt);
 		    }
 		    NormVector (normal); // jdt: wasn't normalizing before glNormal3f all the time.
 		    glNormal3f (normal.x, normal.y, normal.z);
 		    normal.y = 0.0;
-
-			// vertex array implementation from svn trunk (SFML):
-			//static const GLshort tex[] = {
-//				0, 0,
-//				1, 0,
-//				1, 1,
-//				0, 1 
-//			};
-//
-//			const GLfloat x = (GLfloat)normal.x * itemRadius;
-//			const GLfloat z = (GLfloat)normal.z * itemRadius;
-//
-//			const GLfloat vtx[] = {
-//				-z, 0.0, x,
-//				z, 0.0, -x,
-//				z,  itemHeight, -x,
-//				-z, itemHeight, x 
-//			};
-//
-//			glVertexPointer(3, GL_FLOAT, 0, vtx);
-//			glTexCoordPointer(2, GL_SHORT, 0, tex);
-//			glDrawArrays(GL_QUADS, 0, 4);
 
 			// orig 0.6 immediate mode extremely slow:
 		    glBegin (GL_QUADS);
@@ -282,9 +242,7 @@ void DrawTrees() {
 	if (debug_count % debug_target == 0) {
 		//printf("Total Items: %u\n", numItems);
 		printf("Rendered Items: %u\n", renderedItems);
+		printf("item texbind: %u\n", texture_binds);
 	}
 	debug_count++;
-
-	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	//glDisableClientState(GL_VERTEX_ARRAY);
 }

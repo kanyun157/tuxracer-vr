@@ -104,6 +104,10 @@ void CEnvironment::SetupLight () {
 }
 
 void CEnvironment::SetupFog () {
+	if (!fog.is_on) {
+		glDisable (GL_FOG);
+		return;
+	}
     glEnable (GL_FOG);
     glFogi   (GL_FOG_MODE, fog.mode);
     glFogf   (GL_FOG_START, fog.start);
@@ -216,6 +220,8 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	bb = 0.995f;
 #endif
 
+	GLboolean had_fog = glIsEnabled(GL_FOG);
+	glDisable (GL_FOG); // jdt: does this even work?
 	glColor4f (1.0, 1.0, 1.0, 1.0);
 	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glPushMatrix();
@@ -223,11 +229,9 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	
 	// jdt: scale to roughtly 1 / sqrt(2) so corners are still 
 	// within the view frustum.
-	//glScalef (param.forward_clip_distance,// / 1.5,
-	//		param.forward_clip_distance,// / 1.5, 
-	//		param.forward_clip_distance);// / 1.5); 
-	// setting too large causes the texture to lose color.. why?
-	glScalef (20, 20, 20);
+	glScalef (param.forward_clip_distance / 1.5,
+			param.forward_clip_distance / 1.5, 
+			param.forward_clip_distance / 1.5); 
 
 	// front
 	Skybox[0].Bind();
@@ -287,6 +291,10 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 		glEnd();
 	}
 	glPopMatrix();
+
+	if (had_fog) {
+		glEnable(GL_FOG);
+	}
 }
 
 void CEnvironment::DrawFog () {

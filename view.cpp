@@ -399,28 +399,26 @@ void DrawViewFrustum() {
 
 	double near_dist = NEAR_CLIP_DIST * 1.01;
 	double far_dist = param.forward_clip_distance * 0.99;
-	double fov = 20; // param.fov;
+	double fov = param.fov - 20;
     double half_fov = ANGLES_TO_RADIANS (fov * 0.5);
     double half_fov_horiz = atan (tan (half_fov) * aspect);
 
-	double xnear = near_dist * cos(half_fov_horiz);
-	double ynear = near_dist * sin(half_fov);
-	double xfar = far_dist * cos(half_fov_horiz);
-	double yfar = far_dist * sin(half_fov);
+	double xnear = near_dist * tan(half_fov_horiz);
+	double ynear = near_dist * tan(half_fov);
+	double xfar = far_dist * tan(half_fov_horiz);
+	double yfar = far_dist * tan(half_fov);
 
-    //for (int i=0; i<6; i++) {
-		glBegin(GL_LINES);
-		glColor3f(0, 0, 0);
-		glVertex3f(xnear, ynear, -near_dist);
-		glVertex3f(xfar, yfar, -far_dist);
-		glVertex3f(xnear, -ynear, -near_dist);
-		glVertex3f(xfar, -yfar, -far_dist);
-		glVertex3f(-xnear, ynear, -near_dist);
-		glVertex3f(-xfar, yfar, -far_dist);
-		glVertex3f(-xnear, -ynear, -near_dist);
-		glVertex3f(-xfar, -yfar, -far_dist);
-		glEnd();
-	//}
+	glBegin(GL_LINES);
+	glColor3f(0, 0, 0);
+	glVertex3f(xnear, ynear, -near_dist);
+	glVertex3f(xfar, yfar, -far_dist);
+	glVertex3f(xnear, -ynear, -near_dist);
+	glVertex3f(xfar, -yfar, -far_dist);
+	glVertex3f(-xnear, ynear, -near_dist);
+	glVertex3f(-xfar, yfar, -far_dist);
+	glVertex3f(-xnear, -ynear, -near_dist);
+	glVertex3f(-xfar, -yfar, -far_dist);
+	glEnd();
 }
 
 clip_result_t clip_aabb_to_view_frustum (const TVector3& min, const TVector3& max) {

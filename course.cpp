@@ -19,6 +19,8 @@ GNU General Public License for more details.
 #include <etr_config.h>
 #endif
 
+#include <algorithm>
+
 #include "bh.h"
 #include "course.h"
 #include "textures.h"
@@ -445,6 +447,15 @@ void CCourse::LoadItemList () {
 			ObjTypes[type].num_items++;
 		}
 	}
+
+	// sort both arrays by negative Z-Axis (down-slope)
+
+	std::sort (CollArr.begin(), CollArr.end(), [](const TCollidable &a,
+				                                  const TCollidable &b)
+                                            { return a.pt.z > b.pt.z; });
+	std::sort (NocollArr.begin(), NocollArr.end(), [](const TItem &a,
+				                                      const TItem &b)
+                                            { return a.pt.z > b.pt.z; });
 }
 
 // --------------------	LoadObjectMap ---------------------------------
