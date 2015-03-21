@@ -37,6 +37,8 @@ GNU General Public License for more details.
 #include "winsys.h"
 #include "physics.h"
 
+#include "Kernel/OVR_Math.h"
+
 #define MAX_JUMP_AMT 1.0
 #define ROLL_DECAY 0.2
 #define JUMP_MAX_START_HEIGHT 0.30
@@ -313,10 +315,20 @@ void CRacing::Loop (double time_step) {
 
 	// jdt: start oculus frame timing info
 	ovrPosef eyePose[2];
+	ovrTrackingState trackingState;
 	ovrHmd_BeginFrame(Winsys.hmd, 0);
 
-	// jdt TODO adding FBO to the correct method instead of tools_frame:
-	// jdt: bind to out rift texture
+	static unsigned int frame_index = 0;
+	ovrVector3f eye_view_offsets[2] = { Winsys.eye_rdesc[0].HmdToEyeViewOffset,
+										Winsys.eye_rdesc[1].HmdToEyeViewOffset };
+	ovrHmd_GetEyePoses(Winsys.hmd, frame_index++, eye_view_offsets, eyePose, &trackingState);
+
+	// simple left/right control with head roll
+	float headYaw, headPitch, headRoll;
+	OVR::Quatf head_orient = trackingState.HeadPose.ThePose.Orientation;
+	head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
+	Jaxis(0, -headRoll * 4.f);
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 	check_gl_error();
@@ -398,8 +410,6 @@ void CRacing::Loop (double time_step) {
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
-
-		eyePose[eye] = ovrHmd_GetHmdPosePerEye(Winsys.hmd, eye);
 
 		glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x,
 				Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y,
