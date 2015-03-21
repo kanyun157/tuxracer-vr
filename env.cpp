@@ -204,20 +204,30 @@ void CEnvironment::LoadLight () {
 
 void CEnvironment::DrawSkybox (const TVector3& pos) {
 	ScopedRenderMode rm(SKY);
-	double aa, bb;
+	GLfloat aa, bb;
 
 #if defined (OS_LINUX)
-	aa = 0.0;
-	bb = 1.0;
+	//aa = 0.0f;
+	//bb = 1.0f;
+	aa = 0.005f; // jdt: textures might have bad borders.
+	bb = 0.995f;
 #else
-	aa = 0.005;
-	bb = 0.995;
+	aa = 0.005f;
+	bb = 0.995f;
 #endif
 
 	glColor4f (1.0, 1.0, 1.0, 1.0);
 	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glPushMatrix();
 	glTranslatef (pos.x, pos.y, pos.z);
+	
+	// jdt: scale to roughtly 1 / sqrt(2) so corners are still 
+	// within the view frustum.
+	//glScalef (param.forward_clip_distance,// / 1.5,
+	//		param.forward_clip_distance,// / 1.5, 
+	//		param.forward_clip_distance);// / 1.5); 
+	// setting too large causes the texture to lose color.. why?
+	glScalef (20, 20, 20);
 
 	// front
 	Skybox[0].Bind();

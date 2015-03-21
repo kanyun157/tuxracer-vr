@@ -38,7 +38,9 @@ void State::Manager::Run(State& entranceState) {
 		if(next)
 			EnterNextState();
 		CallLoopFunction();
-		SDL_Delay(g_game.loopdelay);
+		if (g_game.loopdelay) {
+			SDL_Delay(g_game.loopdelay);
+		}
 	}
 	current->Exit();
 	previous = current;

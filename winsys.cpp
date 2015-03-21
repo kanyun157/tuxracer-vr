@@ -198,7 +198,7 @@ void CWinsys::InitJoystick () {
 void CWinsys::OvrConfigureRendering()
 {
 	// enable position and rotation tracking
-	ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection, 0); // TODO | ovrTrackingCap_Position, 0);
+	ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, 0);
 	// retrieve the optimal render target resolution for each eye
 	// jdt: I tried reducing pixelsPerDisplayPixel from 1.0 for performance but 
 	// we seem to be CPU bound on the quadtree and actual trees.. setting back to 1
@@ -289,7 +289,8 @@ void CWinsys::OvrConfigureRendering()
 	// timewrap, which shifts the image before drawing to counter any latency between the call
 	// to ovrHmd_GetEyePose and ovrHmd_EndFrame.
 	//
-	distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_Overdrive;
+	distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_Overdrive;
+	//distort_caps |= ovrDistortionCap_Vignette;
 	distort_caps |= ovrDistortionCap_TimeWarp;
 #ifdef WIN32
 	//distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux

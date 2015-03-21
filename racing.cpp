@@ -107,7 +107,7 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_F8: if (!release) trees = !trees; break;
 		case SDLK_SPACE: //key_charging = !release; break;
 		case SDLK_F9: if (!release) {
-			sky = false;
+			fog = false;
 			Winsys.ToggleHmdFullscreen();
 		} break;
 	}
@@ -187,6 +187,7 @@ void CRacing::Enter (void) {
 	Music.PlayTheme (g_game.theme_id, MUS_RACING);
 
 	g_game.finish = false;
+	g_game.loopdelay = 0; // jdt: don't call SDL_Delay
 }
 
 // -------------------- sound -----------------------------------------
@@ -372,7 +373,7 @@ void CRacing::Loop (double time_step) {
 
 		if (sky) Env.DrawSkybox (ctrl->viewpos);
 		if (fog) Env.DrawFog ();
-		void SetupLight ();
+		Env.SetupLight ();
 		if (terr) RenderCourse ();
 		DrawTrackmarks ();
 		if (trees) DrawTrees ();
