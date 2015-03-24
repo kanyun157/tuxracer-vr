@@ -173,7 +173,7 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 	if (save_mat) {
 		memcpy(stationary_matrix, view_mat, 16*sizeof(**view_mat));
 	}
-    glLoadIdentity();
+    //glLoadIdentity(); // prevent this from clobering Oculus head orientation.
 	glMultMatrixd ((double*) view_mat);
 }
 
@@ -189,12 +189,6 @@ TVector3 MakeViewVector () {
 
 void update_view (CControl *ctrl, double dt, bool clean) {
 	if (is_stationary) {
-		// jdt: piggy back stereo vision on this stationary stuff:
-		if (clean) {
-			// maintain backwards compatibility with non-stereo code.
-			glLoadIdentity();
-		}
-
 		glMultMatrixd ((double*) stationary_matrix);
 		return;
 	}

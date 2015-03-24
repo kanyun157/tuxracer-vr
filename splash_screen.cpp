@@ -46,7 +46,6 @@ void CSplashScreen::Keyb(unsigned int key, bool special, bool release, int x, in
 	}
 }
 
-
 void CSplashScreen::Enter() {
 	Winsys.ShowCursor (!param.ice_cursor);
 	init_ui_snow ();

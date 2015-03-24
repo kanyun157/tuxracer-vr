@@ -45,22 +45,13 @@ void setup_course_tex_gen () {
 // --------------------------------------------------------------------
 //							render course
 // --------------------------------------------------------------------
-void UpdateCourse () {
-    setup_course_tex_gen ();
-    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    set_material (colWhite, colBlack, 1.0);
-	const CControl *ctrl = Players.GetCtrl (g_game.player_id);
-    UpdateQuadtree (ctrl->viewpos, param.course_detail_level);
-}
-
-// --------------------------------------------------------------------
-//							render course
-// --------------------------------------------------------------------
 void RenderCourse () {
 	ScopedRenderMode rm(COURSE);
     setup_course_tex_gen ();
     glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     set_material (colWhite, colBlack, 1.0);
+    const CControl *ctrl = Players.GetCtrl (g_game.player_id);
+    UpdateQuadtree (ctrl->viewpos, param.course_detail_level);
     RenderQuadtree ();
 }
 

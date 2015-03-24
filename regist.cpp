@@ -109,6 +109,7 @@ void CRegist::Enter (void) {
 void CRegist::Loop (double timestep) {
 	int ww = Winsys.resolution.width;
 	int hh = Winsys.resolution.height;
+
 	Music.Update ();
 	check_gl_error();
     ClearRenderContext ();
@@ -121,10 +122,6 @@ void CRegist::Loop (double timestep) {
 		draw_ui_snow();
 	}
 
-	Tex.Draw (BOTTOM_LEFT, 0, hh - 256, 1);
-	Tex.Draw (BOTTOM_RIGHT, ww-256, hh-256, 1);
-	Tex.Draw (TOP_LEFT, 0, 0, 1);
-	Tex.Draw (TOP_RIGHT, ww-256, 0, 1);
 	Tex.Draw (T_TITLE_SMALL, CENTER, AutoYPosN (5), scale);
 
 //	DrawFrameX (area.left, area.top, area.right-area.left, area.bottom - area.top,
@@ -160,4 +157,6 @@ void CRegist::Loop (double timestep) {
 	DrawGUI();
 
     Winsys.SwapBuffers();
+	// jdt TODO: this is only here to get FPS output to console
+	//DrawHud (ctrl); ctrl not defined in here.
 }

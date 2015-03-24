@@ -104,6 +104,7 @@ void CEnvironment::SetupLight () {
 }
 
 void CEnvironment::SetupFog () {
+	/*  Fog depends on a valid Frustum
 	if (!fog.is_on) {
 		glDisable (GL_FOG);
 		return;
@@ -119,6 +120,7 @@ void CEnvironment::SetupFog () {
     } else {
 		glHint (GL_FOG_HINT, GL_FASTEST);
     }
+	*/
 }
 
 void CEnvironment::ResetLight () {
@@ -298,6 +300,7 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 }
 
 void CEnvironment::DrawFog () {
+	/*
 	if (!fog.is_on)
 		return;
 
@@ -371,6 +374,7 @@ void CEnvironment::DrawFog () {
 	    vpoint = AddVectors (topright, ScaleVector (3.0, rightvec));
     	glVertex3f (vpoint.x, vpoint.y, vpoint.z);
     glEnd();
+	*/
 }
 
 

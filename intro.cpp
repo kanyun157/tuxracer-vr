@@ -103,7 +103,7 @@ void CIntro::Loop (double time_step) {
 		startframe->Update (time_step);
 	} else State::manager.RequestEnterState (Racing);
 
-	ClearRenderContext ();
+    ClearRenderContext ();
 	Env.SetupFog ();
 
     update_view (ctrl, time_step);

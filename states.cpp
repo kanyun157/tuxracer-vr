@@ -38,9 +38,10 @@ void State::Manager::Run(State& entranceState) {
 		if(next)
 			EnterNextState();
 		CallLoopFunction();
-		if (g_game.loopdelay) {
-			SDL_Delay(g_game.loopdelay);
-		}
+		// jdt: every State now needs max framerate
+		//if (g_game.loopdelay) {
+		//	SDL_Delay(g_game.loopdelay);
+		//}
 	}
 	current->Exit();
 	previous = current;
@@ -68,6 +69,13 @@ void State::Manager::PollEvent() {
 					key = event.key.keysym.sym;
 					current->Keyb(key, key >= 256, false, x, y);
 					current->Keyb_spec(event.key.keysym, false);
+
+					// jdt: SPACE key needs to be removed here..this is for convenience
+					switch(key) {
+						case SDLK_SPACE:
+						case SDLK_F9: Winsys.ToggleHmdFullscreen(); break;
+						default: break;
+					}
 					break;
 
 				case SDL_KEYUP:
@@ -131,5 +139,7 @@ void State::Manager::CallLoopFunction() {
 	if (g_game.time_step < 0.0001) g_game.time_step = 0.0001;
 	clock_time = cur_time;
 
-	current->Loop(g_game.time_step);
+	Winsys.RenderFrame(current);
 }
+
+

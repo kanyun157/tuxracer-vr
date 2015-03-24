@@ -36,6 +36,8 @@ GNU General Public License for more details.
 #include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
 
+class State;
+
 extern TVector2 cursor_pos;
 
 struct TScreenRes {
@@ -66,6 +68,7 @@ public:
 	// jdt: oculus stuff needs better home:
 	void OvrConfigureRendering();
 	void ToggleHmdFullscreen();
+	void RenderFrame(State *current);
 	ovrHmd hmd;
 	ovrSizei eyeres[2];
 	ovrEyeRenderDesc eye_rdesc[2];
@@ -73,6 +76,10 @@ public:
 	union ovrGLConfig glcfg;
 	unsigned int distort_caps;
 	unsigned int hmd_caps;
+
+	unsigned int frame_index;
+	ovrPosef eyePose[2];
+	ovrTrackingState trackingState;
 
 	CWinsys ();
 
@@ -89,7 +96,8 @@ public:
 	void ShowCursor (bool visible) {SDL_ShowCursor (visible);}
 	//void SwapBuffers () {} //jdt: deprecated. see 'Present'  SDL_GL_SwapBuffers ();}
 	// This is used with double-buffered OpenGL contexts, which are the default. 
-	void SwapBuffers () { SDL_GL_SwapWindow(sdlWindow); }
+	// jdt: ovr_EndFrame overrides double buffering
+	void SwapBuffers () { } //SDL_GL_SwapWindow(sdlWindow); }
 	void Quit ();
 	void Terminate ();
 	void InitJoystick ();

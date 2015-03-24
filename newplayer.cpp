@@ -79,6 +79,7 @@ void CNewPlayer::Motion (int x, int y) {
 static int prevleft, prevtop, prevwidth, prevoffs;
 
 void CNewPlayer::Enter() {
+	printf("Entering NewPlayer\n");
 	Winsys.KeyRepeat (true);
 	Winsys.ShowCursor (!param.ice_cursor);
 	Music.Play (param.menu_music, -1);
@@ -125,10 +126,6 @@ void CNewPlayer::Loop(double timestep) {
 //	DrawFrameX (area.left, area.top, area.right-area.left, area.bottom - area.top,
 //			0, colMBackgr, col, 0.2);
 
-	Tex.Draw (BOTTOM_LEFT, 0, hh - 256, 1);
-	Tex.Draw (BOTTOM_RIGHT, ww-256, hh-256, 1);
-	Tex.Draw (TOP_LEFT, 0, 0, 1);
-	Tex.Draw (TOP_RIGHT, ww-256, 0, 1);
 	Tex.Draw (T_TITLE_SMALL, CENTER, AutoYPosN (5), Winsys.scale);
 
 	FT.SetColor (colWhite);
