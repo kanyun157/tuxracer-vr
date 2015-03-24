@@ -312,7 +312,6 @@ void CWinsys::Init () {
 	ovr_Initialize();
 
 	Uint32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_TIMER;
-	sdl_flags |= SDL_INIT_AUDIO; // jdt: added as experiment
     if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
 
 	// requiring anything higher than OpenGL 3.0 causes deprecation of 

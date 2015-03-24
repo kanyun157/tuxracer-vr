@@ -36,7 +36,7 @@ CAudio::CAudio () {
 
 void CAudio::Open () {
 	// first initialize audio (SDL, not SDL_Mixer).
-	if (SDL_Init (SDL_INIT_AUDIO) < 0) {
+	if (SDL_InitSubSystem (SDL_INIT_AUDIO) < 0) {
 	    Message ("Couldn't initialize SDL Audio", SDL_GetError());
 		return;
 	}
