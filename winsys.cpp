@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include "textures.h"
 #include "spx.h"
 #include "course.h"
+#include "states.h"
 #include "SDL2/SDL_syswm.h"
 #include <iostream>
 
@@ -67,6 +68,7 @@ CWinsys::CWinsys ()
 	//ovrGLTexture fb_ovr_tex[2];
 	//union ovrGLConfig glcfg;
 	//
+	frame_index = 0;
 }
 
 const TScreenRes& CWinsys::GetResolution (size_t idx) const {
@@ -271,7 +273,7 @@ void CWinsys::OvrConfigureRendering()
 		ovrHmd_AttachToWindow(hmd, (void*)glXGetCurrentDrawable(), 0, 0); // 0.4.4
 #endif
 		printf("Running in \"direct-hmd\" mode.  Or maybe oculusd isn't running..?\n");
-#ifdef LINUX
+#ifndef WIN32
 		printf("RUN oculusd FIRST!! Take this out if Oculus fixes direct mode on Linux\n");
 		SDL_Quit();
 #endif
@@ -279,7 +281,7 @@ void CWinsys::OvrConfigureRendering()
 
 	// enable low-persistence display and dynamic prediction for latency compensation
 	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-	//hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
+	hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
 	// well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
@@ -295,7 +297,7 @@ void CWinsys::OvrConfigureRendering()
 #ifdef WIN32
 	//distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
 #endif
-	//distort_caps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
+	distort_caps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
 	distort_caps |= ovrDistortionCap_HqDistortion;
 	if(!ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc)) {
 		fprintf(stderr, "failed to configure renderer for Oculus SDK\n");
@@ -310,7 +312,6 @@ void CWinsys::Init () {
 	ovr_Initialize();
 
 	Uint32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_TIMER;
-	sdl_flags |= SDL_INIT_AUDIO; // jdt: added as experiment
     if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
 
 	// requiring anything higher than OpenGL 3.0 causes deprecation of 
@@ -510,4 +511,66 @@ void CWinsys::ToggleHmdFullscreen()
 #endif
 	}
 }
+
+const int maxFrames = 50;
+static int numFrames = 0;
+static float averagefps = 0;
+static float sumTime = 0;
+
+void dump_fps()
+{
+    if (numFrames >= maxFrames) {
+		averagefps = 1 / sumTime * maxFrames;
+		numFrames = 0;
+		sumTime = 0;
+		printf("FPS: %.3f\n", averagefps);
+	} else {
+		sumTime += g_game.time_step;
+		numFrames++;
+	}
+}
+
+void CWinsys::RenderFrame(State *current)
+{
+    ovrHmd_BeginFrame(hmd, frame_index);
+
+    ovrVector3f eye_view_offsets[2] = { eye_rdesc[0].HmdToEyeViewOffset,
+        eye_rdesc[1].HmdToEyeViewOffset };
+    ovrHmd_GetEyePoses(hmd, frame_index, eye_view_offsets, eyePose, &trackingState);
+    frame_index++;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glNewList(stereo_gl_list, GL_COMPILE);
+    current->Loop(g_game.time_step);
+    glEndList();
+
+    ClearDisplay(); // was.. ClearRenderContext ();
+
+    for (int i = 0; i < 2; ++i)
+    {
+        ovrEyeType eye = hmd->EyeRenderOrder[i];
+
+        if (eye == ovrEye_Left) {
+            glViewport(0, 0, fb_width/2, fb_height);
+        } else {
+            glViewport(fb_width/2, 0, fb_width/2, fb_height);
+        }
+
+        SetupDisplay (eye);
+
+        glCallList(stereo_gl_list);
+    }
+
+    // after drawing both eyes into the texture render target, revert to drawing directly to the
+    // display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
+    // compensated for lens distortion and chromatic abberation onto the HMD screen.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
+
+    dump_fps();
+}
+
+
 

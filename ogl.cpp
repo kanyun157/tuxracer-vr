@@ -25,6 +25,8 @@ GNU General Public License for more details.
 #include <cstdarg>
 #include <stack>
 
+TRenderMode currentMode = (TRenderMode)-1;
+
 struct gl_value_t {
     char name[40];
     GLenum value;
@@ -61,48 +63,17 @@ void init_glfloat_array (int num, GLfloat arr[], ...) {
 
 
 void InitOpenglExtensions () {
-
-	/*
-	get_gl_proc_fptr_t get_gl_proc;
-
-	#if defined (HAVE_SDL)
-    	get_gl_proc = (get_gl_proc_fptr_t) SDL_GL_GetProcAddress;
-	#elif defined (OS_WIN32_MSC)
-    	get_gl_proc = (get_gl_proc_fptr_t) wglGetProcAddress;
-	#else
-    	get_gl_proc = NULL;
-	#endif
-
-	
-    if (get_gl_proc) {
-		glLockArraysEXT_p = (PFNGLLOCKARRAYSEXTPROC)
-		    (*get_gl_proc)((GLubyte*) "glLockArraysEXT");
-		glUnlockArraysEXT_p = (PFNGLUNLOCKARRAYSEXTPROC)
-		    (*get_gl_proc)((GLubyte*) "glUnlockArraysEXT");
-
-		if (glLockArraysEXT_p != NULL && glUnlockArraysEXT_p != NULL) {
-
-		} else {
-		    Message ("GL_EXT_compiled_vertex_array extension NOT supported", "");
-	    	glLockArraysEXT_p = NULL;
-		    glUnlockArraysEXT_p = NULL;
-		}
-    } else {
-		Message ("No function available for obtaining GL proc addresses", "");
+    if (!GLEW_EXT_framebuffer_object) {
+        Message ("Oculus Rift support currently requires high-end cards w/ frame buffer object support.");
+        Message ("This system configuration has been determined not to have this.  Aborting");
+        // jdt TODO: Don't quit if oculus isn't the configured video mode.  give helpful hint otherwise.
+        SDL_Quit();
     }
-	*/
 
-	if (!GLEW_EXT_framebuffer_object) {
-		Message ("Oculus Rift support currently requires high-end cards w/ frame buffer object support.");
-		Message ("This system configuration has been determined not to have this.  Aborting");
-		// jdt TODO: Don't quit if oculus isn't the configured video mode.  give helpful hint otherwise.
-		SDL_Quit();
-	}
-
-	if (!GLEW_EXT_compiled_vertex_array) {
-		Message ("Failed to find OpenGL extension support for GL_EXT_compiled_vertex_array");
-		SDL_Quit();
-	}
+    if (!GLEW_EXT_compiled_vertex_array) {
+        Message ("Failed to find OpenGL extension support for GL_EXT_compiled_vertex_array");
+        SDL_Quit();
+    }
 }
 
 void PrintGLInfo () {
@@ -177,12 +148,15 @@ void set_material (const TColor& diffuse_colour, const TColor& specular_colour, 
 	glColor4f (diffuse_colour.r, diffuse_colour.g, diffuse_colour.b,
 	     diffuse_colour.a);
 }
-void ClearRenderContext () {
+
+void ClearDisplay () {
 	glDepthMask (GL_TRUE);
 	glClearColor (colBackgr.r, colBackgr.g, colBackgr.b, colBackgr.a);
 	glClearStencil (0);
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
+
+void ClearRenderContext () { }
 
 void ClearRenderContext (const TColor& col) {
 	glDepthMask (GL_TRUE);
@@ -191,15 +165,41 @@ void ClearRenderContext (const TColor& col) {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void SetupGuiDisplay () {
-    double offset = 0.0;
+void SetupGuiDisplay() {} // TODO
 
-    glMatrixMode (GL_PROJECTION);
-    glLoadIdentity ();
-    glOrtho (0, Winsys.resolution.width, 0, Winsys.resolution.height, -1.0, 1.0);
-    glMatrixMode (GL_MODELVIEW);
-    glLoadIdentity ();
-    glTranslatef (offset, offset, -1.0);
+void SetupDisplay (ovrEyeType eye) {
+    // we'll just have to use the projection matrix supplied by the oculus SDK for this eye
+    // note that libovr matrices are the transpose of what OpenGL expects, so we have
+    // to use glLoadTransposeMatrixf instead of glLoadMatrixf to load it.
+    //
+    double far_clip = currentMode == GUI ? 2000.0f : param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
+    // jdt: increase near_clip to get better depth buffer resolution if we turn that on.
+    ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], NEAR_CLIP_DIST, far_clip, 1);
+    glMatrixMode(GL_PROJECTION);
+    glLoadTransposeMatrixf(proj.M[0]);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x,
+            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y,
+            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z);
+
+    // retrieve the orientation quaternion and convert it to a rotation matrix 
+    float rot_mat[16];
+    quat_to_matrix(&Winsys.eyePose[eye].Orientation.x, rot_mat);
+    glMultMatrixf(rot_mat);
+    // translate the view matrix with the positional tracking
+    glTranslatef(-Winsys.eyePose[eye].Position.x, -Winsys.eyePose[eye].Position.y, -Winsys.eyePose[eye].Position.z);
+    // move the camera to the eye level of the user
+    //glTranslate(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
+
+    if (currentMode == GUI) {
+        float offsetx = (float)Winsys.resolution.width/2;
+        float offsety = (float)Winsys.resolution.height/2;
+        float offsetz = offsety;
+        glTranslatef (-offsetx, -offsety, -offsetz);
+    }
     glColor4f (1.0, 1.0, 1.0, 1.0);
 }
 
@@ -254,12 +254,12 @@ unsigned int stereo_gl_list;
 
 void UpdateRenderTarget(unsigned int width, unsigned int height)
 {
-	// save to globals for the heck of it.  
-	fb_width = width;
-	fb_height = height;
+    // save to globals for the heck of it.  
+    fb_width = width;
+    fb_height = height;
 
     if(!fbo) {
-		fprintf(stderr,"jdt: Generating new Frame Buffer Objects. %ux%u\n", width, height);
+        fprintf(stderr,"jdt: Generating new Frame Buffer Objects. %ux%u\n", width, height);
 
         // if fbo does not exist, then nothing does... create every opengl object
         glGenFramebuffers(1, &fbo);
@@ -271,7 +271,7 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-	check_gl_error();
+    check_gl_error();
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
@@ -285,7 +285,7 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex, 0);
 
-	check_gl_error();
+    check_gl_error();
 
     // create and attach the renderbuffer that will serve as our z-buffer
     glBindRenderbuffer(GL_RENDERBUFFER, fb_depth);
@@ -293,37 +293,34 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb_depth);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		check_gl_error();
+        check_gl_error();
         fprintf(stderr, "Failed to create Complete Framebuffer!\n");
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     printf("created render target: %dx%d (texture size: %dx%d)\n", width, height, fb_tex_width, fb_tex_height);
 
-	// jdt: cache geometry for second eye.
-	if (glIsList(stereo_gl_list)) {
-		printf("DIDN't THINK iD REACH HERE\n");
-		glDeleteLists(stereo_gl_list, 1);
-	}
-	stereo_gl_list = glGenLists(1);
+    // jdt: cache geometry for second eye.
+    if (glIsList(stereo_gl_list)) {
+        glDeleteLists(stereo_gl_list, 1);
+    }
+    stereo_gl_list = glGenLists(1);
 }
 
 void Reshape (int w, int h) {
-	// jdt: now done in Racing::Loop.  this is still used elsewhere though
-    double far_clip_dist;
-
-    glViewport (0, 0, (GLint) w, (GLint) h );
-    glMatrixMode (GL_PROJECTION);
-    glLoadIdentity ();
-    far_clip_dist = param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
-    gluPerspective (param.fov, (double)w/h, NEAR_CLIP_DIST, far_clip_dist );
-    glMatrixMode (GL_MODELVIEW);
+	// jdt: Overriding with nothing because we handle this in SetupDisplay now.
+    //double far_clip_dist;
+    //glViewport (0, 0, (GLint) w, (GLint) h );
+    //glMatrixMode (GL_PROJECTION);
+    //glLoadIdentity ();
+    //far_clip_dist = param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
+    //gluPerspective (param.fov, (double)w/h, NEAR_CLIP_DIST, far_clip_dist );
+    //glMatrixMode (GL_MODELVIEW);
 }
 // ====================================================================
 //					GL options
 // ====================================================================
 
-TRenderMode currentMode = (TRenderMode)-1;
 void set_gl_options (TRenderMode mode)
 {
 	currentMode = mode;

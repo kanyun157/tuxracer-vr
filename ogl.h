@@ -20,6 +20,9 @@ GNU General Public License for more details.
 
 #include "bh.h"
 
+#include "OVR_CAPI.h"
+#include "Kernel/OVR_Math.h"
+
 #define FAR_CLIP_FUDGE_AMOUNT 5
 #define NEAR_CLIP_DIST 0.1
 
@@ -40,7 +43,7 @@ enum TRenderMode {
     TUX_SHADOW,
     SKY,
     FOG_PLANE,
-    TRACK_MARKS,
+    TRACK_MARKS
 };
 
 
@@ -71,9 +74,11 @@ struct ScopedRenderMode {
 	}
 };
 
-void ClearRenderContext ();
+void ClearRenderContext (); // jdt: replaced by ClearDisplay
+void ClearDisplay ();
 void ClearRenderContext (const TColor& col);
-void SetupGuiDisplay ();
+void SetupGuiDisplay(); // jdt: replaced by SetupDisplay.
+void SetupDisplay (ovrEyeType eye);
 void UpdateRenderTarget (unsigned int width, unsigned int height);
 void Reshape (int w, int h);
 

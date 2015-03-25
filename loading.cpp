@@ -58,10 +58,6 @@ void CLoading::Loop(double time_step) {
     }
 
 	Tex.Draw (TEXLOGO, CENTER, 40, 0.7);
-	Tex.Draw (BOTTOM_LEFT, 0, hh-256, 1);
-	Tex.Draw (BOTTOM_RIGHT, ww-256, hh-256, 1);
-	Tex.Draw (TOP_LEFT, 0, 0, 1);
-	Tex.Draw (TOP_RIGHT, ww-256, 0, 1);
 
 	FT.SetColor (colDYell);
 	FT.AutoSizeN (5);

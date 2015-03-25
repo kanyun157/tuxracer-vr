@@ -28,7 +28,6 @@ class CRacing : public State {
 	void Jaxis(int axis, double value);
 	void Jbutt(int button, int state);
 	void Exit();
-	void ToggleHmd();
 public:
 };
 

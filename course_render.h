@@ -22,7 +22,6 @@ GNU General Public License for more details.
 
 void setup_course_tex_gen ();
 
-void UpdateCourse ();
 void RenderCourse ();
 void DrawTrees ();
 

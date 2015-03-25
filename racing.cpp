@@ -105,10 +105,7 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_F6: if (!release) fog = !fog; break;
 		case SDLK_F7: if (!release) terr = !terr; break;
 		case SDLK_F8: if (!release) trees = !trees; break;
-		case SDLK_SPACE: //key_charging = !release; break;
-		case SDLK_F9: if (!release) {
-			Winsys.ToggleHmdFullscreen();
-		} break;
+		case SDLK_SPACE: key_charging = !release; break;
 	}
 }
 
@@ -307,159 +304,62 @@ void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 // ====================================================================
 //					loop
 // ====================================================================
-
 void CRacing::Loop (double time_step) {
     CControl *ctrl = Players.GetCtrl (g_game.player_id);
-	double ycoord = Course.FindYCoord (ctrl->cpos.x, ctrl->cpos.z);
-	bool airborne = (bool) (ctrl->cpos.y > (ycoord + JUMP_MAX_START_HEIGHT));
+    double ycoord = Course.FindYCoord (ctrl->cpos.x, ctrl->cpos.z);
+    bool airborne = (bool) (ctrl->cpos.y > (ycoord + JUMP_MAX_START_HEIGHT));
 
-	static unsigned int frame_index = 0;
-	ovrPosef eyePose[2];
-	ovrTrackingState trackingState;
-	ovrHmd_BeginFrame(Winsys.hmd, frame_index);
+    // simple left/right control with head roll
+    // jdt: TODO maybe move this next part into Winsys and emulate.
+    float headYaw, headPitch, headRoll;
+    OVR::Quatf head_orient = Winsys.trackingState.HeadPose.ThePose.Orientation;
+    head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
+    Jaxis(0, -headRoll * 4.f);
 
-	ovrVector3f eye_view_offsets[2] = { Winsys.eye_rdesc[0].HmdToEyeViewOffset,
-										Winsys.eye_rdesc[1].HmdToEyeViewOffset };
-	ovrHmd_GetEyePoses(Winsys.hmd, frame_index, eye_view_offsets, eyePose, &trackingState);
-	frame_index++;
+    check_gl_error();
+    ClearRenderContext ();
+    Env.SetupFog ();
+    Music.Update ();
+    CalcTrickControls (ctrl, time_step, airborne);
 
-	// simple left/right control with head roll
-	float headYaw, headPitch, headRoll;
-	OVR::Quatf head_orient = trackingState.HeadPose.ThePose.Orientation;
-	head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
-	Jaxis(0, -headRoll * 4.f);
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    if (!g_game.finish) CalcSteeringControls (ctrl, time_step);
+    else CalcFinishControls (ctrl, time_step, airborne);
+    PlayTerrainSound (ctrl, airborne);
 
-	check_gl_error();
+    //  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    ctrl->UpdatePlayerPos (time_step);
+    //  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-	{
-		if (fog) Env.SetupFog ();
-		Music.Update ();
-		CalcTrickControls (ctrl, time_step, airborne);
+    if (g_game.finish) IncCameraDistance (time_step);
+    update_view (ctrl, time_step);
+    UpdateTrackmarks (ctrl);
 
-		if (!g_game.finish) CalcSteeringControls (ctrl, time_step);
-			else CalcFinishControls (ctrl, time_step, airborne);
-		PlayTerrainSound (ctrl, airborne);
+    SetupViewFrustum (ctrl);
+    if (sky) Env.DrawSkybox (ctrl->viewpos);
+    if (fog) Env.DrawFog ();
+    void SetupLight ();
+    if (terr) RenderCourse ();
+    DrawTrackmarks ();
+    if (trees) DrawTrees ();
+    if (param.perf_level > 2) {
+        update_particles (time_step);
+        draw_particles (ctrl);
+    }
+    Char.Draw (g_game.char_id);
+    UpdateWind (time_step);
+    UpdateSnow (time_step, ctrl);
+    DrawSnow (ctrl);
+    DrawHud (ctrl);
 
-		ctrl->UpdatePlayerPos (time_step);
-	
-		// trick to setup view only once for both eyes.  we 
-		// reset this after rendering both eyes below.
-		SetStationaryCamera(true);
-		update_view (ctrl, time_step);
-
-		// TODO: UpdateCourse needs correct view frustum.. see SetupViewFrustum.
-
-		if (g_game.finish) IncCameraDistance (time_step);
-
-		UpdateCourse();
-		UpdateTrackmarks (ctrl);
-
-		if (param.perf_level > 2) {
-			update_particles (time_step);
-		}
-
-		UpdateWind (time_step);
-		UpdateSnow (time_step, ctrl);
-
-		// 
-		// Generate a single display list used by both eyes
-		//
-		glNewList(stereo_gl_list, GL_COMPILE);
-
-		if (sky) Env.DrawSkybox (ctrl->viewpos);
-		//if (fog) Env.DrawFog (); // fog depends on correct frustum
-		Env.SetupLight ();
-		if (terr) RenderCourse ();
-		DrawTrackmarks ();
-		if (trees) DrawTrees ();
-		if (param.perf_level > 2) {
-			draw_particles (ctrl);
-		}
-		Char.Draw (g_game.char_id);
-		DrawSnow (ctrl);
-
-		glEndList();
-	}
-
-	ClearRenderContext ();
-
-	for (int i = 0; i < 2; ++i)
-	{
-		ovrEyeType eye = Winsys.hmd->EyeRenderOrder[i];
-
-		if (eye == ovrEye_Left) {
-			glViewport(0, 0, fb_width/2, fb_height); // left
-		} else {
-			glViewport(fb_width/2, 0, fb_width/2, fb_height); // right
-		}
-
-		// we'll just have to use the projection matrix supplied by the oculus SDK for this eye
-		// note that libovr matrices are the transpose of what OpenGL expects, so we have
-		// to use glLoadTransposeMatrixf instead of glLoadMatrixf to load it.
-		//
-		double far_clip = param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
-		ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], NEAR_CLIP_DIST, far_clip, 1);
-		glMatrixMode(GL_PROJECTION);
-		glLoadTransposeMatrixf(proj.M[0]);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-
-		glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x,
-				Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y,
-				Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z);
-
-		// retrieve the orientation quaternion and convert it to a rotation matrix 
-		float rot_mat[16];
-		quat_to_matrix(&eyePose[eye].Orientation.x, rot_mat);
-		glMultMatrixf(rot_mat);
-		// translate the view matrix with the positional tracking
-		glTranslatef(-eyePose[eye].Position.x, -eyePose[eye].Position.y, -eyePose[eye].Position.z);
-		// move the camera to the eye level of the user 
-		//glTranslatef(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
-
-		update_view (ctrl, time_step, false);
-
-		// TODO: update ctrl->view_mat to current gl modelview matrix.. tricky
-		// ... actually this should be done above before UpdateCourse.
-	
-		SetupViewFrustum (ctrl); // this doesn't belong here.
-
-		glCallList(stereo_gl_list);
-		
-		glPopMatrix();
-	}
-
-	{
-		SetStationaryCamera(false);
-	}
-
-	DrawHud (ctrl); // jdt: currently causes first viewport to be cleared.
-
-	// after drawing both eyes into the texture render target, revert to drawing directly to the
-	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
-	// compensated for lens distortion and chromatic abberation onto the HMD screen.
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	ovrHmd_EndFrame(Winsys.hmd, eyePose, &Winsys.fb_ovr_tex[0].Texture);
-
-	// workaround for the oculus sdk distortion renderer bug, which uses a shader
-	// program, and doesn't restore the original binding when it's done.
-	glUseProgram(0);
-
-	if (g_game.finish == false) g_game.time += time_step;
+    Reshape (Winsys.resolution.width, Winsys.resolution.height);
+    Winsys.SwapBuffers ();
+    if (g_game.finish == false) g_game.time += time_step;
 }
+
+
 // ---------------------------------- term ------------------
 void CRacing::Exit() {
 	Sound.HaltAll ();
     break_track_marks ();
 }
-
-void CRacing::ToggleHmd()
-{
-}
-
 
