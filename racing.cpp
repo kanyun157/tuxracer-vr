@@ -317,6 +317,7 @@ void CRacing::Loop (double time_step) {
     OVR::Quatf head_orient = Winsys.trackingState.HeadPose.ThePose.Orientation;
     head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
     Jaxis(0, -headRoll * 4.f);
+    Jaxis(1, headPitch * 4.f);
 
     check_gl_error();
     ClearRenderContext ();
