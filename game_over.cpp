@@ -241,12 +241,14 @@ void CGameOver::Loop(double time_step) {
 
 	Char.Draw (g_game.char_id);
 
+    /* jdt: I don't support switching modes 2D->3d within a frame yet. :/
     ScopedRenderMode rm(GUI);
 	SetupGuiDisplay ();
 	if (final_frame != NULL) {
 		if (!final_frame->active) GameOverMessage (ctrl);
 	} else GameOverMessage (ctrl);
 	DrawHud (ctrl);
+    */
     Reshape (width, height);
     Winsys.SwapBuffers ();
 }

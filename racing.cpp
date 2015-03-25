@@ -62,6 +62,7 @@ static bool sky = true;
 static bool fog = true;
 static bool terr = true;
 static bool trees = true;
+static bool character = true;
 
 static int newsound = -1;
 static int lastsound = -1;
@@ -101,6 +102,7 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		// toggle
 		case SDLK_h:  if (!release) param.show_hud = !param.show_hud; break;
 		case SDLK_f:  if (!release) param.display_fps = !param.display_fps; break;
+		case SDLK_F4: if (!release) character = !character; break;
 		case SDLK_F5: if (!release) sky = !sky; break;
 		case SDLK_F6: if (!release) fog = !fog; break;
 		case SDLK_F7: if (!release) terr = !terr; break;
@@ -169,7 +171,7 @@ void CRacing::Enter (void) {
     ctrl->turn_fact = 0.0;
     ctrl->turn_animation = 0.0;
     ctrl->is_braking = false;
-    ctrl->is_paddling = false;
+    ctrl->is_paddling = true;
     ctrl->jumping = false;
     ctrl->jump_charging = false;
 
@@ -345,7 +347,7 @@ void CRacing::Loop (double time_step) {
         update_particles (time_step);
         draw_particles (ctrl);
     }
-    Char.Draw (g_game.char_id);
+    if (character) Char.Draw (g_game.char_id);
     UpdateWind (time_step);
     UpdateSnow (time_step, ctrl);
     DrawSnow (ctrl);
