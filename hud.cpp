@@ -321,14 +321,12 @@ void DrawFps () {
 		averagefps = 1 / sumTime * maxFrames;
 		numFrames = 0;
 		sumTime = 0;
-		printf("FPS: %.3f\n", averagefps);
 	} else {
 		sumTime += g_game.time_step;
 		numFrames++;
 	}
 	if (averagefps < 1) return;
 
-	/*
 	if (param.display_fps) {
 		string fpsstr = Float_StrN (averagefps, 0);
 		if (param.use_papercut_font < 2) {
@@ -341,7 +339,6 @@ void DrawFps () {
 			FT.DrawString ((Winsys.resolution.width - 60) / 2, 10, fpsstr);
 		}
 	}
-	*/
 }
 
 void DrawPercentBar (float fact, float x, float y) {
@@ -380,7 +377,7 @@ void DrawHud (const CControl *ctrl) {
     draw_herring_count (g_game.herring);
     DrawSpeed (speed * 3.6);
 	*/
-	DrawFps ();
+	//DrawFps ();
 	//DrawCoursePosition (ctrl);
 	//if (g_game.wind_id > 0) DrawWind2 (Wind.Angle (), Wind.Speed (), ctrl);
 }

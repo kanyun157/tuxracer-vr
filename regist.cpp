@@ -157,6 +157,4 @@ void CRegist::Loop (double timestep) {
 	DrawGUI();
 
     Winsys.SwapBuffers();
-	// jdt TODO: this is only here to get FPS output to console
-	//DrawHud (ctrl); ctrl not defined in here.
 }

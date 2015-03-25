@@ -512,6 +512,24 @@ void CWinsys::ToggleHmdFullscreen()
 	}
 }
 
+const int maxFrames = 50;
+static int numFrames = 0;
+static float averagefps = 0;
+static float sumTime = 0;
+
+void dump_fps()
+{
+    if (numFrames >= maxFrames) {
+		averagefps = 1 / sumTime * maxFrames;
+		numFrames = 0;
+		sumTime = 0;
+		printf("FPS: %.3f\n", averagefps);
+	} else {
+		sumTime += g_game.time_step;
+		numFrames++;
+	}
+}
+
 void CWinsys::RenderFrame(State *current)
 {
     ovrHmd_BeginFrame(hmd, frame_index);
@@ -550,6 +568,8 @@ void CWinsys::RenderFrame(State *current)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
+
+    dump_fps();
 }
 
 

@@ -34,8 +34,10 @@ GNU General Public License for more details.
 //					gui particles 2D
 // ====================================================================
 
-#define MAX_num_snowparticles 4000
-#define BASE_num_snowparticles 1000
+//#define MAX_num_snowparticles 4000
+#define MAX_num_snowparticles 100
+//#define BASE_num_snowparticles 1000 // jdt: too many for my machine
+#define BASE_num_snowparticles 50
 #define GRAVITY_FACTOR 0.015
 #define BASE_VELOCITY 0.05
 #define VELOCITY_RANGE 0.02
@@ -195,6 +197,7 @@ void update_ui_snow (double time_step) {
     }
 }
 void draw_ui_snow () {
+    /* jdt test
     double xres = Winsys.resolution.width;
     double yres = Winsys.resolution.height;
 
@@ -205,6 +208,7 @@ void draw_ui_snow () {
 	for (list<TGuiParticle>::const_iterator i = particles_2d.begin(); i != particles_2d.end(); ++i) {
 		i->Draw(xres, yres);
     }
+    */
 }
 
 void push_ui_snow (const TVector2& pos) {
