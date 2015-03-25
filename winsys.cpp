@@ -104,7 +104,7 @@ void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
 	*/
 
 
-#ifdef _WIN32
+#ifdef _WIN32_jdt // SDL2 doesn't have SDL_GetWMInfo
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	SDL_GetWMInfo(&info);
@@ -134,7 +134,7 @@ void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
 		SDL_Quit();
 	}
 	*/
-#ifdef _WIN32
+#ifdef _WIN32_jdt //: ditto
 	SDL_VERSION(&info.version);
 	SDL_GetWMInfo(&info);
 	wglShareLists(tempRC, info.hglrc); // Share resources with new context
