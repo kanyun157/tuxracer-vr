@@ -86,20 +86,20 @@ void LoadConfigFile () {
 }
 
 void SetConfigDefaults () {
-	param.fullscreen = true;
-	param.res_type = 0; // 0=auto / 1=800x600 / 2=1024x768 ...
-	param.perf_level = 3;	// detail level
+	param.fullscreen = false;
+	param.res_type = 9; // 0=auto / 1=800x600 / 2=1024x768 ...
+	param.perf_level = 1;	// detail level
 	param.language = string::npos; // If language is set to npos, ETR will try to load default system language
 	param.sound_volume = 100;
-	param.music_volume = 20;
+	param.music_volume = 0;
 
 	// ---------------------------------------
 
-	param.forward_clip_distance = 75;
-	param.backward_clip_distance = 20;
-	param.fov = 60;
-	param.bpp_mode = 1;
-	param.tree_detail_distance = 20;
+	param.forward_clip_distance = 60;
+	param.backward_clip_distance = 30;
+	param.fov = 95;
+	param.bpp_mode = 0;
+	param.tree_detail_distance = 30;
 	param.tux_sphere_divisions = 10;
 	param.tux_shadow_sphere_divisions = 3;
 	param.course_detail_level = 75;
@@ -108,7 +108,7 @@ void SetConfigDefaults () {
 
 	param.use_papercut_font = 1;
 	param.ice_cursor = true;
-	param.full_skybox = false;
+	param.full_skybox = true;
 	param.use_quad_scale = false;
 
 	param.menu_music = "start_1";
