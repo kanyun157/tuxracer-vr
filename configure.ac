@@ -76,16 +76,23 @@ GLEW_LIBS="-lGLEW"
 dnl Include a fallback path for GLEW for the moment while not all distros
 dnl have picked up the .pc file.
 PKG_CHECK_MODULES(GLEW, [glew], [], [
-		  AC_CHECK_HEADER([GL/glew.h],
-		  [],
-		  AC_MSG_ERROR([GLEW required]))
-		  AC_CHECK_LIB([GLEW],
-			       [glewInit],
-			       [],
-			       AC_MSG_ERROR([GLEW required]))
-		  ])
+  AC_CHECK_HEADER([GL/glew.h],
+  [],
+  AC_MSG_ERROR([GLEW required]))
+AC_CHECK_LIB([GLEW],
+  [glewInit],
+  [],
+  AC_MSG_ERROR([GLEW required]))
+])
 CFLAGS="$CFLAGS $GLEW_CFLAGS"
 LIBS="$LIBS $GLEW_LIBS"
+
+PKG_CHECK_MODULES(FTGL, [ftgl],
+[
+  CFLAGS="${CFLAGS} $FTGL_CFLAGS"
+  LIBS="${LIBS} $FTGL_LIBS"
+],
+[AC_MSG_ERROR([FTGL not found])])
 
 # jdt: Change this to your Oculus SDK path:
 LIB_OVR_DIR="/home/yottahz/download/src/ovr_sdk_linux_0.4.4/LibOVR"
