@@ -21,7 +21,8 @@ GNU General Public License for more details.
 #endif
 
 #include "font.h"
-#include "ft_font.h"
+//#include "ft_font.h"
+#include "FTGL/ftgl.h"
 #include "spx.h"
 #include "winsys.h"
 
@@ -93,6 +94,7 @@ CFont::CFont () {
 	curr_size   = 20;	// default size: 20 px
 	curr_fact   = 0;
 	curr_font   = 0;
+    curr_scale  = 1.f / 4.f;
 }
 
 CFont::~CFont() {
@@ -142,13 +144,14 @@ wstring CFont::UnicodeStr (const char *s) {
 // --------------------------------------------------------------------
 
 int CFont::LoadFont (const string& name, const char *path) {
-	fonts.push_back(new FTGLPixmapFont (path));
-//	fonts.push_back(new FTGLTextureFont (path));
+//	fonts.push_back(new FTGLPixmapFont (path));
+	fonts.push_back(new FTGLTextureFont (path));
 	if (fonts.back()->Error()) {
 		Message ("Failed to open font");
 		return -1;
 	}
-	fonts.back()->FaceSize (18);
+	//fonts.back()->FaceSize (18);
+	fonts.back()->FaceSize (100); // jdt: using textured font. Set size only once.
 	fonts.back()->CharMap (ft_encoding_unicode);
 
 	fontindex[name] = fonts.size()-1;
@@ -207,6 +210,10 @@ void CFont::SetSize (float size) {
 	curr_size = size;
 }
 
+void CFont::SetScale (float scale) {
+    curr_scale = scale;
+}
+
 void CFont::SetFont (const string& fontname) {
 	try {
 		curr_font = (int)fontindex[fontname];
@@ -240,7 +247,8 @@ void CFont::DrawText(float x, float y, const char *text, size_t font, float size
 	if (font >= fonts.size()) return;
 
 	glPushMatrix();
-	fonts[font]->FaceSize ((int)size);
+    // jdt: huge performance hit w/ textured font here.  Set once and glScale!
+	//fonts[font]->FaceSize ((int)size);
 	glColor4f (curr_col.r, curr_col.g, curr_col.b, curr_col.a);
 
 	float left;
@@ -249,10 +257,14 @@ void CFont::DrawText(float x, float y, const char *text, size_t font, float size
 	if (left < 0) left = 0;
 
 	if (forientation == OR_TOP) {
-		glRasterPos2i ((int)left, (int)(Winsys.resolution.height - curr_size - y));
+		//glRasterPos2i ((int)left, (int)(Winsys.resolution.height - curr_size - y));
+		glTranslatef (left, Winsys.resolution.height - curr_size - y, 0);
 	} else {
-		glRasterPos2i ((int)left, (int)y);
+		//glRasterPos2i ((int)left, (int)y);
+		glTranslatef (left, y, 0);
 	}
+
+    glScalef (curr_scale, curr_scale, 0);
 
 	fonts[font]->Render (text);
 	glPopMatrix();
@@ -262,7 +274,7 @@ void CFont::DrawText(float x, float y, const wchar_t *text, size_t font, float s
 	if (font >= fonts.size()) return;
 
 	glPushMatrix();
-	fonts[font]->FaceSize ((int)size);
+	//fonts[font]->FaceSize ((int)size);
 	glColor4f (curr_col.r, curr_col.g, curr_col.b, curr_col.a);
 
 	float left;
@@ -271,10 +283,14 @@ void CFont::DrawText(float x, float y, const wchar_t *text, size_t font, float s
 	if (left < 0) left = 0;
 
 	if (forientation == OR_TOP) {
-		glRasterPos2i ((int)left, (int)(Winsys.resolution.height - curr_size - y));
+		//glRasterPos2i ((int)left, (int)(Winsys.resolution.height - curr_size - y));
+		glTranslatef (left, Winsys.resolution.height - curr_size - y, 0);
 	} else {
-		glRasterPos2i ((int)left, (int)y);
+		//glRasterPos2i ((int)left, (int)y);
+		glTranslatef (left, y, 0);
 	}
+
+    glScalef (curr_scale, curr_scale, 0);
 
 	fonts[font]->Render (text);
 	glPopMatrix();
@@ -331,10 +347,11 @@ void CFont::GetTextSize (const wchar_t *text, float &x, float &y, size_t font, f
 	if (font >= fonts.size()) { x = 0; y = 0; return; }
 
 	float llx, lly, llz, urx, ury, urz;
-	fonts[font]->FaceSize ((int)size);
+    // jdt: ... this routine depends on current glScale
+	//fonts[font]->FaceSize ((int)size);
 	fonts[font]->BBox (text, llx, lly, llz, urx, ury, urz);
-	x = urx - llx;
-	y = ury - lly;
+	x = (urx - llx) * curr_scale;
+	y = (ury - lly) * curr_scale;
 }
 
 void CFont::GetTextSize (const char *text, float &x, float &y, size_t font, float size) const {
@@ -344,10 +361,11 @@ void CFont::GetTextSize (const char *text, float &x, float &y, size_t font, floa
 	if (font >= fonts.size()) { x = 0; y = 0; return; }
 
 	float llx, lly, llz, urx, ury, urz;
-	fonts[font]->FaceSize ((int)size);
+    // jdt: ... this routine depends on current glScale
+	//fonts[font]->FaceSize ((int)size);
 	fonts[font]->BBox (text, llx, lly, llz, urx, ury, urz);
-	x = urx - llx;
-	y = ury - lly;
+	x = (urx - llx) * curr_scale;
+	y = (ury - lly) * curr_scale;
 #endif
 }
 

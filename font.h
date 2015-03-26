@@ -43,6 +43,7 @@ private:
 	TColor curr_col;
 	float  curr_size;
 	float  curr_fact;		// the length factor
+	float  curr_scale; // jdt: glScale of textured font
 
 	static wstring UnicodeStr(const char* s);
 	void DrawText(float x, float y, const char *text, size_t font, float size) const;
@@ -67,6 +68,7 @@ public:
 	void SetColor   (const TColor& col);
 	void SetSize    (float size);
 	void SetFont    (const string& fontname);
+    void SetScale   (float scale);
 
 	// auto
 	int AutoSizeN     (int rel_val);	// rel_val = relative size, return: autosize
