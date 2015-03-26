@@ -106,6 +106,7 @@ void CIntro::Loop (double time_step) {
     ClearRenderContext ();
 	Env.SetupFog ();
 
+    glPushMatrix (); // save for 2D HUD display
     update_view (ctrl, time_step);
     SetupViewFrustum (ctrl);
 
@@ -123,6 +124,9 @@ void CIntro::Loop (double time_step) {
 	DrawSnow (ctrl);
 
 	Char.Draw (g_game.char_id);
+
+    glPopMatrix ();
+    SetupGuiDisplay ();
     DrawHud (ctrl);
 
     Reshape (width, height);

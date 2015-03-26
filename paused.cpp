@@ -79,6 +79,8 @@ void CPaused::Loop (double time_step) {
 	ClearRenderContext ();
     Env.SetupFog ();
     ctrl->UpdatePlayerPos (0);
+
+    glPushMatrix (); // save for 2D HUD below.
     update_view (ctrl, 0);
     SetupViewFrustum (ctrl);
 
@@ -96,10 +98,12 @@ void CPaused::Loop (double time_step) {
     if (param.perf_level > 2) draw_particles (ctrl);
 	Char.Draw (g_game.char_id);
 
+    glPopMatrix ();
 	ScopedRenderMode rm(GUI);
 	SetupGuiDisplay ();
-	PausedSetupDisplay ();
+	//PausedSetupDisplay (); // jdt:  ...?
 	DrawHud (ctrl);
+
     Reshape (width, height);
     Winsys.SwapBuffers ();
 }

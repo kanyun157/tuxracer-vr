@@ -365,10 +365,9 @@ void DrawHud (const CControl *ctrl) {
 	if (!param.show_hud)
 		return;
 
-	/*
 	TVector3 vel = ctrl->cvel;
 	double speed = NormVector (vel);
-    SetupGuiDisplay ();
+    //SetupGuiDisplay ();  // jdt: needs to be done one level up now
 
     draw_gauge (speed * 3.6, ctrl->jump_amt);
 	ScopedRenderMode rm(TEXFONT);
@@ -376,8 +375,7 @@ void DrawHud (const CControl *ctrl) {
     draw_time();
     draw_herring_count (g_game.herring);
     DrawSpeed (speed * 3.6);
-	*/
-	//DrawFps ();
-	//DrawCoursePosition (ctrl);
-	//if (g_game.wind_id > 0) DrawWind2 (Wind.Angle (), Wind.Speed (), ctrl);
+	DrawFps ();
+	DrawCoursePosition (ctrl);
+	if (g_game.wind_id > 0) DrawWind2 (Wind.Angle (), Wind.Speed (), ctrl);
 }

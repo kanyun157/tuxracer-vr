@@ -165,14 +165,28 @@ void ClearRenderContext (const TColor& col) {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void SetupGuiDisplay() {} // TODO
+void SetupGuiDisplay() {
+    // Move x,y coordinate system to positive quandrant.
+    float offsetx = (float)Winsys.resolution.width/2;
+    float offsety = (float)Winsys.resolution.height/2;
+    glTranslatef (-offsetx, -offsety, -offsety);
+}
+
+void SetupHudDisplay(bool attachToFace) {
+    if (attachToFace) {
+        glLoadIdentity ();
+    }
+    glScalef (0.1f, 0.1f, 0.3f); // err..bitrary
+    SetupGuiDisplay ();
+}
 
 void SetupDisplay (ovrEyeType eye) {
     // we'll just have to use the projection matrix supplied by the oculus SDK for this eye
     // note that libovr matrices are the transpose of what OpenGL expects, so we have
     // to use glLoadTransposeMatrixf instead of glLoadMatrixf to load it.
     //
-    double far_clip = currentMode == GUI ? 2000.0f : param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
+    //double far_clip = currentMode == GUI ? 2000.0f : param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
+    double far_clip = 2000.0f; // jdt: trying to lessen the difference between GUI and 3D modes.
     // jdt: increase near_clip to get better depth buffer resolution if we turn that on.
     ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], NEAR_CLIP_DIST, far_clip, 1);
     glMatrixMode(GL_PROJECTION);
@@ -194,12 +208,6 @@ void SetupDisplay (ovrEyeType eye) {
     // move the camera to the eye level of the user
     //glTranslate(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
 
-    if (currentMode == GUI) {
-        float offsetx = (float)Winsys.resolution.width/2;
-        float offsety = (float)Winsys.resolution.height/2;
-        float offsetz = offsety;
-        glTranslatef (-offsetx, -offsety, -offsetz);
-    }
     glColor4f (1.0, 1.0, 1.0, 1.0);
 }
 

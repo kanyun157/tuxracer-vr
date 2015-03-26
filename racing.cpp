@@ -313,11 +313,13 @@ void CRacing::Loop (double time_step) {
 
     // simple left/right control with head roll
     // jdt: TODO maybe move this next part into Winsys and emulate.
+    /*
     float headYaw, headPitch, headRoll;
     OVR::Quatf head_orient = Winsys.trackingState.HeadPose.ThePose.Orientation;
     head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
     Jaxis(0, -headRoll * 4.f);
     Jaxis(1, headPitch * 4.f);
+    */
 
     check_gl_error();
     ClearRenderContext ();
@@ -333,6 +335,8 @@ void CRacing::Loop (double time_step) {
     ctrl->UpdatePlayerPos (time_step);
     //  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+    // save modelview matrix before applying 3D character orientation.
+    glPushMatrix();
     if (g_game.finish) IncCameraDistance (time_step);
     update_view (ctrl, time_step);
     UpdateTrackmarks (ctrl);
@@ -352,6 +356,10 @@ void CRacing::Loop (double time_step) {
     UpdateWind (time_step);
     UpdateSnow (time_step, ctrl);
     DrawSnow (ctrl);
+
+    // restore modelview for 2D gui
+    glPopMatrix ();
+    SetupHudDisplay ();
     DrawHud (ctrl);
 
     Reshape (Winsys.resolution.width, Winsys.resolution.height);

@@ -58,6 +58,8 @@ void CReset::Loop(double time_step) {
 	ClearRenderContext ();
     Env.SetupFog ();
     ctrl->UpdatePlayerPos (EPS);
+
+    glPushMatrix ();
     update_view (ctrl, EPS);
     SetupViewFrustum (ctrl);
     Env.DrawSkybox (ctrl->viewpos);
@@ -119,7 +121,10 @@ void CReset::Loop(double time_step) {
 		tux_visible_count = 0;
     }
 
+    glPopMatrix ();
+    SetupHudDisplay ();
     DrawHud (ctrl);
+
 	Reshape (Winsys.resolution.width, Winsys.resolution.height);
     Winsys.SwapBuffers ();
     g_game.time += time_step;

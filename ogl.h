@@ -77,7 +77,8 @@ struct ScopedRenderMode {
 void ClearRenderContext (); // jdt: replaced by ClearDisplay
 void ClearDisplay ();
 void ClearRenderContext (const TColor& col);
-void SetupGuiDisplay(); // jdt: replaced by SetupDisplay.
+void SetupGuiDisplay ();
+void SetupHudDisplay (bool attachToFace=true);
 void SetupDisplay (ovrEyeType eye);
 void UpdateRenderTarget (unsigned int width, unsigned int height);
 void Reshape (int w, int h);

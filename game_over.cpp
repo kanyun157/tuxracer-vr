@@ -215,6 +215,7 @@ void CGameOver::Loop(double time_step) {
     int width, height;
     width = Winsys.resolution.width;
     height = Winsys.resolution.height;
+
     check_gl_error();
 
 	Music.Update ();
@@ -222,6 +223,7 @@ void CGameOver::Loop(double time_step) {
 	ClearRenderContext ();
     Env.SetupFog ();
 
+    glPushMatrix();
 	update_view (ctrl, 0);
 
 	if (final_frame != NULL) final_frame->Update (time_step);
@@ -241,14 +243,14 @@ void CGameOver::Loop(double time_step) {
 
 	Char.Draw (g_game.char_id);
 
-    /* jdt: I don't support switching modes 2D->3d within a frame yet. :/
+    glPopMatrix();
     ScopedRenderMode rm(GUI);
-	SetupGuiDisplay ();
+	SetupHudDisplay ();
 	if (final_frame != NULL) {
 		if (!final_frame->active) GameOverMessage (ctrl);
 	} else GameOverMessage (ctrl);
 	DrawHud (ctrl);
-    */
+
     Reshape (width, height);
     Winsys.SwapBuffers ();
 }
