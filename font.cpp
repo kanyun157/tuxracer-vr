@@ -93,7 +93,7 @@ CFont::CFont () {
 	curr_size   = 20;	// default size: 20 px
 	curr_fact   = 0;
 	curr_font   = 0;
-    curr_scale  = 1.f;
+    curr_scale  = 1.f / 4; // coupled with FaceSize (100) below.
 }
 
 CFont::~CFont() {
