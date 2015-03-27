@@ -95,7 +95,7 @@ PKG_CHECK_MODULES(FTGL, [ftgl],
 [AC_MSG_ERROR([FTGL not found])])
 
 # jdt: Change this to your Oculus SDK path:
-LIB_OVR_DIR="/home/yottahz/download/src/ovr_sdk_linux_0.4.4/LibOVR"
+LIB_OVR_DIR="${OVR_ROOT}/LibOVR"
 CXXFLAGS="$CXXFLAGS -I${LIB_OVR_DIR}/Include -I${LIB_OVR_DIR}/Src"
 #LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
 LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
