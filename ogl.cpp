@@ -173,10 +173,10 @@ void SetupGuiDisplay() {
 }
 
 void SetupHudDisplay(bool attachToFace) {
-    if (attachToFace) {
+    if (attachToFace || param.attach_hud_to_face) {
         glLoadIdentity ();
     }
-    glScalef (0.1f, 0.1f, 0.3f); // err..bitrary
+    glScalef (0.08f, 0.08f, 0.15f); // err..bitrary
     SetupGuiDisplay ();
 }
 

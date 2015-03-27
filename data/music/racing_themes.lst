@@ -3,6 +3,8 @@
 # to the default. The music pieces are defined in music.list.
 # Dont't change the first entry, it's used as default.
 
+# jdt: getting errors playing 'calmrace'. replacing with 'race_1'
+
 *[name] normal [race] race_1 [wonrace] wonrace_1 [lostrace] lostrace_1
-*[name] calm [race] calmrace [wonrace] wonrace_1 [lostrace] lostrace_1
+*[name] calm [race] race_1 [wonrace] wonrace_1 [lostrace] lostrace_1
 *[name] spunky [race] spunkyrace [wonrace] wonrace_1 [lostrace] lostrace_1

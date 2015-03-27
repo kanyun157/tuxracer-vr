@@ -70,9 +70,9 @@ void State::Manager::PollEvent() {
 					current->Keyb(key, key >= 256, false, x, y);
 					current->Keyb_spec(event.key.keysym, false);
 
-					// jdt: SPACE key needs to be removed here..this is for convenience
+					// jdt: F2 key needs to be removed here..this is for convenience
 					switch(key) {
-						case SDLK_SPACE:
+						case SDLK_F2:
 						case SDLK_F9: Winsys.ToggleHmdFullscreen(); break;
 						default: break;
 					}

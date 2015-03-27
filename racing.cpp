@@ -74,7 +74,7 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_DOWN: key_braking = !release; break;
 		case SDLK_LEFT: left_turn = !release; break;
 		case SDLK_RIGHT: right_turn = !release; break;
-		case SDLK_t: trick_modifier = !release; break;
+		//case SDLK_t: trick_modifier = !release; break;
 		// mode changing and other actions
 		case SDLK_ESCAPE: if (!release) {
 			g_game.raceaborted = true;
@@ -101,6 +101,7 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 
 		// toggle
 		case SDLK_h:  if (!release) param.show_hud = !param.show_hud; break;
+		case SDLK_a:  if (!release) param.attach_hud_to_face = !param.attach_hud_to_face; break;
 		case SDLK_f:  if (!release) param.display_fps = !param.display_fps; break;
 		case SDLK_F4: if (!release) character = !character; break;
 		case SDLK_F5: if (!release) sky = !sky; break;
@@ -166,7 +167,8 @@ void CRacing::Enter (void) {
 		param.view_mode = ABOVE;
     }
     set_view_mode (ctrl, (TViewMode)param.view_mode);
-    left_turn = right_turn = trick_modifier = false;
+    left_turn = right_turn = false;
+	trick_modifier = true; // test
 
     ctrl->turn_fact = 0.0;
     ctrl->turn_animation = 0.0;
@@ -281,8 +283,8 @@ void CalcFinishControls (CControl *ctrl, double timestep, bool airborne) {
 
 void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 	if (airborne && trick_modifier) {
-		if (left_turn) ctrl->roll_left = true;
-		if (right_turn) ctrl->roll_right = true;
+		if (left_turn || stick_turnfact < -2.0) ctrl->roll_left = true;
+		if (right_turn || stick_turnfact > 2.0) ctrl->roll_right = true;
 		if (key_paddling) ctrl->front_flip = true;
 		if (ctrl->is_braking) ctrl->back_flip = true;
 	}
@@ -313,13 +315,17 @@ void CRacing::Loop (double time_step) {
 
     // simple left/right control with head roll
     // jdt: TODO maybe move this next part into Winsys and emulate.
-    /*
     float headYaw, headPitch, headRoll;
     OVR::Quatf head_orient = Winsys.trackingState.HeadPose.ThePose.Orientation;
     head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
     Jaxis(0, -headRoll * 4.f);
-    Jaxis(1, headPitch * 4.f);
-    */
+    Jaxis(1, -1.0); // jdt always paddle! //headPitch * 4.f); 
+
+	if (headPitch < -0.5 || (ctrl->jump_charging && headPitch < -0.05)) {
+		Jbutt (0, 1); // charging
+	} else if (ctrl->jump_charging) {
+		Jbutt (0, 0); // jump
+	}
 
     check_gl_error();
     ClearRenderContext ();

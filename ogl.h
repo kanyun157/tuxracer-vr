@@ -78,7 +78,7 @@ void ClearRenderContext (); // jdt: replaced by ClearDisplay
 void ClearDisplay ();
 void ClearRenderContext (const TColor& col);
 void SetupGuiDisplay ();
-void SetupHudDisplay (bool attachToFace=true);
+void SetupHudDisplay (bool attachToFace=false);
 void SetupDisplay (ovrEyeType eye);
 void UpdateRenderTarget (unsigned int width, unsigned int height);
 void Reshape (int w, int h);

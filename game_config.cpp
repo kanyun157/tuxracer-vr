@@ -330,6 +330,7 @@ void InitConfig (const char *arg0) {
 	param.view_mode = FOLLOW;
 	param.display_fps = false;
 	param.show_hud = true;
+	param.attach_hud_to_face = false;
 
 	if (FileExists (param.configfile)) {
 		LoadConfigFile ();

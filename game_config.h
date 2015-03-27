@@ -76,6 +76,7 @@ struct TParam {
     bool	ui_snow;
     bool	display_fps;
 	bool	show_hud;
+	bool	attach_hud_to_face;
     TViewMode view_mode;
 };
 
