@@ -122,7 +122,7 @@ void CRegist::Loop (double timestep) {
 		draw_ui_snow();
 	}
 
-	Tex.Draw (T_TITLE_SMALL, CENTER, AutoYPosN (5), scale);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), scale * 4);
 
 //	DrawFrameX (area.left, area.top, area.right-area.left, area.bottom - area.top,
 //			0, colMBackgr, col, 0.2);

@@ -317,14 +317,8 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
 
 void Reshape (int w, int h) {
 	// jdt: Overriding with nothing because we handle this in SetupDisplay now.
-    //double far_clip_dist;
-    //glViewport (0, 0, (GLint) w, (GLint) h );
-    //glMatrixMode (GL_PROJECTION);
-    //glLoadIdentity ();
-    //far_clip_dist = param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
-    //gluPerspective (param.fov, (double)w/h, NEAR_CLIP_DIST, far_clip_dist );
-    //glMatrixMode (GL_MODELVIEW);
 }
+
 // ====================================================================
 //					GL options
 // ====================================================================

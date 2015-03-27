@@ -179,7 +179,7 @@ void CCredits::Loop(double time_step) {
 		update_ui_snow (time_step);
 		draw_ui_snow();
     }
-	Tex.Draw (T_TITLE_SMALL, CENTER, AutoYPosN (5), Winsys.scale);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 4);
 
 
 	Reshape (ww, hh);

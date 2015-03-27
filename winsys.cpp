@@ -41,7 +41,6 @@ CWinsys Winsys;
 CWinsys::CWinsys ()
 	: auto_resolution(800, 600)
 {
-	//screen = NULL;
 	sdlWindow = NULL;
 
 	joystick = NULL;
@@ -58,16 +57,8 @@ CWinsys::CWinsys ()
 	resolutions[7] = TScreenRes(1400, 1050);
 	resolutions[8] = TScreenRes(1440, 900);
 	resolutions[9] = TScreenRes(1680, 1050);
-	//resolutions[10] = TScreenRes(1920, 1080); // rift dk2
-	// jdt chagne NUM_RESOLUTIONS
+	resolutions[10] = TScreenRes(1920, 1080); // rift dk2
 
-	// jdt: TODO initialize
-	//ovrHmd hmd;
-	//ovrSizei eyeres[2];
-	//ovrEyeRenderDesc eye_rdesc[2];
-	//ovrGLTexture fb_ovr_tex[2];
-	//union ovrGLConfig glcfg;
-	//
 	frame_index = 0;
 }
 
@@ -90,84 +81,16 @@ double CWinsys::CalcScreenScale () const {
 	else return (resolution.height / 768);
 }
 
-void CWinsys::SetupVideoMode (const TScreenRes& resolution_) {
-    int bpp = 32;
-    Uint32 video_flags = 0; //SDL_OPENGL; jdt deprecated
-    //if (param.fullscreen) video_flags |= SDL_FULLSCREEN; // jdt
-	/*
-	switch (param.bpp_mode) {
-		case 0:	bpp = 0; break;
-		case 1:	bpp = 16; break;
-		case 2:	bpp = 32; break;
-		default: param.bpp_mode = 0; bpp = 0;
-    }
-	*/
-
-
-#ifdef _WIN32_jdt // SDL2 doesn't have SDL_GetWMInfo
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	SDL_GetWMInfo(&info);
-	HDC tempDC = GetDC(info.window);
-	HGLRC tempRC = wglCreateContext(tempDC);
-	SetLastError(0);
-	wglShareLists(info.hglrc, tempRC); // Share resources with old context
-#endif
-
-	/*
-	// jdt: 
-	//if ((screen = SDL_SetVideoMode
-	//(resolution_.width, resolution_.height, bpp, video_flags)) == NULL) {
-	if ((screen = SDL_CreateRGBSurface
-	(0, resolution_.width, resolution_.height, 32,  //bpp,
-	 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)) == NULL) {
-		Message ("couldn't initialize video. ABORTING: ",  SDL_GetError());
-		param.res_type = 1;
-		SaveConfigFile (); // don't b0rk teh config
-		SDL_Quit();
-	}
-	SDL_Texture *sdlTexture = SDL_CreateTexture(sdlRenderer,
-		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 
-		resolution_.width, resolution_.height);
-	if(sdlTexture == NULL) {
-		Message ("Couldn't initialize texture: ",  SDL_GetError());
-		SDL_Quit();
-	}
-	*/
-#ifdef _WIN32_jdt //: ditto
-	SDL_VERSION(&info.version);
-	SDL_GetWMInfo(&info);
-	wglShareLists(tempRC, info.hglrc); // Share resources with new context
-	wglDeleteContext(tempRC);
-#endif
-
-	// SDL_RENDERER_SOFTWARE the renderer is a software fallback
-	// SDL_RENDERER_ACCELERATED the renderer uses hardware acceleration
-	// SDL_RENDERER_PRESENTVSYNC present is synchronized with the refresh rate
-	// SDL_RENDERER_TARGETTEXTURE the renderer supports rendering to texture
-	// renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-	//
-	// bitmapSurface = SDL_LoadBMP("img/hello.bmp");
-	// bitmapTex = SDL_CreateTextureFromSurface(renderer, bitmapSurface);
-	// SDL_FreeSurface(bitmapSurface);
-	//
-	// jdt: TODO
-	/*
-	SDL_Surface *surf = SDL_GetVideoSurface ();
-	resolution.width = surf->w;
-	resolution.height = surf->h;
-	if (resolution.width == 0 && resolution.height == 0) {
-		auto_resolution = resolution;
-	}
-	*/
+void CWinsys::SetupVideoMode (const TScreenRes& res) {
+    resolution = res;
 	scale = CalcScreenScale ();
 	if (param.use_quad_scale) scale = sqrt (scale);
 
-	// jdt: added. 
-	printf("resizing SDL window to res: %dx%d\n", resolution_.width, resolution_.height);
-    SDL_SetWindowSize(sdlWindow, resolution_.width, resolution_.height); //hmd->Resolution.w, hmd->Resolution.h);
-    SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED); // jdt TODO
+	printf("resizing SDL window to res: %dx%d\n", resolution.width, resolution.height);
+    SDL_SetWindowSize(sdlWindow, resolution.width, resolution.height);
+    SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
+    Reshape (resolution.width, resolution.height); // does nothing
 }
 
 void CWinsys::SetupVideoMode (size_t idx) {
@@ -212,10 +135,7 @@ void CWinsys::OvrConfigureRendering()
 	float fovTan1 = max(hmd->DefaultEyeFov[1].LeftTan, hmd->DefaultEyeFov[1].RightTan);
 	param.fov = floor(abs(2.0f * atan(max(fovTan0, fovTan1)) * (180.0f / M_PI)));
 	//jdt TODO param.fov -= 10; // account for overlap in fov of both eyes.  fudge..
-	//printf("Detected HMD FOV of %d.  Overriding etr fov with it.\n", param.fov);
 	// I'm seeing 95 degrees here.. doesn't look good to me.
-	//param.fov = 85; // cheater.  I think I need to be using the projection matrix 
-	 //               // provided by oculus sdk.
 	printf("Detected HMD FOV of %d.  Overriding etr fov with it.\n", param.fov);
 
 	// and create a single render target texture to encompass both eyes 
@@ -316,6 +236,7 @@ void CWinsys::Init () {
 
 	// requiring anything higher than OpenGL 3.0 causes deprecation of 
 	// GL_LIGHTING GL_LIGHT0 GL_NORMALIZE, etc.. need replacements.
+    // also deprecates immediate mode, which would be a complete overhaul.
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
@@ -333,33 +254,13 @@ void CWinsys::Init () {
 		window_width = window_height = 0; // don't switch display mode.
 	}
 
-	// jdt: TODO from docs: "Extra credit for letting users specify a screen for the window: SDL2
-	// also allows you to manage systems with multiple monitors."
 	sdlWindow = SDL_CreateWindow(WINDOW_TITLE, 
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		window_width, window_height, window_flags);
 	if (sdlWindow == NULL) {
-	//if (SDL_CreateWindowAndRenderer(0, 0, 0
-	//	| SDL_WINDOW_FULLSCREEN_DESKTOP
-	//	| SDL_WINDOW_OPENGL
-	//	, &sdlWindow, &sdlRenderer) || !sdlWindow || !sdlRenderer)
 		Message("Failed to create window: ", SDL_GetError());
 		SDL_Quit();
 	}
-
-	/* Apparently according to download/src/oculus2, we don't need 
-	 * a renderer if all we use in OpenGL? 
-	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0
-		//| SDL_RENDERER_SOFTWARE
-		| SDL_RENDERER_ACCELERATED
-		//|SDL_RENDERER_PRESENTVSYNC
-		| SDL_RENDERER_TARGETTEXTURE
-	);
-	if (sdlRenderer == NULL) {
-		Message("Failed to create window: ", SDL_GetError());
-		SDL_Quit();
-	}
-	*/
 
 	// Create an opengl context instead of an sdl renderer.
 	glContext = SDL_GL_CreateContext(sdlWindow);
@@ -372,10 +273,9 @@ void CWinsys::Init () {
 	// Initialize opengl extension wrangling lib for Frame Buffer Object support (rift)
 	glewExperimental = GL_TRUE; // jdt: probably not necessary
 	GLenum err = glewInit();
-	if (err != GLEW_OK)
-	{
+	if (err != GLEW_OK) {
 		Message ("Failed to initialize GLEW library: ", (char*)glewGetErrorString(err));
-		SDL_Quit(); // jdt TODO: proper cleanup and exit
+		SDL_Quit();
 	}
 	Message ("Status: Using GLEW: ", (char*)glewGetString(GLEW_VERSION));
 	printf("Setting up video mode with res: %ux%u\n", resolution.width, resolution.height);
@@ -384,30 +284,15 @@ void CWinsys::Init () {
 		Message ("No Oculus Rift device found.  Creating fake DK2.");
 		if(!(hmd = ovrHmd_CreateDebug(ovrHmd_DK2))) {
     		Message("failed to create virtual debug HMD");
-			SDL_Quit(); // jdt TODO
+			SDL_Quit();
 		}
 	}
 	printf("initialized HMD: %s - %s\n", hmd->Manufacturer, hmd->ProductName);
 	printf("\tdisplay resolution: %dx%d\n", hmd->Resolution.w, hmd->Resolution.h);
 	printf("\tdisplay position: %d,%d\n", hmd->WindowsPos.x, hmd->WindowsPos.y);
 
-	resolution.width = hmd->Resolution.w; //window_width;
-	resolution.height = hmd->Resolution.h; //window_height;
+	SetupVideoMode (hmd->Resolution.w, hmd->Resolution.h);
 
-	SetupVideoMode (resolution);
-
-	/*.. Not needed because we use opengl?
-	if (param.fullscreen) {
-		// Set our logical drawing resolution.. only if using SDL_WINDOW_FULLSCREEN_DESKTOP.
-		// This will get scaled to the display resolution and letterboxed if the aspect ratio differs.
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
-		SDL_RenderSetLogicalSize(sdlRenderer, resolution.width, resolution.height);
-	}
-	*/
-
-	Reshape (resolution.width, resolution.height); // OpenGL viewport
-
-	// jdt: seems as good a place as any..
 	OvrConfigureRendering();
 
 	KeyRepeat (false);
@@ -463,12 +348,6 @@ void CWinsys::PrintJoystickInfo () const {
 	int num_axes = SDL_JoystickNumAxes (joystick);
 	cout << "Joystick has " << num_axes << " ax" << (num_axes == 1 ? "i" : "e") << "s\n\n";
 }
-
-/*
-unsigned char *CWinsys::GetSurfaceData () const {
-	return (unsigned char*)screen->pixels;
-}
-*/
 
 void CWinsys::ToggleHmdFullscreen()
 {

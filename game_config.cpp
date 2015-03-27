@@ -87,7 +87,8 @@ void LoadConfigFile () {
 
 void SetConfigDefaults () {
 	param.fullscreen = false;
-	param.res_type = 9; // 0=auto / 1=800x600 / 2=1024x768 ...
+	// jdt: default of 1920x1080 causes issues switching to rift.  
+	param.res_type = 0; // 0=auto / 1=800x600 / 2=1024x768 ...
 	param.perf_level = 1;	// detail level
 	param.language = string::npos; // If language is set to npos, ETR will try to load default system language
 	param.sound_volume = 100;

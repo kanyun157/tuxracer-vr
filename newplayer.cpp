@@ -126,7 +126,7 @@ void CNewPlayer::Loop(double timestep) {
 //	DrawFrameX (area.left, area.top, area.right-area.left, area.bottom - area.top,
 //			0, colMBackgr, col, 0.2);
 
-	Tex.Draw (T_TITLE_SMALL, CENTER, AutoYPosN (5), Winsys.scale);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 4);
 
 	FT.SetColor (colWhite);
 	FT.AutoSizeN (4);

@@ -20,7 +20,7 @@ GNU General Public License for more details.
 
 #include "bh.h"
 
-#define NUM_RESOLUTIONS 10
+#define NUM_RESOLUTIONS 11
 
 // TODO: move ovr stuff to a better home
 #ifdef WIN32

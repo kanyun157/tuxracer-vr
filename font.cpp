@@ -21,7 +21,6 @@ GNU General Public License for more details.
 #endif
 
 #include "font.h"
-//#include "ft_font.h"
 #include "FTGL/ftgl.h"
 #include "spx.h"
 #include "winsys.h"
@@ -94,7 +93,7 @@ CFont::CFont () {
 	curr_size   = 20;	// default size: 20 px
 	curr_fact   = 0;
 	curr_font   = 0;
-    curr_scale  = 1.f / 4.f;
+    curr_scale  = 1.f;
 }
 
 CFont::~CFont() {

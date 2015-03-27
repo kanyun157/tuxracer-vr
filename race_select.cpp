@@ -186,7 +186,7 @@ void CRaceSelect::Loop(double timestep) {
 		draw_ui_snow ();
 	}
 
-	Tex.Draw (T_TITLE_SMALL, CENTER, AutoYPosN (5), 1.0);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 4);
 
 //	DrawFrameX (area.left, area.top, area.right-area.left, area.bottom - area.top,
 //			0, colMBackgr, colBlack, 0.2);
