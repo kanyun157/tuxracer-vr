@@ -21,7 +21,11 @@ GNU General Public License for more details.
 #endif
 
 #include "font.h"
-#include "FTGL/ftgl.h"
+#ifdef WIN32
+#  include "ft_font.h"
+#else
+#  include "FTGL/ftgl.h"
+#endif
 #include "spx.h"
 #include "winsys.h"
 
