@@ -75,25 +75,19 @@ void DrawTrees() {
     TCollidable* treeLocs = &Course.CollArr[0];
     size_t numTrees = Course.CollArr.size();
 
-	unsigned int renderedTrees = 0;
-	unsigned int renderedWholeTrees = 0;
-	float avgx = 0;
-	float avgz = 0;
-	unsigned int texture_binds = 0;
-	
-	static int debug_count = 0;
-	static int debug_target = 24000;
-	if (debug_count % debug_target == 0) {
-		printf("Total numTrees: %u\n", numTrees); // 769
-	}
-
-	int i = 0;
 	vector<TCollidable*> trees;
+	if (numTrees) {
+		// jdt: height isn't quite right here.. should be [0, height], not [-height, height].
+		TVector3 radius(treeLocs[0].diam / 2.0, treeLocs[0].diam / 2.0, treeLocs[0].height);
 
-	while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
-	while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z - fwd_clip_limit) {
-		trees.push_back(&treeLocs[i]);
-		i++;
+		//for (int i = 0; i < numTrees; i++) {
+		int i = 0;
+		while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
+		while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z - fwd_clip_limit) {
+			if (clip_aabb_to_view_frustum (treeLocs[i].pt - radius, treeLocs[i].pt + radius) != NotVisible)
+				trees.push_back(&treeLocs[i]);
+			i++;
+		}
 	}
 
 	// sort by textures to reduce binds
@@ -106,11 +100,7 @@ void DrawTrees() {
 		double dz = ctrl->viewpos.z - tree.pt.z;
 		double distsqr = dx * dx + dz * dz;
 
-		avgx += tree.pt.x;
-		avgz += tree.pt.z;
-
 		if (tree.tree_type != tree_type) {
-			texture_binds++;
 		    tree_type = tree.tree_type;
 			object_types[tree_type].texture->Bind();
 		}
@@ -122,7 +112,6 @@ void DrawTrees() {
         GLfloat treeRadius = tree.diam / 2.0;
         GLfloat treeHeight = tree.height;
 
-		// orig 0.6 immediate mode extremely slow
 		//TVector3 normal(0, 0, 1);
 		//glNormal3f (normal.x, normal.y, normal.z);
 		// slower but better method of setting the normals
@@ -150,39 +139,31 @@ void DrawTrees() {
 			    glVertex3f  (0.0, treeHeight, treeRadius);
 			    glTexCoord2f  (0., 1.);
 			    glVertex3f  (0.0, treeHeight, -treeRadius);
-				renderedWholeTrees++;
 			} 
-			renderedTrees++;
 
 		glEnd();
 
         glPopMatrix();
 	}
 
-	if (debug_count % debug_target == 0) {
-		printf("Rendered Trees: %u\n", renderedTrees);
-		//printf("Rendered Whole Trees: %u\n", renderedWholeTrees);
-		printf("viewpos: %f,%f\n", ctrl->viewpos.x, ctrl->viewpos.z);
-		printf("avgtree: %f,%f\n", avgx / renderedTrees, avgz / renderedTrees);
-		printf("texbind: %u\n", texture_binds);
-
-	}
-
-	texture_binds = 0;
-
 //  items -----------------------------
 	TItem* itemLocs = &Course.NocollArr[0];
 	size_t numItems = Course.NocollArr.size();
 
-	unsigned int renderedItems = 0;
 	vector<TItem*> items;
-	i = 0;
 
-	while(i < numItems && itemLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
-	while(i < numItems && itemLocs[i].pt.z > ctrl->viewpos.z - fwd_clip_limit) {
-		if (itemLocs[i].collectable && itemLocs[i].drawable)
-			items.push_back(&itemLocs[i]);
-		i++;
+	if (numItems) {
+		TVector3 radius(itemLocs[0].diam / 2.0, itemLocs[0].diam / 2.0, itemLocs[0].height);
+
+		//for (int i = 0; i < numItems; i++) {
+		int i = 0;
+		while(i < numItems && itemLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
+		while(i < numItems && itemLocs[i].pt.z > ctrl->viewpos.z - fwd_clip_limit) {
+			if (itemLocs[i].collectable && itemLocs[i].drawable)
+			if (clip_aabb_to_view_frustum (itemLocs[i].pt - radius, itemLocs[i].pt + radius) != NotVisible)
+				items.push_back(&itemLocs[i]);
+			i++;
+		}
 	}
 
 	std::sort(items.begin(), items.end(), [](const TItem *a, const TItem *b)
@@ -194,7 +175,6 @@ void DrawTrees() {
 		if (item.item_type != item_type) {
 		    item_type = item.item_type;
 			object_types[item_type].texture->Bind();
-			texture_binds++;
 		}
 
 		glPushMatrix();
@@ -226,14 +206,5 @@ void DrawTrees() {
 				glVertex3f (-itemRadius*normal.z, itemHeight, itemRadius*normal.x);
 	    	glEnd();
         glPopMatrix();
-
-		renderedItems++;
     }
-
-	if (debug_count % debug_target == 0) {
-		//printf("Total Items: %u\n", numItems);
-		printf("Rendered Items: %u\n", renderedItems);
-		printf("item texbind: %u\n", texture_binds);
-	}
-	debug_count++;
 }

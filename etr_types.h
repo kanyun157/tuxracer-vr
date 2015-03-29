@@ -45,6 +45,14 @@ struct TVector3 : public TVector2 {
 	TVector3(double _x = 0.0, double _y = 0.0, double _z = 0.0)
 		: TVector2(_x, _y), z(_z)
 	{}
+
+	// jdt: ugh
+	TVector3 operator-(const TVector3 &other) {
+		return TVector3(x - other.x, y - other.y, z - other.z);
+	}
+	TVector3 operator+(const TVector3 &other) {
+		return TVector3(x + other.x, y + other.y, z + other.z);
+	}
 };
 struct TVector4 : public TVector3 {
 	double w;
@@ -165,7 +173,6 @@ struct TGameData {
 	int snow_id;
 	int wind_id;
 	size_t theme_id;
-
 	// requirements
 	TIndex3 herring_req;	// 3 levels of needed herrings
 	TVector3 time_req;		// 3 levels of allowed time

@@ -3,26 +3,17 @@
 *[name] Bumpy Ride [dir] bumpy_ride
 [desc] This hill has a series of ramps to tackle.  Be sure to line yourself up before getting airborne.
 
+*[name] In Search Of Vodka [dir] in_search_of_vodka
+[desc] A course with a bit of everything; bumpy ice, fast trenches, jumps, tree dodging and more. Hope you enjoy.
+
 *[name] Bunny Hill [dir] bunny_hill[env]etr
 [desc] Let's start out easy, just collect the herring in the time limit and you'll be fine. The best part is that you don't have to use those stupid T-bar lifts.
 
 *[name] Twisty Slope [dir] twisty_slope
 [desc] Tight twists make grabbing herring difficult.  Hard turns and not too much braking will lead you to victory.
 
-*[name] Explore The Mountains [dir] explore_mountains
-[desc] If you don't reach time and herring try to find another way through the mountains.
-
-*[name] Frozen Lakes [dir] frozen_lakes
-[desc] A cold, silent world of rocks and ice. Regard your speed when you cross the lakes.
-
-*[name] Challenge One [dir] challenge_one
-[desc] A dangerous path along the mountains. Try to catch more than 60 herrings. It is possible!
-
 *[name] The Downhill Fear [dir] downhill_fear
 [desc] Downward the hill, sliding and jumping ...
-
-*[name] In Search Of Vodka [dir] in_search_of_vodka
-[desc] A course with a bit of everything; bumpy ice, fast trenches, jumps, tree dodging and more. Hope you enjoy.
 
 *[name] Hippo Run [dir] hippo_run
 [desc] The author says: This is a fast course that makes you think. There are three major sections to the course. The first is a twisty ride over hills and ice. The second is up on top, and the third is the fastest part of all.
@@ -65,3 +56,13 @@
 
 *[name] Chragi's Gagiwaetter [dir] chragis_gagiwaetter
 [desc] The author says: a wicked course, wicked, wicked and very wicked indeed! Beginners stay home!
+
+*[name] Explore The Mountains [dir] explore_mountains
+[desc] If you don't reach time and herring try to find another way through the mountains.
+
+*[name] Frozen Lakes [dir] frozen_lakes
+[desc] A cold, silent world of rocks and ice. Regard your speed when you cross the lakes.
+
+*[name] Challenge One [dir] challenge_one
+[desc] A dangerous path along the mountains. Try to catch more than 60 herrings. It is possible!
+

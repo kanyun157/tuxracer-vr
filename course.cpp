@@ -428,8 +428,9 @@ void CCourse::LoadItemList () {
 		bool coll = ObjTypes[type].collidable;
 		if (coll == 1) {
 			CollArr.push_back(TCollidable());
-		    CollArr.back().pt.x = xx;
-		    CollArr.back().pt.z = zz;
+			// jdt: avoid two trees sharing same plane:
+		    CollArr.back().pt.x = xx + (float)rand() / RAND_MAX;
+		    CollArr.back().pt.z = zz + (float)rand() / RAND_MAX;
 		    CollArr.back().pt.y = FindYCoord (xx, zz);
 		    CollArr.back().height = height;
 		    CollArr.back().diam = diam;
