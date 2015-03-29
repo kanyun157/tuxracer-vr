@@ -162,7 +162,6 @@ void SetSoundVolumes () {
 void CRacing::Enter (void) {
     CControl *ctrl = Players.GetCtrl (g_game.player_id);
 
-	// jdt TODO: can we make stereo/distortion a different view mode?
     if (param.view_mode < 0 || param.view_mode >= NUM_VIEW_MODES) {
 		param.view_mode = ABOVE;
     }
@@ -321,11 +320,12 @@ void CRacing::Loop (double time_step) {
     Jaxis(0, -headRoll * 4.f);
     Jaxis(1, -1.0); // jdt always paddle! //headPitch * 4.f); 
 
-	if (headPitch < -0.5 || (ctrl->jump_charging && headPitch < -0.05)) {
-		Jbutt (0, 1); // charging
-	} else if (ctrl->jump_charging) {
-		Jbutt (0, 0); // jump
-	}
+    // trigger charging with head-down.  Keep charging until head rises up to 0' pitch.
+    if (headPitch < -0.5 || (ctrl->jump_charging && headPitch < 0)) {
+        key_charging = true;
+    } else if (ctrl->jump_charging) {
+        key_charging = false; // jump
+    }
 
     check_gl_error();
     ClearRenderContext ();

@@ -158,6 +158,9 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
     ctrl->view_mat[3][2] = ctrl->viewpos.z;
     ctrl->view_mat[3][3] = 1;
 
+    // jdt: alternatively, load the modelview matrix at this point, and manually
+    // multiply the character's ctrl->view_mat after the glMultMatrixd below.
+
     TransposeMatrix (ctrl->view_mat, view_mat);
 
     view_mat[0][3] = 0;
@@ -174,7 +177,35 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 		memcpy(stationary_matrix, view_mat, 16*sizeof(**view_mat));
 	}
     //glLoadIdentity(); // prevent this from clobering Oculus head orientation.
-	glMultMatrixd ((double*) view_mat);
+    glMultMatrixd ((double*) view_mat);
+
+    //
+    // jdt: At this point we have two independent modelview matrices:
+    //  GL_MODELVIEW: has both hmd and game-controlled transformations combined.
+    //  	- Left eye "cyclops" only right now.
+    //  stereo_gl_list: being compiled now only contains the later.
+    //  	- ie. the glMultMatrixd above is being recorded for playback twice later.
+    //
+    // We need to update ctrl->view_mat with the hmd transformation so that 
+    // frustum culling works correctly based on the players head orientation, etc.
+    //
+    float hmd_mat[16];
+    TMatrix transpose;
+    glGetFloatv (GL_MODELVIEW_MATRIX, hmd_mat); // hmd cyclops combined w/ character.
+    for (unsigned int i = 0; i < 16; i++) {
+    	((double*)transpose)[i] = hmd_mat[i];
+    }
+    
+    TransposeMatrix (transpose, ctrl->view_mat); // NOT recorded in display list.
+    ovrEyeType eye = ovrEye_Left;
+    // jdt: not perfect, but hmd positions aren't appreciable compared to viewpos.
+    // .. I'd be interested in better ways to set this up..
+    ctrl->view_mat[3][0] = ctrl->viewpos.x;
+    ctrl->view_mat[3][1] = ctrl->viewpos.y;
+    ctrl->view_mat[3][2] = ctrl->viewpos.z;
+    ctrl->view_mat[0][3] = 0.0;
+    ctrl->view_mat[0][3] = 0.0;
+    ctrl->view_mat[0][3] = 0.0;
 }
 
 TVector3 MakeViewVector () {
@@ -348,11 +379,12 @@ static char p_vertex_code[6];
 
 void SetupViewFrustum (const CControl *ctrl) {
     double aspect = (double) Winsys.resolution.width /Winsys.resolution.height;
+    double fov = param.fov + 45; // huge fov fudge.. something is off elsewhere.
 
 	double near_dist = NEAR_CLIP_DIST;
 	double far_dist = param.forward_clip_distance;
     TVector3 origin(0., 0., 0.);
-    double half_fov = ANGLES_TO_RADIANS (param.fov * 0.5);
+    double half_fov = ANGLES_TO_RADIANS (fov * 0.5);
     double half_fov_horiz = atan (tan (half_fov) * aspect);
 
     frustum_planes[0] = MakePlane (0, 0, 1, near_dist);

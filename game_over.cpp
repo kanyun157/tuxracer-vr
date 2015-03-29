@@ -206,7 +206,7 @@ void CGameOver::Enter() {
 			final_frame->Init (ctrl->cpos, -0.18);
 		}
 	}
-	SetStationaryCamera (true);
+	//SetStationaryCamera (true); // jdt: hmd can still move around.
 }
 
 

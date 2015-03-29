@@ -126,7 +126,7 @@ void CIntro::Loop (double time_step) {
 	Char.Draw (g_game.char_id);
 
     glPopMatrix ();
-    SetupGuiDisplay ();
+    SetupHudDisplay ();
     DrawHud (ctrl);
 
     Reshape (width, height);

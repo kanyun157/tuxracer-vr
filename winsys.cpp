@@ -420,6 +420,10 @@ void CWinsys::RenderFrame(State *current)
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
+    // Set modelview to "cyclops" mode for non-opengl geometry culling (UpdateCourse).
+    // jdt: we just use the left eye for now. (might want to average values for both)
+    SetupDisplay (ovrEye_Left);
+
     glNewList(stereo_gl_list, GL_COMPILE);
     current->Loop(g_game.time_step);
     glEndList();
