@@ -76,9 +76,10 @@ void DrawTrees() {
     TCollidable* treeLocs = &Course.CollArr[0];
     size_t numTrees = Course.CollArr.size();
 
+	// jdt: Ugly caching of trees in the local vicinity updated roughly every second.
 	static list<TCollidable*> treeCache;
 	static unsigned int treesDirtyCount = 0; // how many frames since cache of trees was updated.
-	static string cachedName = Course.GetCurrCourse()->name;
+	static string cachedName;
 	if (treesDirtyCount++ % 75 == 0 || !treeCache.size() || cachedName != Course.GetCurrCourse()->name) {
 		// update local list of trees every second or so (@75fps)
 		treeCache.clear();
@@ -88,6 +89,8 @@ void DrawTrees() {
 			treeCache.push_back(&treeLocs[i]);
 			i++;
 		}
+
+		cachedName = Course.GetCurrCourse()->name;
 	}
 
 	vector<TCollidable*> trees;
