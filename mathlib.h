@@ -56,6 +56,7 @@ void TransposeMatrix (const TMatrix mat, TMatrix trans);
 void MakeBasisMat (TMatrix mat,	const TVector3& w1, const TVector3& w2, const TVector3& w3);
 void MakeBasismatrix_Inv (TMatrix mat, TMatrix invMat, const TVector3& w1, const TVector3& w2, const TVector3& w3);
 void RotateAboutVectorMatrix (TMatrix mat, const TVector3& u, double angle);
+bool InvertMatrix (const TMatrix mat, TMatrix invOut);
 
 TQuaternion AddQuaternions (const TQuaternion& q, const TQuaternion& r);		// not used?
 TQuaternion MultiplyQuaternions (const TQuaternion& q, const TQuaternion& r);
