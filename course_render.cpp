@@ -19,6 +19,7 @@ GNU General Public License for more details.
 #include <etr_config.h>
 #endif
 
+#include <list>
 #include <algorithm>
 
 #include "textures.h"
@@ -75,18 +76,29 @@ void DrawTrees() {
     TCollidable* treeLocs = &Course.CollArr[0];
     size_t numTrees = Course.CollArr.size();
 
-	vector<TCollidable*> trees;
-	if (numTrees) {
-		// jdt: height isn't quite right here.. should be [0, height], not [-height, height].
-		TVector3 radius(treeLocs[0].diam / 2.0, treeLocs[0].diam / 2.0, treeLocs[0].height);
-
-		//for (int i = 0; i < numTrees; i++) {
+	static list<TCollidable*> treeCache;
+	static unsigned int treesDirtyCount = 0; // how many frames since cache of trees was updated.
+	static string cachedName = Course.GetCurrCourse()->name;
+	if (treesDirtyCount++ % 75 == 0 || !treeCache.size() || cachedName != Course.GetCurrCourse()->name) {
+		// update local list of trees every second or so (@75fps)
+		treeCache.clear();
 		int i = 0;
 		while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
 		while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z - fwd_clip_limit) {
-			if (clip_aabb_to_view_frustum (treeLocs[i].pt - radius, treeLocs[i].pt + radius) != NotVisible)
-				trees.push_back(&treeLocs[i]);
+			treeCache.push_back(&treeLocs[i]);
 			i++;
+		}
+	}
+
+	vector<TCollidable*> trees;
+	if (treeCache.size()) {
+		// jdt: height isn't quite right here.. should be [0, height], not [-height, height].
+		TCollidable *modelTree = *treeCache.begin();
+		TVector3 radius(modelTree->diam / 2.0, modelTree->diam / 2.0, modelTree->height);
+
+		for (list<TCollidable*>::iterator i = treeCache.begin(); i != treeCache.end(); ++i) {
+			if (clip_aabb_to_view_frustum ((*i)->pt - radius, (*i)->pt + radius) != NotVisible)
+				trees.push_back(*i);
 		}
 	}
 
@@ -94,7 +106,7 @@ void DrawTrees() {
 	std::sort(trees.begin(), trees.end(), [](const TCollidable *a, const TCollidable *b)
 			{ return a->tree_type < b->tree_type; });
 
-    for (int i = 0; i<trees.size(); i++) {
+	for (int i = 0; i < trees.size(); ++i) {
 		TCollidable &tree = *trees[i];
 		double dx = ctrl->viewpos.x - tree.pt.x;
 		double dz = ctrl->viewpos.z - tree.pt.z;

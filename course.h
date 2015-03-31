@@ -146,6 +146,8 @@ public:
 	TVector3	*nmls;
 	GLubyte		*vnc_array;
 
+	const TCourse* GetCurrCourse () { return curr_course; }
+
 	void ResetCourse ();
 	size_t GetCourseIdx (const string& dir) const;
 	bool LoadCourseList ();
