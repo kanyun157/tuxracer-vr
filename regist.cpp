@@ -126,42 +126,30 @@ void CRegist::Loop (double timestep) {
 
 //	DrawFrameX (area.left, area.top, area.right-area.left, area.bottom - area.top,
 //			0, colMBackgr, col, 0.2);
-	AdvanceGuiDepth();
-
 	FT.AutoSizeN (3);
 	FT.SetColor (colWhite);
 	int top = AutoYPosN (24);
 	FT.DrawString (area.left, top, Trans.Text(58));
 	FT.DrawString (area.left + framewidth + arrowwidth, top, Trans.Text(59));
 
-	AdvanceGuiDepth();
-
 	FT.AutoSizeN (4);
 	if (player->focussed()) col = colDYell; else col = colWhite;
 	DrawFrameX (area.left, area.top, framewidth, frameheight, 3, colMBackgr, col, 1.0);
-	AdvanceGuiDepth();
 	FT.SetColor (col);
 	FT.DrawString (area.left + 20, area.top, Players.GetName (player->GetValue()));
-	AdvanceGuiDepth();
 	Players.GetAvatarTexture(player->GetValue())->DrawFrame(
 		area.left + 60, AutoYPosN (40), texsize, texsize, 3, colWhite);
-
-	AdvanceGuiDepth();
 
 	if (character->focussed()) col = colDYell; else col = colWhite;
 	DrawFrameX (area.left + framewidth + arrowwidth, area.top,
 		framewidth, frameheight, 3, colMBackgr, col, 1.0);
-	AdvanceGuiDepth();
 	FT.SetColor (col);
 	FT.DrawString (area.left + framewidth + arrowwidth + 20,
 		area.top, Char.CharList[character->GetValue()].name);
-	AdvanceGuiDepth();
 	if(Char.CharList[character->GetValue()].preview != NULL)
 		Char.CharList[character->GetValue()].preview->DrawFrame(
 			area.right - texsize - 60 - arrowwidth,
 			AutoYPosN (40), texsize, texsize, 3, colWhite);
-
-	AdvanceGuiDepth();
 
 	FT.SetColor (colWhite);
 	DrawGUI();

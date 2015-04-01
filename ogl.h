@@ -82,6 +82,4 @@ void Reshape (int w, int h);
 // convert a quaternion to a rotation matrix
 void quat_to_matrix(const float *quat, float *mat);
 
-void AdvanceGuiDepth();
-
 #endif

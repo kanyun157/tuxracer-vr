@@ -329,7 +329,6 @@ void set_gl_options (TRenderMode mode)
 	switch (mode) {
     case GUI:
         glEnable (GL_TEXTURE_2D);
-        //glDisable (GL_DEPTH_TEST);
         glEnable (GL_DEPTH_TEST); // needed for lookAt widget selection.
         glDisable (GL_CULL_FACE);
 		glDisable (GL_LIGHTING);
@@ -342,15 +341,12 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_TRUE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
-		//glDepthFunc (GL_LEQUAL);
 		glDepthFunc (GL_ALWAYS);
 		glDisable (GL_FOG);
         break;
 
 	case GAUGE_BARS:
         glEnable (GL_TEXTURE_2D);
-        //glDisable (GL_DEPTH_TEST);
         glEnable (GL_DEPTH_TEST);
         glDisable (GL_CULL_FACE);
 		glDisable (GL_LIGHTING);
@@ -363,7 +359,6 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_TRUE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
 		glDepthFunc (GL_ALWAYS);
 
 		glTexGeni (GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
@@ -372,7 +367,6 @@ void set_gl_options (TRenderMode mode)
 
     case TEXFONT:
         glEnable (GL_TEXTURE_2D);
-        //glDisable (GL_DEPTH_TEST);
         glEnable (GL_DEPTH_TEST);
         glDisable (GL_CULL_FACE);
 		glDisable (GL_LIGHTING);
@@ -385,7 +379,6 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_TRUE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
 		glDepthFunc (GL_ALWAYS);
         break;
 
@@ -423,7 +416,6 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_TRUE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
 		glDepthFunc (GL_LEQUAL);
 
         glAlphaFunc (GL_GEQUAL, 0.5);
@@ -443,7 +435,6 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_TRUE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
 		glDepthFunc (GL_LEQUAL);
 
         glAlphaFunc (GL_GEQUAL, 0.5);
@@ -451,7 +442,6 @@ void set_gl_options (TRenderMode mode)
 
 	case SKY:
 		glEnable (GL_TEXTURE_2D);
-		//glDisable (GL_DEPTH_TEST);
 		glEnable (GL_DEPTH_TEST);
 		glDisable (GL_CULL_FACE);
 		glDisable (GL_LIGHTING);
@@ -464,7 +454,6 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_FALSE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
 		glDepthFunc (GL_LEQUAL);
 		break;
 
@@ -482,7 +471,6 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_TRUE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
 		glDepthFunc (GL_LEQUAL);
 		break;
 
@@ -500,7 +488,6 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_COLOR_MATERIAL);
 		glDepthMask (GL_TRUE);
 		glShadeModel (GL_SMOOTH);
-		//glDepthFunc (GL_LESS);
 		glDepthFunc (GL_LEQUAL);
     	break;
 

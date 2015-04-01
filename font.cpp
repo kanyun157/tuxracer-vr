@@ -250,8 +250,6 @@ int CFont::AutoDistanceN (int rel_val) {
 void CFont::DrawText(float x, float y, const char *text, size_t font, float size) const {
 	if (font >= fonts.size()) return;
 
-	AdvanceGuiDepth();
-
 	glPushMatrix();
     // jdt: huge performance hit w/ textured font here.  Set once and glScale!
 	//fonts[font]->FaceSize ((int)size);
@@ -278,8 +276,6 @@ void CFont::DrawText(float x, float y, const char *text, size_t font, float size
 
 void CFont::DrawText(float x, float y, const wchar_t *text, size_t font, float size) const {
 	if (font >= fonts.size()) return;
-
-	AdvanceGuiDepth();
 
 	glPushMatrix();
 	//fonts[font]->FaceSize ((int)size);

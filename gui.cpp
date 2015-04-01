@@ -109,15 +109,10 @@ TTextField::TTextField(int x, int y, int width, int height, const string& text_)
 void TTextField::Draw() const {
 	const TColor& col = focus?colDYell:colWhite;
 
-	AdvanceGuiDepth();
-
 	FT.SetColor (col);
 	DrawFrameX (mouseRect.left, mouseRect.top, mouseRect.width, mouseRect.height, 3, colMBackgr, col, 1.0);
 	FT.AutoSizeN (5);
-	AdvanceGuiDepth();
 	FT.DrawString (mouseRect.left+20, mouseRect.top, text);
-
-	AdvanceGuiDepth();
 
 	if (cursor && focus) {
 		double x = mouseRect.left+20+1;
@@ -227,8 +222,6 @@ void TIconButton::Draw () const {
 	int y = t - size;
 	int x = position.x;
 	int r = x + size;
-
-	AdvanceGuiDepth();
 
 	DrawFrameX (position.x-line, position.y-line,
 				framesize, framesize, line, colBlack, framecol, 1.0);
@@ -433,8 +426,6 @@ void DrawFrameX (int x, int y, int w, int h, int line,
 		const TColor& backcol, const TColor& framecol, double transp) {
 	double yy = Winsys.resolution.height - y - h;
 
-	AdvanceGuiDepth(); // jdt should be 2
-
 	if (x < 0) x = (Winsys.resolution.width -w) / 2;
 	glPushMatrix();
 	glDisable (GL_TEXTURE_2D);
@@ -447,8 +438,6 @@ void DrawFrameX (int x, int y, int w, int h, int line,
 	    glVertex2f (w, h);
 	    glVertex2f (0, h);
 	glEnd();
-
-	AdvanceGuiDepth();
 
 	glColor4f (backcol.r, backcol.g, backcol.b, transp);
 	glBegin (GL_QUADS);
@@ -465,8 +454,6 @@ void DrawFrameX (int x, int y, int w, int h, int line,
 void DrawLevel (int x, int y, int level, double fact) {
     TVector2 bl, tr;
 	static const double lev[4] = {0.0, 0.75, 0.5, 0.25};
-
-	AdvanceGuiDepth();
 
 	bl.x = x;
 	bl.y = Winsys.resolution.height - y - 32;
@@ -495,8 +482,6 @@ void DrawLevel (int x, int y, int level, double fact) {
 
 void DrawBonus (int x, int y, size_t max, size_t num) {
     TVector2 bl, tr;
-
-	AdvanceGuiDepth();
 
 	bl.y = Winsys.resolution.height - y - 32;
 	tr.y = Winsys.resolution.height - y;
@@ -530,8 +515,6 @@ void DrawBonus (int x, int y, size_t max, size_t num) {
 void DrawBonusExt (int y, size_t numraces, size_t num) {
 	size_t maxtux = numraces * 3;
 	if (num > maxtux) return;
-
-	AdvanceGuiDepth();
 
     TVector2 bl, tr;
 
@@ -595,11 +578,9 @@ void DrawCursor () {
 void DrawGUI() {
 	for(size_t i = 0; i < Widgets.size(); i++)
 		if(Widgets[i]->GetVisible()) {
-			AdvanceGuiDepth();
 			Widgets[i]->Draw();
 		}
 	if(param.ice_cursor) {
-		AdvanceGuiDepth();
 		DrawCursor ();
 	}
 }

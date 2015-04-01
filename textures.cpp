@@ -363,8 +363,6 @@ void TTexture::Bind() {
 void TTexture::Draw() {
 	GLint w, h;
 
-	AdvanceGuiDepth();
-
 	glEnable (GL_TEXTURE_2D);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture (GL_TEXTURE_2D, id);
@@ -384,8 +382,6 @@ void TTexture::Draw() {
 void TTexture::Draw(int x, int y, float size, Orientation orientation) {
 	GLint w, h;
 	GLfloat width, height, top, bott, left, right;
-
-	AdvanceGuiDepth();
 
 	glEnable (GL_TEXTURE_2D);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -421,8 +417,6 @@ void TTexture::Draw(int x, int y, float width, float height, Orientation orienta
 	GLint w, h;
 	GLfloat top, bott, left, right;
 
-	AdvanceGuiDepth();
-
 	glEnable (GL_TEXTURE_2D);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture (GL_TEXTURE_2D, id);
@@ -453,8 +447,6 @@ void TTexture::DrawFrame(int x, int y, double w, double h, int frame, const TCol
 	if (id < 1)
 		return;
 
-	AdvanceGuiDepth();
-
     GLint ww = GLint (w);
 	GLint hh = GLint (h);
 	GLint xx = x;
@@ -477,8 +469,6 @@ void TTexture::DrawFrame(int x, int y, double w, double h, int frame, const TCol
 		glEnd();
 		glEnable (GL_TEXTURE_2D);
 	}
-
-	AdvanceGuiDepth();
 
     glColor4f (1.0, 1.0, 1.0, 1.0);
 	glBegin (GL_QUADS);
@@ -642,7 +632,6 @@ void CTexture::DrawNumStr (const char *s, int x, int y, float size, const TColor
 		Message ("DrawNumStr: missing texture");
 		return;
 	}
-	AdvanceGuiDepth();
 
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable (GL_TEXTURE_2D);
