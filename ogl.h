@@ -46,11 +46,7 @@ enum TRenderMode {
     TRACK_MARKS
 };
 
-
-#undef GL_EXT_compiled_vertex_array
-
-extern PFNGLLOCKARRAYSEXTPROC glLockArraysEXT_p;
-extern PFNGLUNLOCKARRAYSEXTPROC glUnlockArraysEXT_p;
+void set_gl_options (TRenderMode mode);
 
 void check_gl_error();
 void init_glfloat_array( int num, GLfloat arr[], ... );
@@ -85,5 +81,7 @@ void Reshape (int w, int h);
 
 // convert a quaternion to a rotation matrix
 void quat_to_matrix(const float *quat, float *mat);
+
+void AdvanceGuiDepth();
 
 #endif

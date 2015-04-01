@@ -308,6 +308,7 @@ void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 //					loop
 // ====================================================================
 void CRacing::Loop (double time_step) {
+	set_gl_options (COURSE);
     CControl *ctrl = Players.GetCtrl (g_game.player_id);
     double ycoord = Course.FindYCoord (ctrl->cpos.x, ctrl->cpos.z);
     bool airborne = (bool) (ctrl->cpos.y > (ycoord + JUMP_MAX_START_HEIGHT));

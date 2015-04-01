@@ -409,6 +409,57 @@ void dump_fps()
 	}
 }
 
+static TVector3 lookAtPos[2];
+
+void LookAtSelection(ovrEyeType eye)
+{
+	//float glmat[16]; 
+	//TMatrix transpose;
+	//TMatrix viewmat;
+	//glGetFloatv (GL_MODELVIEW_MATRIX, glmat);
+	//for (unsigned int i = 0; i < 16; i++) {
+	//	((double*)transpose)[i] = glmat[i];
+	//}
+	//TransposeMatrix (transpose, viewmat);
+
+	GLfloat depth;
+	TVector3 center(Winsys.resolution.width/2.f, Winsys.resolution.height/2.f, 0);
+	glReadPixels((int)center.x, (int)center.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth); 
+//	printf("depth: %f\n", depth);
+	//printf("center: %d %d\n", (int)center.x, (int)center.y);
+
+	//TMatrix invmat;
+	//if (InvertMatrix (viewmat, invmat)) {
+	//	TVector3 projected = TransformVector(invmat, centerscreen);
+	//	// read depth buffer at the center and project to find any widgets.
+	//}
+
+	GLdouble modelview[16];
+	GLdouble projection[16];
+	GLint viewport[4];
+
+	glGetDoublev (GL_PROJECTION_MATRIX, projection);
+	glGetDoublev (GL_MODELVIEW_MATRIX, modelview);
+	glGetIntegerv (GL_VIEWPORT, viewport); // todo: needs to be done inside eye loop below
+
+	/*
+	GLdouble fx, fy, fz; 
+	if (gluUnProject (center.x, center.y, (GLdouble)depth, modelview, projection, viewport, &fx, &fy, &fz) != GL_TRUE) {
+		fx = fy = fz = 0.0;
+	} else {
+		printf("looking at: %lf %lf %lf\n", fx, fy, fz);
+	}
+
+	// jdt: fx and fy should now be the x,y location of the widget we are looking at.
+	int idx = eye == ovrEye_Left ? 0 : 1;
+	lookAtPos[idx] = TVector3(fx, fy, fz);
+
+	glColor4f (1.0, 0.0, 0.0, 1.0);
+	glRectd (lookAtPos[idx].x - 5, lookAtPos[idx].y - 5, lookAtPos[idx].x + 5, lookAtPos[idx].y + 5);
+	*/
+}
+
+
 void CWinsys::RenderFrame(State *current)
 {
     ovrHmd_BeginFrame(hmd, frame_index);
@@ -443,7 +494,12 @@ void CWinsys::RenderFrame(State *current)
         SetupDisplay (eye);
 
         glCallList(stereo_gl_list);
+
+		//LookAtSelection (eye); // jdt todo
     }
+
+	// only do if in GUI state.
+	//CalcLookAtSelection();
 
     // after drawing both eyes into the texture render target, revert to drawing directly to the
     // display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly

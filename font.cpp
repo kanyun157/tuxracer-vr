@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #endif
 #include "spx.h"
 #include "winsys.h"
+#include "ogl.h"
 
 #define USE_UNICODE 1
 
@@ -249,6 +250,8 @@ int CFont::AutoDistanceN (int rel_val) {
 void CFont::DrawText(float x, float y, const char *text, size_t font, float size) const {
 	if (font >= fonts.size()) return;
 
+	AdvanceGuiDepth();
+
 	glPushMatrix();
     // jdt: huge performance hit w/ textured font here.  Set once and glScale!
 	//fonts[font]->FaceSize ((int)size);
@@ -267,7 +270,7 @@ void CFont::DrawText(float x, float y, const char *text, size_t font, float size
 		glTranslatef (left, y, 0);
 	}
 
-    glScalef (curr_scale, curr_scale, 0);
+    glScalef (curr_scale, curr_scale, 1);
 
 	fonts[font]->Render (text);
 	glPopMatrix();
@@ -275,6 +278,8 @@ void CFont::DrawText(float x, float y, const char *text, size_t font, float size
 
 void CFont::DrawText(float x, float y, const wchar_t *text, size_t font, float size) const {
 	if (font >= fonts.size()) return;
+
+	AdvanceGuiDepth();
 
 	glPushMatrix();
 	//fonts[font]->FaceSize ((int)size);
@@ -293,7 +298,7 @@ void CFont::DrawText(float x, float y, const wchar_t *text, size_t font, float s
 		glTranslatef (left, y, 0);
 	}
 
-    glScalef (curr_scale, curr_scale, 0);
+    glScalef (curr_scale, curr_scale, 1);
 
 	fonts[font]->Render (text);
 	glPopMatrix();
