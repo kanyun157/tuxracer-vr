@@ -48,6 +48,9 @@ void QuitRegistration () {
 }
 
 void CRegist::Keyb (unsigned int key, bool special, bool release, int x, int y) {
+    // jdt: grr this damn oculus safety screen won't go away.
+    ovrHmd_DismissHSWDisplay(Winsys.hmd);
+
 	TWidget* focussed = KeyGUI(key, 0, release);
 	if (release) return;
 	switch (key) {
@@ -104,6 +107,8 @@ void CRegist::Enter (void) {
 	g_game.loopdelay = 10;
 	if(Char.CharList.empty())
 		Winsys.Terminate(); // Characters are necessary - ETR is unusable otherwise
+
+    
 }
 
 void CRegist::Loop (double timestep) {

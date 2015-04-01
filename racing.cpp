@@ -162,9 +162,11 @@ void SetSoundVolumes () {
 void CRacing::Enter (void) {
     CControl *ctrl = Players.GetCtrl (g_game.player_id);
 
-    if (param.view_mode < 0 || param.view_mode >= NUM_VIEW_MODES) {
+    // jdt: ABOVE seems more comfortable in stereo
+    //if (param.view_mode < 0 || param.view_mode >= NUM_VIEW_MODES) {
 		param.view_mode = ABOVE;
-    }
+    //}
+
     set_view_mode (ctrl, (TViewMode)param.view_mode);
     left_turn = right_turn = false;
 	trick_modifier = true; // test
@@ -282,10 +284,11 @@ void CalcFinishControls (CControl *ctrl, double timestep, bool airborne) {
 
 void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 	if (airborne && trick_modifier) {
-		if (left_turn || stick_turnfact < -2.0) ctrl->roll_left = true;
-		if (right_turn || stick_turnfact > 2.0) ctrl->roll_right = true;
-		if (key_paddling) ctrl->front_flip = true;
-		if (ctrl->is_braking) ctrl->back_flip = true;
+        // jdt: disabling tricks w/ keypad.. only perform w/ joystick or hmd lean.
+		if (/*left_turn ||*/ stick_turnfact < -2.0) ctrl->roll_left = true;
+		if (/*right_turn ||*/ stick_turnfact > 2.0) ctrl->roll_right = true;
+		//if (key_paddling) ctrl->front_flip = true;
+		//if (ctrl->is_braking) ctrl->back_flip = true;
 	}
 
 	if (ctrl->roll_left || ctrl->roll_right) {
