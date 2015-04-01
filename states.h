@@ -20,12 +20,6 @@ GNU General Public License for more details.
 
 #include "bh.h"
 
-typedef enum {
-	FRAME_COMPILE,
-	FRAME_RENDER_LEFT,
-	FRAME_RENDER_RIGHT
-} FrameType;
-
 class CWinsys;
 
 class State {

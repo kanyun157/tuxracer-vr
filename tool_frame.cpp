@@ -186,59 +186,6 @@ void RenderSingleFrame (double timestep) {
 	if (!must_render) return;
 	check_gl_error ();
 
-	printf("I'm in tool_frame.cpp RenderSingleFrame!\n");
-	/*
-	// jdt: bind to out rift texture
-	//ovrHmd_BeginFrame(hmd, 0); // TODO
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	for (int i = 0; i < 2; ++i)
-	{
-
-		// ------------------ 3d scenery ----------------------------------
-		ScopedRenderMode rm1(TUX);
-		ClearRenderContext (colDDBackgr);
-
-		const string& hlname = TestFrame.GetHighlightName (curr_joint);
-		TestChar.highlight_node = TestChar.GetNodeName (hlname);
-
-		glPushMatrix ();
-
-		// set up left/right viewport targets
-		if (i % 2 == 0) {
-			glViewport(0, 0, fb_width/2, fb_height);
-		} else {
-			glViewport(fb_width/2, 0, fb_width/2, fb_height);
-		}
-
-		SetToolLight ();
-		GluCamera.Update (timestep, i % 2 == 0); // TODO: better way to signal left/right
-
-		TestFrame.CalcKeyframe (curr_frame, &TestChar, ref_position);
-		TestChar.Draw ();
-		glPopMatrix ();
-
-		// ----------------- 2d screen ------------------------------------
-		SetupGuiDisplay ();
-		ScopedRenderMode rm2(TEXFONT);
-
-		if (FrameHasChanged ()) DrawChanged ();
-	}
-
-	// after drawing both eyes into the texture render target, revert to drawing directly to the
-	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
-	// compensated for lens distortion and chromatic abberation onto the HMD screen.
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//jdt; TODO
-	//ovrHmd_EndFrame(hmd, pose, &fb_ovr_tex[0].Texture);
-
-	// workaround for the oculus sdk distortion renderer bug, which uses a shader
-	// program, and doesn't restore the original binding when it's done.
-	glUseProgram(0);
-
-	*/
-
 	FT.SetFont ("bold");
 	FT.SetSize (20);
 	FT.SetColor (colYellow);

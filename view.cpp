@@ -197,7 +197,7 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
     }
     
     TransposeMatrix (transpose, ctrl->view_mat); // NOT recorded in display list.
-    ovrEyeType eye = ovrEye_Left;
+
     // jdt: not perfect, but hmd positions aren't appreciable compared to viewpos.
     // .. I'd be interested in better ways to set this up..
     ctrl->view_mat[3][0] = ctrl->viewpos.x;
@@ -218,7 +218,7 @@ TVector3 MakeViewVector () {
 	return ScaleVector (camera_distance, res);
 }
 
-void update_view (CControl *ctrl, double dt, bool clean) {
+void update_view (CControl *ctrl, double dt) {
 	if (is_stationary) {
 		glMultMatrixd ((double*) stationary_matrix);
 		return;
