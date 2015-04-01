@@ -23,7 +23,6 @@ GNU General Public License for more details.
 #include "textures.h"
 #include "font.h"
 #include "winsys.h"
-#include "ogl.h"
 #include <list>
 #include <vector>
 

@@ -211,13 +211,19 @@ void CWinsys::OvrConfigureRendering()
 	// timewrap, which shifts the image before drawing to counter any latency between the call
 	// to ovrHmd_GetEyePose and ovrHmd_EndFrame.
 	//
-	distort_caps = ovrDistortionCap_Chromatic | ovrDistortionCap_Overdrive;
+	
+	distort_caps = ovrDistortionCap_Overdrive;
+#if OVR_MAJOR_VERSION < 5
+	distort_caps |= ovrDistortionCap_Chromatic;
+#endif
 	distort_caps |= ovrDistortionCap_Vignette;
 	distort_caps |= ovrDistortionCap_TimeWarp;
 #ifdef WIN32
 	//distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
 #endif
+#if OVR_MAJOR_VERSION < 5
 	distort_caps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
+#endif
 	distort_caps |= ovrDistortionCap_HqDistortion;
 	if(!ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc)) {
 		fprintf(stderr, "failed to configure renderer for Oculus SDK\n");
@@ -409,30 +415,17 @@ void dump_fps()
 	}
 }
 
+static TVector3 lookAtPrevPos[2];
 static TVector3 lookAtPos[2];
+static GLfloat lookAtDepth[2];
+static GLfloat lookAtRgb[2][3];
 
 void LookAtSelection(ovrEyeType eye)
 {
-	//float glmat[16]; 
-	//TMatrix transpose;
-	//TMatrix viewmat;
-	//glGetFloatv (GL_MODELVIEW_MATRIX, glmat);
-	//for (unsigned int i = 0; i < 16; i++) {
-	//	((double*)transpose)[i] = glmat[i];
-	//}
-	//TransposeMatrix (transpose, viewmat);
+	int idx = eye == ovrEye_Left ? 0 : 1;
 
-	GLfloat depth;
-	TVector3 center(Winsys.resolution.width/2.f, Winsys.resolution.height/2.f, 0);
-	glReadPixels((int)center.x, (int)center.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth); 
-//	printf("depth: %f\n", depth);
-	//printf("center: %d %d\n", (int)center.x, (int)center.y);
-
-	//TMatrix invmat;
-	//if (InvertMatrix (viewmat, invmat)) {
-	//	TVector3 projected = TransformVector(invmat, centerscreen);
-	//	// read depth buffer at the center and project to find any widgets.
-	//}
+	SetupDisplay (eye);
+	SetupGuiDisplay ();
 
 	GLdouble modelview[16];
 	GLdouble projection[16];
@@ -440,23 +433,32 @@ void LookAtSelection(ovrEyeType eye)
 
 	glGetDoublev (GL_PROJECTION_MATRIX, projection);
 	glGetDoublev (GL_MODELVIEW_MATRIX, modelview);
-	glGetIntegerv (GL_VIEWPORT, viewport); // todo: needs to be done inside eye loop below
+	glGetIntegerv (GL_VIEWPORT, viewport);
+
+	// viewport is that of the framebuffer size.. not 1920x1080
+	TVector3 center(viewport[2]/2.f + viewport[0], viewport[3]/2.f + viewport[1], 0);
+
+	GLfloat depth;
+	glReadPixels((int)center.x, (int)center.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth); 
+	lookAtDepth[idx] = depth;
 
 	/*
+	GLfloat rgb[3];
+	glReadPixels((int)center.x, (int)center.y, 1, 1, GL_RGB, GL_FLOAT, &rgb); 
+	lookAtRgb[eye][0] = rgb[0];
+	lookAtRgb[eye][1] = rgb[1];
+	lookAtRgb[eye][2] = rgb[2];
+	*/
+
 	GLdouble fx, fy, fz; 
-	if (gluUnProject (center.x, center.y, (GLdouble)depth, modelview, projection, viewport, &fx, &fy, &fz) != GL_TRUE) {
+	if (depth == 1.0 ||  
+		gluUnProject (center.x, center.y, (GLdouble)depth, modelview, projection, viewport, &fx, &fy, &fz) != GL_TRUE)
+	{
 		fx = fy = fz = 0.0;
-	} else {
-		printf("looking at: %lf %lf %lf\n", fx, fy, fz);
 	}
 
-	// jdt: fx and fy should now be the x,y location of the widget we are looking at.
-	int idx = eye == ovrEye_Left ? 0 : 1;
+	lookAtPrevPos[idx] = lookAtPos[idx];
 	lookAtPos[idx] = TVector3(fx, fy, fz);
-
-	glColor4f (1.0, 0.0, 0.0, 1.0);
-	glRectd (lookAtPos[idx].x - 5, lookAtPos[idx].y - 5, lookAtPos[idx].x + 5, lookAtPos[idx].y + 5);
-	*/
 }
 
 
@@ -495,11 +497,20 @@ void CWinsys::RenderFrame(State *current)
 
         glCallList(stereo_gl_list);
 
-		//LookAtSelection (eye); // jdt todo
+        LookAtSelection (eye);
     }
 
-	// only do if in GUI state.
-	//CalcLookAtSelection();
+	// jdt: todo only do if in GUI state.
+	// jdt: fx and fy should now be the x,y location of the widget we are looking at.
+	float eps = 100.f;
+	if (abs(lookAtPos[0].x) > 0 && abs(lookAtPos[0].y) > 0) {
+		if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps && abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
+			glColor4f (1.0, 0.0, 0.0, 1.0);
+			glRectd (lookAtPos[0].x - 5, lookAtPos[0].y - 5, lookAtPos[0].x + 5, lookAtPos[0].y + 5);
+			current->Motion(lookAtPos[0].x - lookAtPrevPos[0].x, lookAtPos[0].y - lookAtPrevPos[0].y);
+		}
+	}
+
 
     // after drawing both eyes into the texture render target, revert to drawing directly to the
     // display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
@@ -507,6 +518,8 @@ void CWinsys::RenderFrame(State *current)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
+
+
 
     dump_fps();
 }

@@ -37,7 +37,12 @@ GNU General Public License for more details.
 #include "winsys.h"
 #include "physics.h"
 
-#include "Kernel/OVR_Math.h"
+#include "OVR_Version.h"
+#if OVR_MAJOR_VERSION < 5
+# include "Kernel/OVR_Math.h"
+#else
+# include "Extras/OVR_Math.h"
+#endif
 
 #define MAX_JUMP_AMT 1.0
 #define ROLL_DECAY 0.2
@@ -311,7 +316,7 @@ void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 //					loop
 // ====================================================================
 void CRacing::Loop (double time_step) {
-	set_gl_options (COURSE);
+    set_gl_options (COURSE);
     CControl *ctrl = Players.GetCtrl (g_game.player_id);
     double ycoord = Course.FindYCoord (ctrl->cpos.x, ctrl->cpos.z);
     bool airborne = (bool) (ctrl->cpos.y > (ycoord + JUMP_MAX_START_HEIGHT));
@@ -325,7 +330,7 @@ void CRacing::Loop (double time_step) {
     Jaxis(1, -1.0); // jdt always paddle! //headPitch * 4.f); 
 
     // trigger charging with head-down.  Keep charging until head rises up to 0' pitch.
-    if (headPitch < -0.5 || (ctrl->jump_charging && headPitch < 0)) {
+    if (headPitch < -0.2 || (ctrl->jump_charging && headPitch < 0.1)) {
         key_charging = true;
     } else if (ctrl->jump_charging) {
         key_charging = false; // jump

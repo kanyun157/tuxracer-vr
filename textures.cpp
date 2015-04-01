@@ -23,7 +23,6 @@ GNU General Public License for more details.
 #include "spx.h"
 #include "course.h"
 #include "winsys.h"
-#include "ogl.h"
 #include <fstream>
 #include <cctype>
 #include <cstdio>

@@ -28,7 +28,6 @@ GNU General Public License for more details.
 #endif
 #include "spx.h"
 #include "winsys.h"
-#include "ogl.h"
 
 #define USE_UNICODE 1
 

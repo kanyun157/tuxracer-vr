@@ -53,7 +53,7 @@ void CIntro::Enter() {
 	ctrl->orientation_initialized = false;
     ctrl->view_init = false;
     ctrl->cpos.x = start_pt.x;
-    ctrl->cpos.z = start_pt.y - 1; // jdt: get rid of empty space at start of course.
+    ctrl->cpos.z = start_pt.y - 1; // jdt: hide clipping at start of course.
 
 	startframe = Char.GetKeyframe (g_game.char_id, START);
 	if (startframe->loaded) {

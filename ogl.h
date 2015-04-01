@@ -21,7 +21,6 @@ GNU General Public License for more details.
 #include "bh.h"
 
 #include "OVR_CAPI.h"
-#include "Kernel/OVR_Math.h"
 
 #define FAR_CLIP_FUDGE_AMOUNT 5
 #define NEAR_CLIP_DIST 0.1
