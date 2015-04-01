@@ -129,7 +129,7 @@ bool CControl::CheckTreeCollisions (const TVector3& pos, TVector3 *tree_loc, dou
     TPolyhedron ph = Course.GetPoly (tree_type);
 
     for (size_t i=0; i<num_trees; i++) {
-        diam = trees[i].diam;
+        diam = trees[i].diam / 4.f; // jdt: relax tree collision criteria
         height = trees[i].height;
         loc = trees[i].pt;
         TVector3 distvec(loc.x - pos.x, 0.0, loc.z - pos.z);

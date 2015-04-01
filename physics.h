@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #define TUX_MASS 20
 #define MIN_TUX_SPEED 1.4
 #define INIT_TUX_SPEED 3.0
-#define COLL_TOLERANCE 0.1
+#define COLL_TOLERANCE 0.01 // jdt: relaxing to make tree collisions less likely
 
 #define MAX_SURF_PEN 0.2
 #define TUX_Y_CORR 0.36
