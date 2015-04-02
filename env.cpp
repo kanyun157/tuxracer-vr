@@ -104,7 +104,6 @@ void CEnvironment::SetupLight () {
 }
 
 void CEnvironment::SetupFog () {
-	/*  Fog depends on a valid Frustum
 	if (!fog.is_on) {
 		glDisable (GL_FOG);
 		return;
@@ -120,7 +119,6 @@ void CEnvironment::SetupFog () {
     } else {
 		glHint (GL_FOG_HINT, GL_FASTEST);
     }
-	*/
 }
 
 void CEnvironment::ResetLight () {
@@ -222,8 +220,8 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	bb = 0.995f;
 #endif
 
-	GLboolean had_fog = glIsEnabled(GL_FOG);
-	glDisable (GL_FOG); // jdt: does this even work?
+	//GLboolean had_fog = glIsEnabled(GL_FOG);
+	//glDisable (GL_FOG); // jdt: does this even work?
 	glColor4f (1.0, 1.0, 1.0, 1.0);
 	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glPushMatrix();
@@ -294,13 +292,13 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	}
 	glPopMatrix();
 
-	if (had_fog) {
-		glEnable(GL_FOG);
-	}
+	//if (had_fog) {
+	//	glEnable(GL_FOG);
+	//}
 }
 
 void CEnvironment::DrawFog () {
-	/*
+	/* jdt: fog plane still has an issue with hmd roll
 	if (!fog.is_on)
 		return;
 

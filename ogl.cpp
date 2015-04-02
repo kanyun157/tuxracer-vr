@@ -173,6 +173,7 @@ void SetupGuiDisplay() {
 }
 
 void SetupHudDisplay(bool attachToFace) {
+    glDisable (GL_FOG);
     if (attachToFace || param.attach_hud_to_face) {
         glLoadIdentity ();
     }
