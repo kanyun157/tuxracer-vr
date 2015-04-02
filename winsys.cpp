@@ -332,9 +332,9 @@ void CWinsys::Quit () {
 	Audio.Close ();		// frees music and sound as well
 	FT.Clear ();
 	if (g_game.argument < 1) Players.SavePlayers ();
-	SDL_Quit ();
 	ovrHmd_Destroy(hmd);
 	ovr_Shutdown();
+	SDL_Quit ();
 }
 
 void CWinsys::Terminate () {
