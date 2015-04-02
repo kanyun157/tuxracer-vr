@@ -1,10 +1,10 @@
 #*[name] Test Course [dir] course
 
-*[name] Bumpy Ride [dir] bumpy_ride
-[desc] This hill has a series of ramps to tackle.  Be sure to line yourself up before getting airborne.
-
 *[name] Hippo Run [dir] hippo_run
 [desc] The author says: This is a fast course that makes you think. There are three major sections to the course. The first is a twisty ride over hills and ice. The second is up on top, and the third is the fastest part of all.
+
+*[name] Bumpy Ride [dir] bumpy_ride
+[desc] This hill has a series of ramps to tackle.  Be sure to line yourself up before getting airborne.
 
 *[name] In Search Of Vodka [dir] in_search_of_vodka
 [desc] A course with a bit of everything; bumpy ice, fast trenches, jumps, tree dodging and more. Hope you enjoy.
