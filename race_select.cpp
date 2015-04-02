@@ -175,12 +175,15 @@ void CRaceSelect::Loop(double timestep) {
 	int hh = Winsys.resolution.height;
 	TColor col;
 
+	Music.Update ();
 	check_gl_error();
-	ScopedRenderMode rm(GUI);
     ClearRenderContext ();
+
+	Env.DrawSkybox (TVector3(0,0,0));
+
+	ScopedRenderMode rm(GUI);
 	SetupGuiDisplay ();
 
-	Music.Update ();
 	if (param.ui_snow) {
 		update_ui_snow (timestep);
 		draw_ui_snow ();

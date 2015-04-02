@@ -451,8 +451,8 @@ void LookAtSelection(ovrEyeType eye)
 	*/
 
 	GLdouble fx, fy, fz; 
-	if (depth == 1.0 ||  
-		gluUnProject (center.x, center.y, (GLdouble)depth, modelview, projection, viewport, &fx, &fy, &fz) != GL_TRUE)
+	//if (depth == 1.0 ||  
+	if (gluUnProject (center.x, center.y, (GLdouble)depth, modelview, projection, viewport, &fx, &fy, &fz) != GL_TRUE)
 	{
 		fx = fy = fz = 0.0;
 	}
@@ -497,17 +497,21 @@ void CWinsys::RenderFrame(State *current)
 
         glCallList(stereo_gl_list);
 
-        LookAtSelection (eye);
+        if (current_render_mode() == GUI)
+            LookAtSelection (eye);
     }
 
-	// jdt: todo only do if in GUI state.
-	// jdt: fx and fy should now be the x,y location of the widget we are looking at.
-	float eps = 100.f;
-	if (abs(lookAtPos[0].x) > 0 && abs(lookAtPos[0].y) > 0) {
-		if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps && abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
-			glColor4f (1.0, 0.0, 0.0, 1.0);
-			glRectd (lookAtPos[0].x - 5, lookAtPos[0].y - 5, lookAtPos[0].x + 5, lookAtPos[0].y + 5);
-			current->Motion(lookAtPos[0].x - lookAtPrevPos[0].x, lookAtPos[0].y - lookAtPrevPos[0].y);
+	if (current_render_mode() == GUI)
+	{
+		float eps = 100.f;
+		if (abs(lookAtPos[0].x) > 0 && abs(lookAtPos[0].y) > 0) {
+			if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps && abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
+				glColor4f (1.0, 0.0, 0.0, 1.0);
+				glRectd (lookAtPos[0].x - 5, lookAtPos[0].y - 5, lookAtPos[0].x + 5, lookAtPos[0].y + 5);
+				cursor_pos.x = lookAtPos[0].x;
+				cursor_pos.y = Winsys.resolution.height - lookAtPos[0].y;
+				current->Motion(lookAtPos[0].x - lookAtPrevPos[0].x, lookAtPos[0].y - lookAtPrevPos[0].y);
+			}
 		}
 	}
 

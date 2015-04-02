@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include "textures.h"
 #include "font.h"
 #include "winsys.h"
+#include "states.h"
 #include <list>
 #include <vector>
 
@@ -574,7 +575,22 @@ void DrawCursor () {
 
 // ------------------ Main GUI functions ---------------------------------------------
 
+static int focussed = -1;
+static int focussedPrev = -1;
+static int focussedTime = 0;
 void DrawGUI() {
+	if (focussed >= 0 && focussedPrev == focussed) {
+		focussedTime++;
+		if (focussedTime > 150) {
+			// select widget
+			State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
+			focussedTime = 0;
+			focussedPrev = -1;
+		}
+	} else {
+		focussedTime = 0;
+	}
+
 	for(size_t i = 0; i < Widgets.size(); i++)
 		if(Widgets[i]->GetVisible()) {
 			Widgets[i]->Draw();
@@ -592,14 +608,16 @@ TWidget* ClickGUI(int x, int y) {
 	return clicked;
 }
 
-static int focussed = -1;
 TWidget* MouseMoveGUI(int x, int y) {
+	focussedPrev = focussed;
+
 	if(x != 0 || y != 0) {
 		focussed = -1;
 		for(size_t i = 0; i < Widgets.size(); i++) {
 			Widgets[i]->MouseMove(cursor_pos.x, cursor_pos.y);
-			if(Widgets[i]->focussed())
+			if(Widgets[i]->focussed()) {
 				focussed = (int)i;
+			}
 		}
 	}
 	if(focussed == -1)

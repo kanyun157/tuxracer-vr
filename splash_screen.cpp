@@ -85,5 +85,7 @@ void CSplashScreen::Loop(double timestep) {
 	Players.LoadAvatars (); // before LoadPlayers !!!
 	Players.LoadPlayers ();
 
+	Env.LoadEnvironment (0, 1); // first location, cloudy.  displayed behind GUI
+
 	State::manager.RequestEnterState (Regist);
 }

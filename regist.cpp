@@ -31,6 +31,9 @@ GNU General Public License for more details.
 #include "game_type_select.h"
 #include "newplayer.h"
 #include "winsys.h"
+#include "course.h"
+#include "physics.h"
+#include "env.h"
 
 CRegist Regist;
 
@@ -107,17 +110,19 @@ void CRegist::Enter (void) {
 	g_game.loopdelay = 10;
 	if(Char.CharList.empty())
 		Winsys.Terminate(); // Characters are necessary - ETR is unusable otherwise
-
-    
 }
 
 void CRegist::Loop (double timestep) {
+	CControl *ctrl = Players.GetCtrl (g_game.player_id);
 	int ww = Winsys.resolution.width;
 	int hh = Winsys.resolution.height;
 
 	Music.Update ();
 	check_gl_error();
     ClearRenderContext ();
+
+	Env.DrawSkybox (TVector3(0, 0, 0));
+
     ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
 	TColor col;

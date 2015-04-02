@@ -45,6 +45,7 @@ enum TRenderMode {
     TRACK_MARKS
 };
 
+TRenderMode current_render_mode ();
 void set_gl_options (TRenderMode mode);
 
 void check_gl_error();

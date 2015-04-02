@@ -21,6 +21,7 @@ GNU General Public License for more details.
 
 #include "game_type_select.h"
 #include "audio.h"
+#include "env.h"
 #include "ogl.h"
 #include "textures.h"
 #include "gui.h"
@@ -113,10 +114,13 @@ void CGameTypeSelect::Loop (double time_step) {
 	int ww = Winsys.resolution.width;
 	int hh = Winsys.resolution.height;
 
-	check_gl_error();
 	Music.Update ();
-    ScopedRenderMode rm(GUI);
+	check_gl_error();
     ClearRenderContext ();
+
+	Env.DrawSkybox (TVector3(0,0,0));
+
+    ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
 
 	if (param.ui_snow) {

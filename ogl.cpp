@@ -27,6 +27,8 @@ GNU General Public License for more details.
 
 TRenderMode currentMode = (TRenderMode)-1;
 
+TRenderMode current_render_mode() { return currentMode; }
+
 struct gl_value_t {
     char name[40];
     GLenum value;
@@ -344,6 +346,7 @@ void set_gl_options (TRenderMode mode)
 		glShadeModel (GL_SMOOTH);
 		glDepthFunc (GL_ALWAYS);
 		glDisable (GL_FOG);
+		glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         break;
 
 	case GAUGE_BARS:

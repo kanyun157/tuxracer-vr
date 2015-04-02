@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include "newplayer.h"
 #include "particles.h"
 #include "audio.h"
+#include "env.h"
 #include "gui.h"
 #include "ogl.h"
 #include "textures.h"
@@ -113,6 +114,9 @@ void CNewPlayer::Loop(double timestep) {
 	Music.Update ();
 	check_gl_error();
     ClearRenderContext ();
+
+	Env.DrawSkybox (TVector3(0,0,0));
+
     ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
 
