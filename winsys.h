@@ -69,6 +69,7 @@ public:
 	void OvrConfigureRendering();
 	void ToggleHmdFullscreen();
 	void RenderFrame(State *current);
+    bool hmd_is_debug;
 	ovrHmd hmd;
 	ovrSizei eyeres[2];
 	ovrEyeRenderDesc eye_rdesc[2];

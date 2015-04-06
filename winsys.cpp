@@ -201,7 +201,7 @@ void CWinsys::OvrConfigureRendering()
 
 	// enable low-persistence display and dynamic prediction for latency compensation
 	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-	hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
+	//hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
 	// well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
@@ -292,7 +292,10 @@ void CWinsys::Init () {
     		Message("failed to create virtual debug HMD");
 			SDL_Quit();
 		}
-	}
+        hmd_is_debug = true;
+    }
+    else hmd_is_debug = false;
+
 	printf("initialized HMD: %s - %s\n", hmd->Manufacturer, hmd->ProductName);
 	printf("\tdisplay resolution: %dx%d\n", hmd->Resolution.w, hmd->Resolution.h);
 	printf("\tdisplay position: %d,%d\n", hmd->WindowsPos.x, hmd->WindowsPos.y);
@@ -497,11 +500,11 @@ void CWinsys::RenderFrame(State *current)
 
         glCallList(stereo_gl_list);
 
-        if (current_render_mode() == GUI)
+        if (!hmd_is_debug && current_render_mode() == GUI)
             LookAtSelection (eye);
     }
 
-	if (current_render_mode() == GUI)
+	if (!hmd_is_debug && current_render_mode() == GUI)
 	{
 		float eps = 100.f;
 		if (abs(lookAtPos[0].x) > 0 && abs(lookAtPos[0].y) > 0) {
@@ -515,15 +518,12 @@ void CWinsys::RenderFrame(State *current)
 		}
 	}
 
-
     // after drawing both eyes into the texture render target, revert to drawing directly to the
     // display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
     // compensated for lens distortion and chromatic abberation onto the HMD screen.
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
-
-
 
     dump_fps();
 }

@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include "textures.h"
 #include "course.h"
 #include "physics.h"
+#include "view.h"
 #include <list>
 
 #define TRACK_WIDTH  0.7
@@ -92,6 +93,18 @@ static T decrementRingIterator(T q) {
 	return ret;
 }
 
+bool track_quad_visible(const track_quad_t &q)
+{
+    TVector3 minquad(min(q.v1.x, min(q.v2.x, min(q.v3.x, q.v4.x))),
+                     min(q.v1.y, min(q.v2.y, min(q.v3.y, q.v4.y))),
+                     min(q.v1.z, min(q.v2.z, min(q.v3.z, q.v4.z))));
+    TVector3 maxquad(max(q.v1.x, max(q.v2.x, max(q.v3.x, q.v4.x))),
+                     max(q.v1.y, max(q.v2.y, max(q.v3.y, q.v4.y))),
+                     max(q.v1.z, max(q.v2.z, max(q.v3.z, q.v4.z))));
+
+    return clip_aabb_to_view_frustum(minquad, maxquad) != NoClip;
+}
+
 // --------------------------------------------------------------------
 //						draw_track_marks
 // --------------------------------------------------------------------
@@ -100,6 +113,8 @@ void DrawTrackmarks() {
 	if (param.perf_level < 3)
 		return;
 
+    static unsigned int count = 0;
+    if (count++ % 60*3 == 0 )    printf("%u\n", track_marks.quads.size());
     TTexture* textures[NUM_TRACK_TYPES];
 
     TColor track_colour = colWhite;
@@ -113,64 +128,77 @@ void DrawTrackmarks() {
 
 	for (list<track_quad_t>::const_iterator q = track_marks.quads.begin(); q != track_marks.quads.end(); ++q) {
 		track_colour.a = q->alpha;
-		set_material (track_colour, colBlack, 1.0);
-		textures[q->track_type]->Bind();
-
+		
 		if ((q->track_type == TRACK_HEAD) || (q->track_type == TRACK_TAIL)) {
-			glBegin(GL_QUADS);
+            
+            if (track_quad_visible(*q))
+            {
+                set_material(track_colour, colBlack, 1.0);
+                textures[q->track_type]->Bind();
 
-			glNormal3f (q->n1.x, q->n1.y, q->n1.z);
-			glTexCoord2f (q->t1.x, q->t1.y);
-			glVertex3f (q->v1.x, q->v1.y, q->v1.z);
+                glBegin(GL_QUADS);
 
-			glNormal3f (q->n2.x, q->n2.y, q->n2.z);
-			glTexCoord2f (q->t2.x, q->t2.y);
-			glVertex3f (q->v2.x, q->v2.y, q->v2.z);
+                glNormal3f(q->n1.x, q->n1.y, q->n1.z);
+                glTexCoord2f(q->t1.x, q->t1.y);
+                glVertex3f(q->v1.x, q->v1.y, q->v1.z);
 
-			glNormal3f (q->n4.x, q->n4.y, q->n4.z);
-			glTexCoord2f (q->t4.x, q->t4.y);
-			glVertex3f (q->v4.x, q->v4.y, q->v4.z);
+                glNormal3f(q->n2.x, q->n2.y, q->n2.z);
+                glTexCoord2f(q->t2.x, q->t2.y);
+                glVertex3f(q->v2.x, q->v2.y, q->v2.z);
 
-			glNormal3f (q->n3.x, q->n3.y, q->n3.z);
-			glTexCoord2f (q->t3.x, q->t3.y);
-			glVertex3f (q->v3.x, q->v3.y, q->v3.z);
+                glNormal3f(q->n4.x, q->n4.y, q->n4.z);
+                glTexCoord2f(q->t4.x, q->t4.y);
+                glVertex3f(q->v4.x, q->v4.y, q->v4.z);
 
-			glEnd();
+                glNormal3f(q->n3.x, q->n3.y, q->n3.z);
+                glTexCoord2f(q->t3.x, q->t3.y);
+                glVertex3f(q->v3.x, q->v3.y, q->v3.z);
 
+                glEnd();
+            }
 		} else {
-			glBegin(GL_QUAD_STRIP);
-				glNormal3f (q->n2.x, q->n2.y, q->n2.z);
-				glTexCoord2f (q->t2.x, q->t2.y);
-				glVertex3f (q->v2.x, q->v2.y, q->v2.z);
+            glBegin(GL_QUAD_STRIP);
 
-				glNormal3f (q->n1.x, q->n1.y, q->n1.z);
-				glTexCoord2f (q->t1.x, q->t1.y);
-				glVertex3f (q->v1.x, q->v1.y, q->v1.z);
+            if (track_quad_visible(*q))
+            {
+                set_material(track_colour, colBlack, 1.0);
+                textures[q->track_type]->Bind();
 
-				glNormal3f (q->n4.x, q->n4.y, q->n4.z);
-				glTexCoord2f (q->t4.x, q->t4.y);
-				glVertex3f (q->v4.x, q->v4.y, q->v4.z);
+                glNormal3f(q->n2.x, q->n2.y, q->n2.z);
+                glTexCoord2f(q->t2.x, q->t2.y);
+                glVertex3f(q->v2.x, q->v2.y, q->v2.z);
 
-				glNormal3f (q->n3.x, q->n3.y, q->n3.z);
-				glTexCoord2f (q->t3.x, q->t3.y);
-				glVertex3f (q->v3.x, q->v3.y, q->v3.z);
+                glNormal3f(q->n1.x, q->n1.y, q->n1.z);
+                glTexCoord2f(q->t1.x, q->t1.y);
+                glVertex3f(q->v1.x, q->v1.y, q->v1.z);
 
-				list<track_quad_t>::const_iterator qnext = q; ++qnext;
-				while (qnext != track_marks.quads.end() && qnext->track_type != TRACK_TAIL) {
-					q = qnext;
-					track_colour.a = q->alpha;
-					set_material (track_colour, colBlack, 1.0);
+                glNormal3f(q->n4.x, q->n4.y, q->n4.z);
+                glTexCoord2f(q->t4.x, q->t4.y);
+                glVertex3f(q->v4.x, q->v4.y, q->v4.z);
 
-					glNormal3f (q->n4.x, q->n4.y, q->n4.z);
-					glTexCoord2f (q->t4.x, q->t4.y);
-					glVertex3f (q->v4.x, q->v4.y, q->v4.z);
+                glNormal3f(q->n3.x, q->n3.y, q->n3.z);
+                glTexCoord2f(q->t3.x, q->t3.y);
+                glVertex3f(q->v3.x, q->v3.y, q->v3.z);
+                
+                list<track_quad_t>::const_iterator qnext = q; ++qnext;
+                while (qnext != track_marks.quads.end() && qnext->track_type != TRACK_TAIL) {
+                    if (track_quad_visible(*qnext)) // q is already visible
+                    {
+                        q = qnext;
+                    
+                        track_colour.a = q->alpha;
+                        set_material(track_colour, colBlack, 1.0);
+                        glNormal3f(q->n4.x, q->n4.y, q->n4.z);
+                        glTexCoord2f(q->t4.x, q->t4.y);
+                        glVertex3f(q->v4.x, q->v4.y, q->v4.z);
 
-					glNormal3f (q->n3.x, q->n3.y, q->n3.z);
-					glTexCoord2f (q->t3.x, q->t3.y);
-					glVertex3f (q->v3.x, q->v3.y, q->v3.z);
-
-					++qnext;
-				}
+                        glNormal3f(q->n3.x, q->n3.y, q->n3.z);
+                        glTexCoord2f(q->t3.x, q->t3.y);
+                        glVertex3f(q->v3.x, q->v3.y, q->v3.z);
+                    }
+                    ++qnext;
+                }
+            }
 			glEnd();
 		}
     }

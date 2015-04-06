@@ -34,10 +34,10 @@ GNU General Public License for more details.
 //					gui particles 2D
 // ====================================================================
 
-//#define MAX_num_snowparticles 4000
-#define MAX_num_snowparticles 100
-//#define BASE_num_snowparticles 1000 // jdt: too many for my machine
-#define BASE_num_snowparticles 50
+#define MAX_num_snowparticles 4000
+//#define MAX_num_snowparticles 100
+#define BASE_num_snowparticles 1000 // jdt: too many for my machine
+//#define BASE_num_snowparticles 50
 #define GRAVITY_FACTOR 0.015
 #define BASE_VELOCITY 0.05
 #define VELOCITY_RANGE 0.02
@@ -97,19 +97,24 @@ TGuiParticle::TGuiParticle(double x, double y) {
 }
 
 void TGuiParticle::Draw(double xres, double yres) const {
-	glPushMatrix();
-	glTranslatef (pt.x * xres, pt.y * yres, 0);
-	glBegin (GL_QUADS);
-		glTexCoord2f (tex_min.x, tex_min.y);
-		glVertex2f (0, 0);
-		glTexCoord2f (tex_max.x, tex_min.y);
-		glVertex2f (size, 0);
-		glTexCoord2f (tex_max.x, tex_max.y);
-		glVertex2f (size, size);
-		glTexCoord2f (tex_min.x, tex_max.y);
-		glVertex2f (0, size);
-	glEnd();
-	glPopMatrix();
+	//glPushMatrix();
+
+    //glColor3f(1.0, 1.0, 1.0);
+	//glTranslatef (pt.x * xres, pt.y * yres, -1080);
+	//glBegin (GL_QUADS);
+    //glBegin(GL_POINTS);
+		//glTexCoord2f (tex_min.x, tex_min.y);
+    GLfloat x = pt.x * xres;
+    GLfloat y = pt.y * yres;
+    glVertex3f(x, y, 20);// 0, 0);
+	glTexCoord2f (tex_max.x, tex_min.y);
+	glVertex2f (x + size, y);
+	glTexCoord2f (tex_max.x, tex_max.y);
+	glVertex2f (x + size, y + size);
+	glTexCoord2f (tex_min.x, tex_max.y);
+	glVertex2f (x, y + size);
+	//glEnd();
+	//glPopMatrix();
 }
 
 void TGuiParticle::Update(double time_step, double push_timestep, const TVector2& push_vector) {
@@ -197,18 +202,23 @@ void update_ui_snow (double time_step) {
     }
 }
 void draw_ui_snow () {
-    /* jdt test
+    static unsigned int count = 0;
+    if (count++ % 500 == 0) printf("particles %u\n", particles_2d.size());
     double xres = Winsys.resolution.width;
     double yres = Winsys.resolution.height;
 
     glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	Tex.BindTex (SNOW_PART);
-    glColor4f(part_col[0], part_col[1], part_col[2], part_col[3]);
+    glPointSize(10);
+
+    glColor4f(1.0, 1.0, 1.0, 1.0);//)part_col[0], part_col[1], part_col[2], 1.0f); // part_col[3]);
+    glBegin(GL_QUADS);
 	part_col[3] = 0.3;
 	for (list<TGuiParticle>::const_iterator i = particles_2d.begin(); i != particles_2d.end(); ++i) {
 		i->Draw(xres, yres);
     }
-    */
+    glEnd();
+
 }
 
 void push_ui_snow (const TVector2& pos) {
@@ -260,22 +270,41 @@ struct Particle {
 static list<Particle> particles;
 
 void Particle::Draw(const CControl* ctrl) const {
-	TVector2 min_tex_coord, max_tex_coord;
-	if (type == 0 || type == 1) {
-		min_tex_coord.y = 0;
-		max_tex_coord.y = 0.5;
-	} else {
-		min_tex_coord.y = 0.5;
-		max_tex_coord.y = 1.0;
-	}
+    /*
 
-	if (type == 0 || type == 3) {
-		min_tex_coord.x = 0;
-		max_tex_coord.x = 0.5;
-	} else {
-		min_tex_coord.x = 0.5;
-		max_tex_coord.x = 1.0;
-	}
+    TVector2 min_tex_coord, max_tex_coord;
+    if (type == 0 || type == 1) {
+        min_tex_coord.y = 0;
+        max_tex_coord.y = 0.5;
+    }
+    else {
+        min_tex_coord.y = 0.5;
+        max_tex_coord.y = 1.0;
+    }
+
+    if (type == 0 || type == 3) {
+        min_tex_coord.x = 0;
+        max_tex_coord.x = 0.5;
+    }
+    else {
+        min_tex_coord.x = 0.5;
+        max_tex_coord.x = 1.0;
+    }
+    */
+
+    GLfloat size = 10;
+    GLfloat x = pt.x * 1920;// xres;
+    GLfloat y = pt.y * 1080;// yres;
+    glTexCoord2f(0, 0);
+    glVertex3f(x, y, 20);// 0, 0);
+    glTexCoord2f(0, 0.5);
+    glVertex2f(x + size, y);
+    glTexCoord2f(0.5, 0.5);
+    glVertex2f(x + size, y + size);
+    glTexCoord2f(0.5, 0);
+    glVertex2f(x, y + size);
+    /*
+   
 
 	const TColor& particle_colour = Env.ParticleColor ();
 	glColor4f (particle_colour.r,
@@ -284,10 +313,12 @@ void Particle::Draw(const CControl* ctrl) const {
 			particle_colour.a * alpha);
 
 	draw_billboard (ctrl, cur_size, cur_size, false, min_tex_coord, max_tex_coord);
+    */
 }
 
 void Particle::draw_billboard (const CControl *ctrl, double width, double height, bool use_world_y_axis, const TVector2& min_tex_coord, const TVector2& max_tex_coord) const
 {
+    /*
     TVector3 x_vec;
     TVector3 y_vec;
     TVector3 z_vec;
@@ -295,7 +326,7 @@ void Particle::draw_billboard (const CControl *ctrl, double width, double height
     x_vec.x = ctrl->view_mat[0][0];
     x_vec.y = ctrl->view_mat[0][1];
     x_vec.z = ctrl->view_mat[0][2];
-
+    
     if (use_world_y_axis) {
 		y_vec = TVector3(0, 1, 0);
 		x_vec = ProjectToPlane (y_vec, x_vec);
@@ -310,10 +341,13 @@ void Particle::draw_billboard (const CControl *ctrl, double width, double height
 		z_vec.z = ctrl->view_mat[2][2];
     }
 
-    glBegin (GL_QUADS);
+//    glBegin (GL_QUADS);
+
 		TVector3 newpt = AddVectors (pt, ScaleVector (-width/2.0, x_vec));
+
 		newpt = AddVectors (newpt, ScaleVector (-height/2.0, y_vec));
 		glNormal3f (z_vec.x, z_vec.y, z_vec.z);
+        
 		glTexCoord2f (min_tex_coord.x, min_tex_coord.y);
 		glVertex3f (newpt.x, newpt.y, newpt.z);
 
@@ -328,7 +362,8 @@ void Particle::draw_billboard (const CControl *ctrl, double width, double height
 		newpt = AddVectors (newpt, ScaleVector (-width, x_vec));
 		glTexCoord2f (min_tex_coord.x, max_tex_coord.y);
 		glVertex3f (newpt.x, newpt.y, newpt.z);
-    glEnd ();
+//    glEnd ();
+*/
 }
 
 void create_new_particles (const TVector3& loc, TVector3 vel, int num) {
@@ -382,12 +417,15 @@ void draw_particles (const CControl *ctrl) {
 	Tex.BindTex (SNOW_PART);
     glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glColor4f(part_col[0], part_col[1], part_col[2], part_col[3]);
-	part_col[3] = 0.8;    // !!!!!!!!!
+	//part_col[3] = 0.8;    // !!!!!!!!!
+
+    glBegin(GL_QUADS);
 
 	for(list<Particle>::const_iterator p = particles.begin(); p != particles.end(); ++p) {
         if (p->age >= 0)
 			p->Draw(ctrl);
     }
+    glEnd();
 }
 void clear_particles() {
 	particles.clear();
