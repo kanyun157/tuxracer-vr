@@ -567,21 +567,28 @@ void DrawBonusExt (int y, size_t numraces, size_t num) {
 	}
 }
 
+static int focussed = -1;
+static int focussedPrev = -1;
+static int focussedFrames = 0;
+static int focussedMaxFrames = 300;
+
 void DrawCursor () {
 	//if(param.ice_cursor) {
 	//if (!Winsys.lookAtValid || Winsys.hmd_is_debug) {
-	//}
 	//Tex.Draw (MOUSECURSOR, cursor_pos.x, cursor_pos.y,
+	//}
+	float focussedPrct = (float)focussedFrames / focussedMaxFrames;
+	int res = 32; // jdt: proper query
+	//TTexture* reticleTex = Tex.GetTexture (LOOK_RETICLE);
 	float size = CURSOR_SIZE * (double)Winsys.resolution.width / 14000; // ?
-	Tex.Draw (LOOK_RETICLE, cursor_pos.x - size/2, cursor_pos.y + size/2, size);
+	Tex.SetColor(TColor(focussedPrct, focussedPrct, 1, 1));
+	Tex.Draw (LOOK_RETICLE, cursor_pos.x -(res/2 * size), cursor_pos.y -(res/2 * size), size);
+	Tex.SetColor(TColor(1, 1, 1, 1));
 }
 
 
 // ------------------ Main GUI functions ---------------------------------------------
 
-static int focussed = -1;
-static int focussedPrev = -1;
-static int focussedTime = 0;
 void DrawGUI() {
 	if (Winsys.lookAtValid) {
 		cursor_pos.x = Winsys.lookAtPos[0].x;
@@ -591,18 +598,16 @@ void DrawGUI() {
 	}
 
 	if (focussed >= 0 && focussedPrev == focussed) {
-		focussedTime++;
-		if (focussedTime > 150) {
+		focussedFrames++;
+		if (focussedFrames > focussedMaxFrames) {
 			// select widget
 			State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
-			focussedTime = 0;
+			focussedFrames = 0;
 			focussedPrev = -1;
-		} //else if (focussedTime > 30) {
-		//	cursor_pos.x = Winsys.lookAtPos[0].x;
-		//	cursor_pos.y = Winsys.resolution.height - Winsys.lookAtPos[0].y;
-		//}
+			focussed = -1;
+		}
 	} else {
-		focussedTime = 0;
+		focussedFrames = 0;
 	}
 
 

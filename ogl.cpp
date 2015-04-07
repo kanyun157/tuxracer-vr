@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include "ogl.h"
 #include "spx.h"
 #include "winsys.h"
+#include "env.h"
 #include <cstdarg>
 #include <stack>
 
@@ -168,16 +169,16 @@ void ClearRenderContext (const TColor& col) {
 }
 
 void SetupGuiDisplay() {
-	glDisable (GL_LINE_SMOOTH);
-	glDisable (GL_POLYGON_SMOOTH); // leave it up to fxaa
-	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+	//glDisable (GL_LINE_SMOOTH);
+	//glDisable (GL_POLYGON_SMOOTH); // leave it up to fxaa
+	//glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
     // Move x,y coordinate system to positive quandrant.
     float offsetx = (float)Winsys.resolution.width/2;
     float offsety = (float)Winsys.resolution.height/2;
     glTranslatef (-offsetx, -offsety, -offsety);
 
-	// semi-transparent background 
+	glDisable (GL_TEXTURE_2D);
 	glColor4f (0, 0, 0, 0.1);
 	glBegin(GL_QUADS);
 	{
@@ -187,6 +188,9 @@ void SetupGuiDisplay() {
 		glVertex2f (offsetx*2, 0);
 	}
 	glEnd();
+	glEnable (GL_TEXTURE_2D);
+
+	glColor4f (1, 1, 1, 1);
 }
 
 void SetupHudDisplay(bool attachToFace) {
@@ -195,7 +199,11 @@ void SetupHudDisplay(bool attachToFace) {
         glLoadIdentity ();
     }
     glScalef (0.08f, 0.08f, 0.15f); // err..bitrary
-    SetupGuiDisplay ();
+
+    // Move x,y coordinate system to positive quandrant.
+    float offsetx = (float)Winsys.resolution.width/2;
+    float offsety = (float)Winsys.resolution.height/2;
+    glTranslatef (-offsetx, -offsety, -offsety);
 }
 
 void SetupDisplay (ovrEyeType eye) {
@@ -629,15 +637,16 @@ void set_gl_options (TRenderMode mode)
 stack<TRenderMode> modestack;
 void PushRenderMode(TRenderMode mode)
 {
-	if(currentMode != mode)
-		set_gl_options(mode);
-	modestack.push(mode);
+	set_gl_options(mode);
+	//if(currentMode != mode)
+	//	set_gl_options(mode);
+	//modestack.push(mode);
 }
 
 void PopRenderMode()
 {
-	TRenderMode mode = modestack.top();
-	modestack.pop();
-	if(!modestack.empty() && modestack.top() != mode)
-		set_gl_options(modestack.top());
+	//TRenderMode mode = modestack.top();
+	//modestack.pop();
+	//if(!modestack.empty() && modestack.top() != mode)
+	//	set_gl_options(modestack.top());
 }

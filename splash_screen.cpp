@@ -34,6 +34,7 @@ GNU General Public License for more details.
 #include "translation.h"
 #include "score.h"
 #include "regist.h"
+#include "game_type_select.h"
 #include "winsys.h"
 
 CSplashScreen SplashScreen;

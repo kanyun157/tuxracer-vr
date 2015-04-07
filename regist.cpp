@@ -121,10 +121,10 @@ void CRegist::Loop (double timestep) {
 	check_gl_error();
     ClearRenderContext ();
 
-	Env.DrawSkybox (TVector3(0, 0, 0));
+	Env.DrawSkybox (TVector3(0,0,0));
 
-    ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
+    ScopedRenderMode rm(GUI);
 	TColor col;
 
 	if (param.ui_snow) {

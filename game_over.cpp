@@ -45,6 +45,11 @@ static CKeyframe *final_frame;
 static int highscore_pos = 999;
 
 void QuitGameOver () {
+    // jdt: set skybox back to what it was.. The various
+    //      data/env bitmaps need a lot of work.  It would 
+    //      be neat to keep the environment for the GUI. 
+    Env.LoadEnvironment (0, 1); // cloudy default
+
     if (g_game.game_type == PRACTICING) {
 		State::manager.RequestEnterState (RaceSelect);
 	} else {

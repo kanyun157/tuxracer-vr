@@ -197,6 +197,8 @@ public:
 	void DrawFrame (size_t idx, int x, int y, double w, double h, int frame, const TColor& col);
 	void DrawFrame (const string& name, int x, int y, double w, double h, int frame, const TColor& col);
 
+	TColor color;
+	void SetColor (const TColor& col) { color = col; }
 	void SetOrientation (Orientation orientation);
 	void DrawNumStr (const char *s, int x, int y, float size, const TColor& col);
 };

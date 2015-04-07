@@ -369,7 +369,7 @@ void TTexture::Draw() {
 	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
 	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
 
-    glColor4f (1.0, 1.0, 1.0, 1.0);
+	glColor4f (Tex.color.r, Tex.color.g, Tex.color.b, Tex.color.a);
 	glBegin (GL_QUADS);
 	    glTexCoord2f (0, 0); glVertex2f (0, 0);
 	    glTexCoord2f (1, 0); glVertex2f (w, 0);
@@ -403,7 +403,7 @@ void TTexture::Draw(int x, int y, float size, Orientation orientation) {
 	if (x >= 0) left = x; else left = (Winsys.resolution.width - width) / 2;
 	right = left + width;
 
-    glColor4f (1.0, 1.0, 1.0, 1.0);
+	glColor4f (Tex.color.r, Tex.color.g, Tex.color.b, Tex.color.a);
 	glBegin (GL_QUADS);
 	    glTexCoord2f (0, 0); glVertex2f (left, bott);
 	    glTexCoord2f (1, 0); glVertex2f (right, bott);
@@ -433,7 +433,7 @@ void TTexture::Draw(int x, int y, float width, float height, Orientation orienta
 	if (x >= 0) left = x; else left = (Winsys.resolution.width - width) / 2;
 	right = left + width;
 
-    glColor4f (1.0, 1.0, 1.0, 1.0);
+	glColor4f (Tex.color.r, Tex.color.g, Tex.color.b, Tex.color.a);
 	glBegin (GL_QUADS);
 	    glTexCoord2f (0, 0); glVertex2f (left, bott);
 	    glTexCoord2f (1, 0); glVertex2f (right, bott);
@@ -469,7 +469,7 @@ void TTexture::DrawFrame(int x, int y, double w, double h, int frame, const TCol
 		glEnable (GL_TEXTURE_2D);
 	}
 
-    glColor4f (1.0, 1.0, 1.0, 1.0);
+	glColor4f (Tex.color.r, Tex.color.g, Tex.color.b, Tex.color.a);
 	glBegin (GL_QUADS);
 		glTexCoord2f (0, 0); glVertex2f (xx, yy);
 	    glTexCoord2f (1, 0); glVertex2f (xx + ww, yy);
@@ -484,7 +484,9 @@ void TTexture::DrawFrame(int x, int y, double w, double h, int frame, const TCol
 
 CTexture Tex;
 
-CTexture::CTexture () {
+CTexture::CTexture () :
+	color(1, 1, 1, 1)
+{
 	forientation = OR_TOP;
 }
 

@@ -118,7 +118,7 @@ void CGameTypeSelect::Loop (double time_step) {
 	check_gl_error();
     ClearRenderContext ();
 
-	Env.DrawSkybox (TVector3(0,0,0));
+	Env.DrawSkybox (TVector3(0, 0, 0));
 
     ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
@@ -128,8 +128,8 @@ void CGameTypeSelect::Loop (double time_step) {
 		draw_ui_snow();
     }
 
-	// jdt: TODO why is this skewed in the Y axis?  '6' here is fudge.
-	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 6);
+	// jdt: TODO why is this skewed in the Y axis?  '12' here is fudge.
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 12);
 
 	DrawGUI();
 

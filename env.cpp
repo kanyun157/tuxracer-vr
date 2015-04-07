@@ -207,6 +207,7 @@ void CEnvironment::LoadLight () {
 }
 
 void CEnvironment::DrawSkybox (const TVector3& pos) {
+	if (!Skybox) return;
 	ScopedRenderMode rm(SKY);
 	GLfloat aa, bb;
 	aa = 0.005f;
