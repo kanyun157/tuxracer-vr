@@ -207,24 +207,12 @@ void CEnvironment::LoadLight () {
 }
 
 void CEnvironment::DrawSkybox (const TVector3& pos) {
-    //return;
 	ScopedRenderMode rm(SKY);
 	GLfloat aa, bb;
-
-#if defined (OS_LINUX)
-	//aa = 0.0f;
-	//bb = 1.0f;
-	aa = 0.005f; // jdt: textures might have bad borders.
-	bb = 0.995f;
-#else
 	aa = 0.005f;
 	bb = 0.995f;
-#endif
 
-	//GLboolean had_fog = glIsEnabled(GL_FOG);
-	//glDisable (GL_FOG); // jdt: does this even work?
 	glColor4f (1.0, 1.0, 1.0, 1.0);
-	//glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glPushMatrix();
 	glTranslatef (pos.x, pos.y, pos.z);
 	
@@ -292,10 +280,6 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 		glEnd();
 	}
 	glPopMatrix();
-
-	//if (had_fog) {
-	//	glEnable(GL_FOG);
-	//}
 }
 
 void CEnvironment::DrawFog () {

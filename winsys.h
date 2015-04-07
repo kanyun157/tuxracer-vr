@@ -56,8 +56,6 @@ private:
 	TScreenRes resolutions[NUM_RESOLUTIONS];
 	TScreenRes auto_resolution;
 	SDL_Window *sdlWindow;
-	//SDL_Renderer *sdlRenderer;
-	//SDL_Surface *screen;
 	SDL_GLContext glContext;
 	double CalcScreenScale () const;
 
@@ -69,7 +67,7 @@ public:
 	void OvrConfigureRendering();
 	void ToggleHmdFullscreen();
 	void RenderFrame(State *current);
-    bool hmd_is_debug;
+	bool hmd_is_debug;
 	ovrHmd hmd;
 	ovrSizei eyeres[2];
 	ovrEyeRenderDesc eye_rdesc[2];
@@ -81,6 +79,13 @@ public:
 	unsigned int frame_index;
 	ovrPosef eyePose[2];
 	ovrTrackingState trackingState;
+
+	// jdt: reverse projection for "look-at" GUI selection.
+	bool lookAtValid;
+	TVector3 lookAtPrevPos[2];
+	TVector3 lookAtPos[2];
+	GLfloat lookAtDepth[2];
+	//GLfloat lookAtRgb[2][3];
 
 	CWinsys ();
 

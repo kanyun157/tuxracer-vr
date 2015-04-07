@@ -29,6 +29,8 @@ GNU General Public License for more details.
 #include "spx.h"
 #include "course.h"
 #include "states.h"
+#include "racing.h"
+#include "intro.h"
 #include "SDL2/SDL_syswm.h"
 #include <iostream>
 
@@ -60,6 +62,8 @@ CWinsys::CWinsys ()
 	resolutions[10] = TScreenRes(1920, 1080); // rift dk2
 
 	frame_index = 0;
+
+	lookAtValid = false;
 }
 
 const TScreenRes& CWinsys::GetResolution (size_t idx) const {
@@ -201,7 +205,7 @@ void CWinsys::OvrConfigureRendering()
 
 	// enable low-persistence display and dynamic prediction for latency compensation
 	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-	//hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
+	hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
 	// well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
@@ -418,11 +422,6 @@ void dump_fps()
 	}
 }
 
-static TVector3 lookAtPrevPos[2];
-static TVector3 lookAtPos[2];
-static GLfloat lookAtDepth[2];
-static GLfloat lookAtRgb[2][3];
-
 void LookAtSelection(ovrEyeType eye)
 {
 	int idx = eye == ovrEye_Left ? 0 : 1;
@@ -443,7 +442,7 @@ void LookAtSelection(ovrEyeType eye)
 
 	GLfloat depth;
 	glReadPixels((int)center.x, (int)center.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth); 
-	lookAtDepth[idx] = depth;
+	Winsys.lookAtDepth[idx] = depth;
 
 	/*
 	GLfloat rgb[3];
@@ -460,8 +459,8 @@ void LookAtSelection(ovrEyeType eye)
 		fx = fy = fz = 0.0;
 	}
 
-	lookAtPrevPos[idx] = lookAtPos[idx];
-	lookAtPos[idx] = TVector3(fx, fy, fz);
+	Winsys.lookAtPrevPos[idx] = Winsys.lookAtPos[idx];
+	Winsys.lookAtPos[idx] = TVector3(fx, fy, fz);
 }
 
 
@@ -470,6 +469,7 @@ void CWinsys::RenderFrame(State *current)
     ovrHmd_BeginFrame(hmd, frame_index);
 
     ovrVector3f eye_view_offsets[2] = { eye_rdesc[0].HmdToEyeViewOffset,
+
         eye_rdesc[1].HmdToEyeViewOffset };
     ovrHmd_GetEyePoses(hmd, frame_index, eye_view_offsets, eyePose, &trackingState);
     frame_index++;
@@ -500,20 +500,32 @@ void CWinsys::RenderFrame(State *current)
 
         glCallList(stereo_gl_list);
 
-        if (!hmd_is_debug && current_render_mode() == GUI)
-            LookAtSelection (eye);
+		if (!hmd_is_debug && current != &Racing && current != &Intro) 
+		{
+			LookAtSelection (eye);
+
+			if (lookAtValid) {
+				glColor4f (1.0, 0.0, 0.0, 1.0);
+				glPointSize (5.0);
+				glBegin (GL_POINTS);
+					glVertex2f (lookAtPos[0].x, lookAtPos[0].y); // simple reticle
+				glEnd ();
+				//glRectd (lookAtPos[0].x - 5, lookAtPos[0].y - 5, lookAtPos[0].x + 5, lookAtPos[0].y + 5);
+			}
+		}
     }
 
-	if (!hmd_is_debug && current_render_mode() == GUI)
+	lookAtValid = false;
+	if (!hmd_is_debug && current != &Racing && current != &Intro) // && current_render_mode() == GUI)
 	{
 		float eps = 100.f;
 		if (abs(lookAtPos[0].x) > 0 && abs(lookAtPos[0].y) > 0) {
 			if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps && abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
-				glColor4f (1.0, 0.0, 0.0, 1.0);
-				glRectd (lookAtPos[0].x - 5, lookAtPos[0].y - 5, lookAtPos[0].x + 5, lookAtPos[0].y + 5);
-				cursor_pos.x = lookAtPos[0].x;
-				cursor_pos.y = Winsys.resolution.height - lookAtPos[0].y;
-				current->Motion(lookAtPos[0].x - lookAtPrevPos[0].x, lookAtPos[0].y - lookAtPrevPos[0].y);
+				lookAtValid = true;
+				// moved to DrawGUI
+				//cursor_pos.x = lookAtPos[0].x;
+				//cursor_pos.y = Winsys.resolution.height - lookAtPos[0].y;
+				//current->Motion(lookAtPos[0].x - lookAtPrevPos[0].x, lookAtPos[0].y - lookAtPrevPos[0].y);
 			}
 		}
 	}

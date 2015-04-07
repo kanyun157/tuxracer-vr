@@ -168,10 +168,25 @@ void ClearRenderContext (const TColor& col) {
 }
 
 void SetupGuiDisplay() {
+	glDisable (GL_LINE_SMOOTH);
+	glDisable (GL_POLYGON_SMOOTH); // leave it up to fxaa
+	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+
     // Move x,y coordinate system to positive quandrant.
     float offsetx = (float)Winsys.resolution.width/2;
     float offsety = (float)Winsys.resolution.height/2;
     glTranslatef (-offsetx, -offsety, -offsety);
+
+	// semi-transparent background 
+	glColor4f (0, 0, 0, 0.1);
+	glBegin(GL_QUADS);
+	{
+		glVertex2f (0, 0);
+		glVertex2f (0, offsety*2);
+		glVertex2f (offsetx*2, offsety*2);
+		glVertex2f (offsetx*2, 0);
+	}
+	glEnd();
 }
 
 void SetupHudDisplay(bool attachToFace) {

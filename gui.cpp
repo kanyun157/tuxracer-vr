@@ -568,8 +568,12 @@ void DrawBonusExt (int y, size_t numraces, size_t num) {
 }
 
 void DrawCursor () {
-	Tex.Draw (MOUSECURSOR, cursor_pos.x, cursor_pos.y,
-		CURSOR_SIZE  * (double)Winsys.resolution.width / 14000);
+	//if(param.ice_cursor) {
+	//if (!Winsys.lookAtValid || Winsys.hmd_is_debug) {
+	//}
+	//Tex.Draw (MOUSECURSOR, cursor_pos.x, cursor_pos.y,
+	float size = CURSOR_SIZE * (double)Winsys.resolution.width / 14000; // ?
+	Tex.Draw (LOOK_RETICLE, cursor_pos.x - size/2, cursor_pos.y + size/2, size);
 }
 
 
@@ -579,6 +583,13 @@ static int focussed = -1;
 static int focussedPrev = -1;
 static int focussedTime = 0;
 void DrawGUI() {
+	if (Winsys.lookAtValid) {
+		cursor_pos.x = Winsys.lookAtPos[0].x;
+		cursor_pos.y = Winsys.resolution.height - Winsys.lookAtPos[0].y;
+		State::manager.CurrentState()->Motion (Winsys.lookAtPos[0].x - Winsys.lookAtPrevPos[0].x,
+                                               Winsys.lookAtPos[0].y - Winsys.lookAtPrevPos[0].y);
+	}
+
 	if (focussed >= 0 && focussedPrev == focussed) {
 		focussedTime++;
 		if (focussedTime > 150) {
@@ -586,18 +597,21 @@ void DrawGUI() {
 			State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
 			focussedTime = 0;
 			focussedPrev = -1;
-		}
+		} //else if (focussedTime > 30) {
+		//	cursor_pos.x = Winsys.lookAtPos[0].x;
+		//	cursor_pos.y = Winsys.resolution.height - Winsys.lookAtPos[0].y;
+		//}
 	} else {
 		focussedTime = 0;
 	}
+
 
 	for(size_t i = 0; i < Widgets.size(); i++)
 		if(Widgets[i]->GetVisible()) {
 			Widgets[i]->Draw();
 		}
-	if(param.ice_cursor) {
-		DrawCursor ();
-	}
+
+	DrawCursor ();
 }
 
 TWidget* ClickGUI(int x, int y) {

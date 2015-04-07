@@ -759,7 +759,7 @@ void CCharShape::TraverseDagForShadow (const TCharNode *node, const TMatrix mat)
 void CCharShape::DrawShadow () {
     TMatrix model_matrix;
 
-	if (g_game.light_id == 1 || g_game.light_id == 3) return;
+	if (g_game.light_id == 3) return;
 
     ScopedRenderMode rm(TUX_SHADOW);
     glColor4f (shad_col.r, shad_col.g, shad_col.b, shad_col.a);

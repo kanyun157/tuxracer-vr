@@ -826,12 +826,13 @@ void quadsquare::Render (const quadcornerdata& cd, GLubyte *vnc_array) {
 			Course.TerrList[j].texture->Bind();
 			DrawTris ();
 
-			if (TerrList[j].shiny && param.perf_level > 1) {
-				glDisableClientState (GL_COLOR_ARRAY);
-				glColor4f (1.0, 1.0, 1.0, ENV_MAP_ALPHA / 255.0);
-				DrawEnvmapTris();
-				glEnableClientState (GL_COLOR_ARRAY);
-			}
+// jdt: causes trees to disappear on my video card.. bug
+//			if (TerrList[j].shiny && param.perf_level > 1) {
+//				glDisableClientState (GL_COLOR_ARRAY);
+//				glColor4f (1.0, 1.0, 1.0, ENV_MAP_ALPHA / 255.0);
+//				DrawEnvmapTris();
+//				glEnableClientState (GL_COLOR_ARRAY);
+//			}
 
 		}
 	}

@@ -359,11 +359,11 @@ void CRacing::Loop (double time_step) {
     SetupViewFrustum (ctrl);
     if (sky) Env.DrawSkybox (ctrl->viewpos);
     if (fog) Env.DrawFog ();
-    void SetupLight ();
+    Env.SetupLight ();
     if (terr) RenderCourse ();
     DrawTrackmarks ();
     if (trees) DrawTrees ();
-    if (param.perf_level > 2) {
+    if (false) { //param.perf_level > 2) {  // jdt: performance issue
         update_particles (time_step);
         draw_particles (ctrl);
     }
