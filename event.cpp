@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "particles.h"
 #include "textures.h"
 #include "gui.h"
+#include "env.h"
 #include "course.h"
 #include "spx.h"
 #include "font.h"
@@ -173,9 +174,12 @@ void CEvent::Loop (double timestep) {
 	int hh = Winsys.resolution.height;
 
 	check_gl_error();
+    ClearRenderContext ();
+
+	Env.DrawSkyboxGui ();
+
 	ScopedRenderMode rm(GUI);
 	Music.Update ();
-    ClearRenderContext ();
 	SetupGuiDisplay ();
 
 	if (param.ui_snow) {

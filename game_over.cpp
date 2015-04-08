@@ -43,6 +43,7 @@ CGameOver GameOver;
 
 static CKeyframe *final_frame;
 static int highscore_pos = 999;
+static TTextButton* continueButton;
 
 void QuitGameOver () {
     // jdt: set skybox back to what it was.. The various
@@ -179,6 +180,7 @@ void GameOverMessage (const CControl *ctrl) {
 // =========================================================================
 void CGameOver::Enter() {
 	Sound.HaltAll ();
+	ResetGUI ();
 
 	if (!g_game.raceaborted) highscore_pos = Score.CalcRaceResult ();
 
@@ -211,6 +213,11 @@ void CGameOver::Enter() {
 			final_frame->Init (ctrl->cpos, -0.18);
 		}
 	}
+
+	int top = AutoYPosN (70);
+	int siz = FT.AutoSizeN (10);
+	continueButton = AddTextButton (Trans.Text(9), CENTER, top, siz);
+
 	//SetStationaryCamera (true); // jdt: hmd can still move around.
 }
 
@@ -250,11 +257,15 @@ void CGameOver::Loop(double time_step) {
 
     glPopMatrix();
     ScopedRenderMode rm(GUI);
-	SetupHudDisplay ();
-	if (final_frame != NULL) {
-		if (!final_frame->active) GameOverMessage (ctrl);
-	} else GameOverMessage (ctrl);
-	DrawHud (ctrl);
+
+	if (final_frame == NULL || !final_frame->active) {
+        SetupGuiDisplay ();
+        GameOverMessage (ctrl);
+        DrawGUI ();
+	} else {
+        SetupHudDisplay ();
+        DrawHud (ctrl);
+	}
 
     Reshape (width, height);
     Winsys.SwapBuffers ();

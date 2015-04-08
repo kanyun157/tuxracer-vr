@@ -593,8 +593,9 @@ void DrawGUI() {
 	if (Winsys.lookAtValid) {
 		cursor_pos.x = Winsys.lookAtPos[0].x;
 		cursor_pos.y = Winsys.resolution.height - Winsys.lookAtPos[0].y;
-		State::manager.CurrentState()->Motion (Winsys.lookAtPos[0].x - Winsys.lookAtPrevPos[0].x,
-                                               Winsys.lookAtPos[0].y - Winsys.lookAtPrevPos[0].y);
+		State::manager.CurrentState()->Motion (
+				Winsys.lookAtPos[0].x - Winsys.lookAtPrevPos[0].x,
+                Winsys.lookAtPos[0].y - Winsys.lookAtPrevPos[0].y);
 	}
 
 	if (focussed >= 0 && focussedPrev == focussed) {
@@ -604,7 +605,7 @@ void DrawGUI() {
 			State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
 			focussedFrames = 0;
 			focussedPrev = -1;
-			focussed = -1;
+			//focussed = -1; // need to set this 
 		}
 	} else {
 		focussedFrames = 0;

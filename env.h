@@ -78,6 +78,7 @@ public:
 	bool LoadEnvironmentList ();
 	bool LoadEnvironment (size_t loc, size_t light);
 	void DrawSkybox (const TVector3& pos);
+	void DrawSkyboxGui ();
 	void SetupLight ();
 	void SetupFog ();
 	void DrawFog ();

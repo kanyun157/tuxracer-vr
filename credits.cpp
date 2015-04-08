@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "textures.h"
 #include "font.h"
 #include "gui.h"
+#include "env.h"
 #include "spx.h"
 #include "game_type_select.h"
 #include "winsys.h"
@@ -170,6 +171,9 @@ void CCredits::Loop(double time_step) {
 	Music.Update ();
 	check_gl_error();
     ClearRenderContext ();
+
+	Env.DrawSkyboxGui ();
+
     ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
 

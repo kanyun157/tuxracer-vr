@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "ogl.h"
 #include "font.h"
 #include "gui.h"
+#include "env.h"
 #include "translation.h"
 #include "game_type_select.h"
 #include "winsys.h"
@@ -58,6 +59,9 @@ void CHelp::Loop(double timestep) {
 	Music.Update ();
 	check_gl_error();
     ClearRenderContext ();
+
+	Env.DrawSkyboxGui ();
+
 	ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
 

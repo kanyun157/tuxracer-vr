@@ -118,7 +118,7 @@ void CGameTypeSelect::Loop (double time_step) {
 	check_gl_error();
     ClearRenderContext ();
 
-	Env.DrawSkybox (TVector3(0, 0, 0));
+	Env.DrawSkyboxGui ();
 
     ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();

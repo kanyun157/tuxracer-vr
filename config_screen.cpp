@@ -46,6 +46,7 @@ Then edit the below functions:
 #include "audio.h"
 #include "ogl.h"
 #include "gui.h"
+#include "env.h"
 #include "textures.h"
 #include "font.h"
 #include "translation.h"
@@ -187,8 +188,12 @@ void CGameConfig::Loop (double time_step) {
 
 	check_gl_error();
 	Music.Update ();
-	ScopedRenderMode rm(GUI);
+
     ClearRenderContext ();
+
+	Env.DrawSkyboxGui ();
+
+	ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
 
 	if (param.ui_snow) {

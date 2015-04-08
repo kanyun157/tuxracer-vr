@@ -34,10 +34,8 @@ GNU General Public License for more details.
 //					gui particles 2D
 // ====================================================================
 
-//#define MAX_num_snowparticles 4000
-#define MAX_num_snowparticles 100
-//#define BASE_num_snowparticles 1000 // jdt: too many for my machine
-#define BASE_num_snowparticles 50
+#define MAX_num_snowparticles 4000
+#define BASE_num_snowparticles 1000 // jdt: too many for my machine
 #define GRAVITY_FACTOR 0.015
 #define BASE_VELOCITY 0.05
 #define VELOCITY_RANGE 0.02

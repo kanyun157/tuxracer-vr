@@ -50,6 +50,9 @@ void CLoading::Loop(double time_step) {
 	check_gl_error ();
 	ScopedRenderMode rm(GUI);
     ClearRenderContext ();
+
+	Env.DrawSkyboxGui ();
+
     SetupGuiDisplay ();
 
     if (param.ui_snow) {

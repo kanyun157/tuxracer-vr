@@ -368,9 +368,11 @@ void CRacing::Loop (double time_step) {
         draw_particles (ctrl);
     }
     if (character) Char.Draw (g_game.char_id);
-    UpdateWind (time_step);
-    UpdateSnow (time_step, ctrl);
-    DrawSnow (ctrl);
+	if (param.perf_level > 1) {
+		UpdateWind (time_step);
+		UpdateSnow (time_step, ctrl);
+		DrawSnow (ctrl);
+	}
 
     // restore modelview for 2D gui
     glPopMatrix ();

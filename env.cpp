@@ -206,6 +206,10 @@ void CEnvironment::LoadLight () {
 	}
 }
 
+void CEnvironment::DrawSkyboxGui () {
+	DrawSkybox (TVector3(0,0,0));
+}
+
 void CEnvironment::DrawSkybox (const TVector3& pos) {
 	if (!Skybox) return;
 	ScopedRenderMode rm(SKY);

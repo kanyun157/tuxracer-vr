@@ -21,6 +21,7 @@ GNU General Public License for more details.
 
 #include "event_select.h"
 #include "gui.h"
+#include "env.h"
 #include "font.h"
 #include "particles.h"
 #include "audio.h"
@@ -115,9 +116,12 @@ void CEventSelect::Loop (double timestep) {
 	TColor col;
 
 	check_gl_error();
+    ClearRenderContext ();
+
+	Env.DrawSkyboxGui ();
+
 	ScopedRenderMode rm(GUI);
 	Music.Update ();
-    ClearRenderContext ();
 	SetupGuiDisplay ();
 
 	if (param.ui_snow) {

@@ -67,6 +67,9 @@ void CRegist::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 }
 
 void CRegist::Mouse (int button, int state, int x, int y) {
+    // jdt: grr this damn oculus safety screen won't go away.
+    ovrHmd_DismissHSWDisplay(Winsys.hmd);
+
 	if (state == 1) {
 		TWidget* focussed = ClickGUI(x, y);
 		if(focussed == textbuttons[0])
@@ -79,6 +82,9 @@ void CRegist::Mouse (int button, int state, int x, int y) {
 }
 
 void CRegist::Motion (int x, int y) {
+    // jdt: grr this damn oculus safety screen won't go away.
+    ovrHmd_DismissHSWDisplay(Winsys.hmd);
+
 	MouseMoveGUI(x, y);
 
 	if (param.ui_snow) push_ui_snow (cursor_pos);
@@ -121,7 +127,7 @@ void CRegist::Loop (double timestep) {
 	check_gl_error();
     ClearRenderContext ();
 
-	Env.DrawSkybox (TVector3(0,0,0));
+	Env.DrawSkyboxGui();
 
     SetupGuiDisplay ();
     ScopedRenderMode rm(GUI);
@@ -132,7 +138,7 @@ void CRegist::Loop (double timestep) {
 		draw_ui_snow();
 	}
 
-	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), scale * 4);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), scale * 8);
 
 //	DrawFrameX (area.left, area.top, area.right-area.left, area.bottom - area.top,
 //			0, colMBackgr, col, 0.2);

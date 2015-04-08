@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include "states.h"
 #include "ogl.h"
 #include "winsys.h"
+#include "gui.h"
 
 State::Manager State::manager(Winsys);
 
@@ -54,6 +55,7 @@ void State::Manager::EnterNextState() {
 	current = next;
 	next = NULL;
 	current->Enter();
+	SetFocus (NULL); // force new focus for lookAt stuff
 }
 
 void State::Manager::PollEvent() {
