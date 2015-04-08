@@ -29,6 +29,7 @@ GNU General Public License for more details.
 #include "spx.h"
 #include "game_type_select.h"
 #include "winsys.h"
+#include "translation.h"
 
 #define TOP_Y 160
 #define BOTT_Y 64
@@ -39,6 +40,7 @@ CCredits Credits;
 
 static double y_offset = 0;
 static bool moving = true;
+static TTextButton* backButton;
 
 void CCredits::LoadCreditList () {
 	CSPList list(MAX_CREDITS);
@@ -153,17 +155,25 @@ void CCredits::Keyb (unsigned int key, bool special, bool release, int x, int y)
 }
 
 void CCredits::Mouse (int button, int state, int x, int y) {
-	if (state == 1) State::manager.RequestEnterState (GameTypeSelect);
+	if (state == 1) {
+		TWidget* focussed = ClickGUI(x, y);
+		if (focussed == backButton)
+			State::manager.RequestEnterState (GameTypeSelect);
+	}
 }
 
 void CCredits::Motion(int x, int y) {
+	MouseMoveGUI(x, y);
 	if (param.ui_snow) push_ui_snow (cursor_pos);
 }
 
 void CCredits::Enter() {
+	ResetGUI ();
 	Music.Play (param.credits_music, -1);
 	y_offset = 100;
 	moving = true;
+
+	backButton = AddTextButton (Trans.Text(8), CENTER, AutoYPosN(30), FT.AutoSizeN (8));
 }
 
 void CCredits::Loop(double time_step) {
@@ -192,6 +202,9 @@ void CCredits::Loop(double time_step) {
 	//glDepthFunc (GL_LESS);
 	glTranslatef (0, 0, -10);
 	Tex.Draw (T_TITLE, CENTER, AutoYPosN (10), Winsys.scale);
+
+	DrawWidgetFrame (backButton);
+	DrawGUI ();
 
 	Reshape (ww, hh);
     Winsys.SwapBuffers();

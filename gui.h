@@ -46,6 +46,7 @@ public:
 	void SetVisible(bool v) { visible = v; if(!v) focus = false; }
 	bool GetActive() const { return active; }
 	bool GetVisible() const { return visible; }
+	TRect GetArea() const { return mouseRect; }
 };
 
 class TTextButton : public TWidget {
@@ -168,5 +169,6 @@ void DrawCursor ();
 
 int AutoYPosN (double percent);
 TArea AutoAreaN (double top_perc, double bott_perc, int w);
+void DrawWidgetFrame (TWidget *w);
 
 #endif

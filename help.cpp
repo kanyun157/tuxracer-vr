@@ -33,26 +33,35 @@ GNU General Public License for more details.
 CHelp Help;
 
 static int xleft1, xleft2, ytop;
+static TTextButton* backButton;
 
 void CHelp::Keyb(unsigned int key, bool special, bool release, int x, int y) {
 	State::manager.RequestEnterState (GameTypeSelect);
 }
 
 void CHelp::Mouse(int button, int state, int x, int y) {
-	if (state == 1) State::manager.RequestEnterState (GameTypeSelect);
+	if (state == 1) {
+		TWidget* focussed = ClickGUI(x, y);
+		if (focussed == backButton)
+			State::manager.RequestEnterState (GameTypeSelect);
+	}
 }
 
 void CHelp::Motion(int x, int y) {
+	MouseMoveGUI(x, y);
 	if (param.ui_snow) push_ui_snow (cursor_pos);
 }
 
 void CHelp::Enter() {
+	ResetGUI ();
 	Winsys.ShowCursor (false);
 	Music.Play (param.credits_music, -1);
 
-	xleft1 = 40;
+	xleft1 = CENTER;
 	xleft2 = (int)(Winsys.resolution.width / 2) + 20;
 	ytop = AutoYPosN (15);
+
+	backButton = AddTextButton (Trans.Text(8), CENTER, AutoYPosN(80), FT.AutoSizeN (8));
 }
 
 void CHelp::Loop(double timestep) {
@@ -91,6 +100,34 @@ void CHelp::Loop(double timestep) {
 	FT.DrawString (xleft1, ytop + offs * 12, Trans.Text(56));
 
 	FT.DrawString (CENTER, AutoYPosN (90), Trans.Text(65));
+
+	// draw back button background
+	glDisable (GL_TEXTURE_2D);
+	glColor4f (0, 0, 0, 0.5);
+	glPushMatrix ();
+	TRect frameRect = backButton->GetArea();
+	frameRect.left -= 0.1 * frameRect.width;
+	frameRect.top -= 0.1 * frameRect.height;
+	frameRect.width *= 1.2;
+	frameRect.height *= 1.2;
+	frameRect.top = (float)Winsys.resolution.height - frameRect.top - frameRect.height;
+	GLfloat depth = 0; //-param.forward_clip_distance / 2;
+	glTranslatef (frameRect.left, frameRect.top, 0);
+	glBegin(GL_QUADS);
+	{
+		glVertex3f (0, 0, depth);
+		glVertex3f (0, frameRect.height, depth);
+		glVertex3f (frameRect.width, frameRect.height, depth);
+		glVertex3f (frameRect.width, 0, depth);
+	}
+	glEnd();
+	glPopMatrix ();
+	glEnable (GL_TEXTURE_2D);
+	glColor4f (1, 1, 1, 1);
+
+	DrawWidgetFrame (backButton);
+	DrawGUI ();
+
     Winsys.SwapBuffers();
 }
 

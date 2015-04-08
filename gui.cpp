@@ -745,3 +745,29 @@ TArea AutoAreaN (double top_perc, double bott_perc, int w) {
 	res.right = Winsys.resolution.width - res.left;
 	return res;
 }
+
+void DrawWidgetFrame(TWidget *w)
+{
+	glDisable (GL_TEXTURE_2D);
+	glColor4f (0, 0, 0, 0.5);
+	glPushMatrix ();
+	TRect frameRect = w->GetArea();
+	frameRect.left -= 0.1 * frameRect.width;
+	frameRect.top -= 0.1 * frameRect.height;
+	frameRect.width *= 1.2;
+	frameRect.height *= 1.2;
+	frameRect.top = (float)Winsys.resolution.height - frameRect.top - frameRect.height;
+	GLfloat depth = 0; //-param.forward_clip_distance / 2;
+	glTranslatef (frameRect.left, frameRect.top, 0);
+	glBegin(GL_QUADS);
+	{
+		glVertex3f (0, 0, depth);
+		glVertex3f (0, frameRect.height, depth);
+		glVertex3f (frameRect.width, frameRect.height, depth);
+		glVertex3f (frameRect.width, 0, depth);
+	}
+	glEnd();
+	glPopMatrix ();
+	glEnable (GL_TEXTURE_2D);
+	glColor4f (1, 1, 1, 1);
+}

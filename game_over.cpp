@@ -265,6 +265,7 @@ void CGameOver::Loop(double time_step) {
 	if (final_frame == NULL || !final_frame->active) {
         SetupGuiDisplay ();
         GameOverMessage (ctrl);
+		DrawWidgetFrame (continueButton);
         DrawGUI ();
 	} else {
         SetupHudDisplay ();

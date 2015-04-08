@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include "textures.h"
 #include "audio.h"
 #include "gui.h"
+#include "env.h"
 #include "particles.h"
 #include "font.h"
 #include "game_ctrl.h"
@@ -239,6 +240,9 @@ void CScore::Loop (double timestep) {
 	Music.Update ();
 	check_gl_error();
     ClearRenderContext ();
+
+	Env.DrawSkyboxGui ();
+
     ScopedRenderMode rm(GUI);
     SetupGuiDisplay ();
 
