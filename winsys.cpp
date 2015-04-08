@@ -205,8 +205,13 @@ void CWinsys::OvrConfigureRendering()
 
 	// enable low-persistence display and dynamic prediction for latency compensation
 	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-	hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
-	// well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
+    if (param.no_vsync) {
+        hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
+        // well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
+        printf("VSYNC Disabled.\n");
+    } else {
+        printf("VSYNC Enabled.\n");
+    }
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
 	printf("New HMD capabilities set.\n");
@@ -223,12 +228,12 @@ void CWinsys::OvrConfigureRendering()
 	distort_caps |= ovrDistortionCap_Vignette;
 	distort_caps |= ovrDistortionCap_TimeWarp;
 #ifdef WIN32
-	//distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
+	distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
 #endif
 #if OVR_MAJOR_VERSION < 5
-	distort_caps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
+	distort_caps |= param.no_vsync ? ovrDistortionCap_ProfileNoTimewarpSpinWaits : 0;
 #endif
-	distort_caps |= ovrDistortionCap_HqDistortion;
+	distort_caps |= param.hq_distortion ? ovrDistortionCap_HqDistortion : 0;
 	if(!ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc)) {
 		fprintf(stderr, "failed to configure renderer for Oculus SDK\n");
 	}

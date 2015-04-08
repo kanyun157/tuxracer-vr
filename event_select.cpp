@@ -103,7 +103,7 @@ void CEventSelect::Enter () {
 	double len = FT.GetTextWidth (Trans.Text(9));
 	textbuttons[0] = AddTextButton (Trans.Text(9), area.right-len-50, AutoYPosN (70), siz);
 	textbuttons[1] = AddTextButton (Trans.Text(8), area.left+50, AutoYPosN (70), siz);
-	SetFocus(textbuttons[1]);
+	SetFocusGUI(textbuttons[1]);
 
 	Events.MakeUnlockList (Players.GetCurrUnlocked());
 	Music.Play (param.menu_music, -1);

@@ -77,6 +77,8 @@ struct TParam {
     bool	display_fps;
 	bool	show_hud;
 	bool	attach_hud_to_face;
+    bool    no_vsync;
+    bool    hq_distortion;
     TViewMode view_mode;
 };
 

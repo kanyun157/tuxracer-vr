@@ -151,7 +151,7 @@ void DrawGUI();
 TWidget* ClickGUI(int x, int y);
 TWidget* MouseMoveGUI(int x, int y);
 TWidget* KeyGUI(unsigned int key, unsigned int spec, bool released);
-void SetFocus(TWidget* widget);
+void SetFocusGUI(TWidget* widget);
 void IncreaseFocus();
 void DecreaseFocus();
 void ResetGUI();

@@ -82,6 +82,9 @@ void LoadConfigFile () {
 		param.menu_music = SPStrN (line, "menu_music", "start_1");
 		param.credits_music = SPStrN (line, "credits_music", "credits_1");
 		param.config_music = SPStrN (line, "config_music", "options_1");
+
+        param.no_vsync = SPBoolN(line, "no_vsync", false);
+        param.hq_distortion = SPBoolN(line, "hq_distortion", true);
 	}
 }
 
@@ -111,6 +114,8 @@ void SetConfigDefaults () {
 	param.ice_cursor = true;
 	param.full_skybox = true;
 	param.use_quad_scale = false;
+    param.no_vsync = false; // set to true if using open source drivers.
+    param.hq_distortion = true;
 
 	param.menu_music = "start_1";
 	param.credits_music = "credits_1";
@@ -265,6 +270,12 @@ void SaveConfigFile () {
 	AddComment (liste, "The widgets are closer to their default sizes.");
 	AddIntItem (liste, "use_quad_scale", param.use_quad_scale);
 	liste.Add ("");
+
+    AddIntItem(liste, "no_vsync", param.no_vsync);
+    AddIntItem(liste, "hq_distortion", param.hq_distortion);
+    liste.Add("");
+
+
 
 	// ---------------------------------------
 	liste.Save (param.configfile);

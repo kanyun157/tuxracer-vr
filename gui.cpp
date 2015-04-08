@@ -663,7 +663,7 @@ TWidget* KeyGUI(unsigned int key, unsigned int mod, bool released) {
 	return Widgets[focussed];
 }
 
-void SetFocus(TWidget* widget) {
+void SetFocusGUI(TWidget* widget) {
 	if(!widget)
 		focussed = -1;
 	else
