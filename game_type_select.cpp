@@ -128,8 +128,7 @@ void CGameTypeSelect::Loop (double time_step) {
 		draw_ui_snow();
     }
 
-	// jdt: TODO why is this skewed in the Y axis?  '12' here is fudge.
-	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 12);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale);
 
 	DrawGUI();
 

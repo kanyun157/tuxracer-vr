@@ -590,27 +590,28 @@ void DrawCursor () {
 // ------------------ Main GUI functions ---------------------------------------------
 
 void DrawGUI() {
-	if (Winsys.lookAtValid) {
-		cursor_pos.x = Winsys.lookAtPos[0].x;
-		cursor_pos.y = Winsys.resolution.height - Winsys.lookAtPos[0].y;
-		State::manager.CurrentState()->Motion (
+	if (!Winsys.hmd_is_debug)
+	{
+		if (Winsys.lookAtValid) {
+			cursor_pos.x = Winsys.lookAtPos[0].x;
+			cursor_pos.y = Winsys.resolution.height - Winsys.lookAtPos[0].y;
+			State::manager.CurrentState()->Motion (
 				Winsys.lookAtPos[0].x - Winsys.lookAtPrevPos[0].x,
-                Winsys.lookAtPos[0].y - Winsys.lookAtPrevPos[0].y);
-	}
-
-	if (focussed >= 0 && focussedPrev == focussed) {
-		focussedFrames++;
-		if (focussedFrames > focussedMaxFrames) {
-			// select widget
-			State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
-			focussedFrames = 0;
-			focussedPrev = -1;
-			//focussed = -1; // need to set this 
+				Winsys.lookAtPos[0].y - Winsys.lookAtPrevPos[0].y);
 		}
-	} else {
-		focussedFrames = 0;
-	}
 
+		if (focussed >= 0 && focussedPrev == focussed) {
+			focussedFrames++;
+			if (focussedFrames > focussedMaxFrames) {
+				// select widget
+				State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
+				focussedFrames = 0;
+				focussedPrev = -1;
+			}
+		} else {
+			focussedFrames = 0;
+		}
+	}
 
 	for(size_t i = 0; i < Widgets.size(); i++)
 		if(Widgets[i]->GetVisible()) {

@@ -186,7 +186,7 @@ void CEvent::Loop (double timestep) {
 		update_ui_snow (timestep);
 		draw_ui_snow ();
 	}
-	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 4);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale);
 	Tex.Draw (BOTTOM_LEFT, 0, hh-256, 1);
 	Tex.Draw (BOTTOM_RIGHT, ww-256, hh-256, 1);
 	Tex.Draw (TOP_LEFT, 0, 0, 1);

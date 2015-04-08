@@ -313,6 +313,9 @@ bool TTexture::Load(const string& filename) {
 		(GL_TEXTURE_2D, 0, texImage.depth, texImage.nx,
 		texImage.ny, 0, format, GL_UNSIGNED_BYTE, texImage.data);
 
+	nx = texImage.nx;
+	ny = texImage.ny;
+
 	texImage.DisposeData();
     return true;
 }
@@ -348,6 +351,9 @@ bool TTexture::LoadMipmap(const string& filename, bool repeatable) {
 		(GL_TEXTURE_2D, texImage.depth, texImage.nx,
 		texImage.ny, format, GL_UNSIGNED_BYTE, texImage.data);
 
+	nx = texImage.nx;
+	ny = texImage.ny;
+
 	texImage.DisposeData();
     return true;
 }
@@ -360,37 +366,28 @@ void TTexture::Bind() {
 }
 
 void TTexture::Draw() {
-	GLint w, h;
-
 	glEnable (GL_TEXTURE_2D);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture (GL_TEXTURE_2D, id);
 
-	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
-	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
-
 	glColor4f (Tex.color.r, Tex.color.g, Tex.color.b, Tex.color.a);
 	glBegin (GL_QUADS);
 	    glTexCoord2f (0, 0); glVertex2f (0, 0);
-	    glTexCoord2f (1, 0); glVertex2f (w, 0);
-	    glTexCoord2f (1, 1); glVertex2f (w, h);
-	    glTexCoord2f (0, 1); glVertex2f (0, h);
+	    glTexCoord2f (1, 0); glVertex2f (nx, 0);
+	    glTexCoord2f (1, 1); glVertex2f (nx, ny);
+	    glTexCoord2f (0, 1); glVertex2f (0, ny);
 	glEnd();
 }
 
 void TTexture::Draw(int x, int y, float size, Orientation orientation) {
-	GLint w, h;
 	GLfloat width, height, top, bott, left, right;
 
 	glEnable (GL_TEXTURE_2D);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture (GL_TEXTURE_2D, id);
 
-	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
-	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
-
-	width  = w * size;
-	height = h * size;
+	width  = nx * size;
+	height = ny * size;
 
 	if (orientation == OR_TOP) {
 		top = Winsys.resolution.height - y;
@@ -413,15 +410,11 @@ void TTexture::Draw(int x, int y, float size, Orientation orientation) {
 }
 
 void TTexture::Draw(int x, int y, float width, float height, Orientation orientation) {
-	GLint w, h;
 	GLfloat top, bott, left, right;
 
 	glEnable (GL_TEXTURE_2D);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture (GL_TEXTURE_2D, id);
-
-	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
-	glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
 
 	if (orientation == OR_TOP) {
 		top = Winsys.resolution.height - y;

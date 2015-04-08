@@ -191,7 +191,7 @@ void CCredits::Loop(double time_step) {
 	//glEnable (GL_DEPTH_TEST);
 	//glDepthFunc (GL_LESS);
 	glTranslatef (0, 0, -10);
-	Tex.Draw (T_TITLE, CENTER, AutoYPosN (10), Winsys.scale*1.2);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (10), Winsys.scale);
 
 	Reshape (ww, hh);
     Winsys.SwapBuffers();

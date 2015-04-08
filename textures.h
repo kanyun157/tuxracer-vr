@@ -151,9 +151,11 @@ class TTexture {
 	TTexture& operator=(const TTexture&);
 
 	GLuint id;
+	GLuint nx;
+	GLuint ny;
 public:
 
-	TTexture() : id(0) {}
+	TTexture() : id(0), nx(0), ny(0) {}
 	~TTexture();
 	bool Load(const string& filename);
 	bool Load(const string& dir, const string& filename);
