@@ -72,7 +72,7 @@ void CCredits::DrawCreditsText (double time_step) {
 
 	for (list<TCredits>::const_iterator i = CreditList.begin(); i != CreditList.end(); ++i) {
 		offs = h - 100 - y_offset + i->offs;
-		if (offs > h || offs < 0.0) // Draw only visible lines
+		if (offs > h-120 || offs < 120.0) // Draw only visible lines
 			continue;
 
 		if (i->col == 0)
@@ -83,7 +83,7 @@ void CCredits::DrawCreditsText (double time_step) {
 		FT.DrawString (-1, (int)offs, i->text);
 	}
 
-
+	/*
     glDisable (GL_TEXTURE_2D);
 	glColor4dv ((double*)&colBackgr);
     glRectf (0, 0, w, BOTT_Y);
@@ -109,6 +109,8 @@ void CCredits::DrawCreditsText (double time_step) {
 
 	glColor4f (1, 1, 1, 1);
     glEnable (GL_TEXTURE_2D);
+	*/
+
 	if (offs < TOP_Y) y_offset = 0;
 }
 
@@ -160,7 +162,7 @@ void CCredits::Motion(int x, int y) {
 
 void CCredits::Enter() {
 	Music.Play (param.credits_music, -1);
-	y_offset = 0;
+	y_offset = 100;
 	moving = true;
 }
 
@@ -170,12 +172,14 @@ void CCredits::Loop(double time_step) {
 
 	Music.Update ();
 	check_gl_error();
-    ClearRenderContext ();
+	ClearRenderContext ();
 
 	Env.DrawSkyboxGui ();
 
-    ScopedRenderMode rm(GUI);
-    SetupGuiDisplay ();
+	ScopedRenderMode rm(GUI);
+	SetupGuiDisplay ();
+
+	glTranslatef (0, 0, 100);
 
 //	DrawBackLogo (-1,  AutoYPos (200), 1.0);
 	DrawCreditsText (time_step);
@@ -183,8 +187,11 @@ void CCredits::Loop(double time_step) {
 		update_ui_snow (time_step);
 		draw_ui_snow();
     }
-	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale * 4);
 
+	//glEnable (GL_DEPTH_TEST);
+	//glDepthFunc (GL_LESS);
+	glTranslatef (0, 0, -10);
+	Tex.Draw (T_TITLE, CENTER, AutoYPosN (10), Winsys.scale*1.2);
 
 	Reshape (ww, hh);
     Winsys.SwapBuffers();
