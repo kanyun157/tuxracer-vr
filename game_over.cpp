@@ -67,6 +67,10 @@ void CGameOver::Mouse (int button, int state, int x, int y) {
 	QuitGameOver ();
 }
 
+void CGameOver::Motion (int x, int y) {
+	MouseMoveGUI(x, y);
+}
+
 void DrawMessageFrame (float x, float y, float w, float h, int line,
 		TColor backcol, TColor framecol, float transp) {
 
@@ -214,7 +218,7 @@ void CGameOver::Enter() {
 		}
 	}
 
-	int top = AutoYPosN (70);
+	int top = AutoYPosN (40);
 	int siz = FT.AutoSizeN (10);
 	continueButton = AddTextButton (Trans.Text(9), CENTER, top, siz);
 

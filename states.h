@@ -51,6 +51,7 @@ public:
 		void Run(State& entranceState);
 		State* PreviousState() { return previous; }
 		State* CurrentState() { return current; }
+		float ClockTime() const { return clock_time; }
 	};
 	static Manager manager;
 

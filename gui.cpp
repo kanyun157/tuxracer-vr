@@ -568,16 +568,17 @@ void DrawBonusExt (int y, size_t numraces, size_t num) {
 }
 
 static int focussed = -1;
-static int focussedPrev = -1;
-static int focussedFrames = 0;
-static int focussedMaxFrames = 300;
+static int focussedPrev = -1; // GUI items focused and previosly focused
+static float focussedBeginTime = 0.0f;
+static float focussedSelectDuration = 1.0f; // 3 seconds
 
 void DrawCursor () {
 	//if(param.ice_cursor) {
 	//if (!Winsys.lookAtValid || Winsys.hmd_is_debug) {
 	//Tex.Draw (MOUSECURSOR, cursor_pos.x, cursor_pos.y,
 	//}
-	float focussedPrct = (float)focussedFrames / focussedMaxFrames;
+	float focussedPrct = min(max(State::manager.ClockTime() - focussedBeginTime, 0.0f), focussedSelectDuration);
+	focussedPrct /= focussedSelectDuration;
 	int res = 32; // jdt: proper query
 	//TTexture* reticleTex = Tex.GetTexture (LOOK_RETICLE);
 	float size = CURSOR_SIZE * (double)Winsys.resolution.width / 14000; // ?
@@ -601,15 +602,14 @@ void DrawGUI() {
 		}
 
 		if (focussed >= 0 && focussedPrev == focussed) {
-			focussedFrames++;
-			if (focussedFrames > focussedMaxFrames) {
+			if (State::manager.ClockTime() - focussedBeginTime >= focussedSelectDuration) {
 				// select widget
 				State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
-				focussedFrames = 0;
+				focussedBeginTime = State::manager.ClockTime();
 				focussedPrev = -1;
 			}
 		} else {
-			focussedFrames = 0;
+			focussedBeginTime = State::manager.ClockTime();
 		}
 	}
 
@@ -724,6 +724,7 @@ void ResetGUI () {
 		delete Widgets[i];
 	Widgets.clear();
 	focussed = 0;
+	focussedBeginTime = 0;
 }
 
 // ------------------ new ---------------------------------------------
