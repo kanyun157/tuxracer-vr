@@ -87,6 +87,10 @@ public:
 	GLfloat lookAtDepth[2];
 	//GLfloat lookAtRgb[2][3];
 
+	unsigned int rendered_trees;
+	unsigned int rendered_items;
+	unsigned int rendered_course;
+
 	CWinsys ();
 
 	// sdl window

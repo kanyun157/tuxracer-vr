@@ -83,8 +83,13 @@ void LoadConfigFile () {
 		param.credits_music = SPStrN (line, "credits_music", "credits_1");
 		param.config_music = SPStrN (line, "config_music", "options_1");
 
-        param.no_vsync = SPBoolN(line, "no_vsync", false);
-        param.hq_distortion = SPBoolN(line, "hq_distortion", true);
+		param.no_vsync = SPBoolN(line, "no_vsync", false);
+		param.no_prediction = SPBoolN(line, "no_prediction", false);
+		param.no_timewarp = SPBoolN(line, "no_timewarp", false);
+		param.no_timewarp_spinwaits = SPBoolN(line, "no_timewarp_spinwaits", false);
+		param.no_hq_distortion = SPBoolN(line, "no_hq_distortion", true);
+		param.no_compute_shader = SPBoolN(line, "no_compute_shader", true);
+		param.console_dump = SPBoolN(line, "console_dump", false);
 	}
 }
 
@@ -114,12 +119,18 @@ void SetConfigDefaults () {
 	param.ice_cursor = true;
 	param.full_skybox = true;
 	param.use_quad_scale = false;
-    param.no_vsync = false; // set to true if using open source drivers.
-    param.hq_distortion = true;
 
 	param.menu_music = "start_1";
 	param.credits_music = "credits_1";
 	param.config_music = "options_1";
+
+	param.no_vsync = false;
+	param.no_prediction = false;
+	param.no_timewarp = false;
+	param.no_timewarp_spinwaits = false;
+	param.no_hq_distortion = true;
+	param.no_compute_shader = true;
+	param.console_dump = false; // true for fps,tree,item count dumps.
 }
 
 
@@ -271,8 +282,13 @@ void SaveConfigFile () {
 	AddIntItem (liste, "use_quad_scale", param.use_quad_scale);
 	liste.Add ("");
 
-    AddIntItem(liste, "no_vsync", param.no_vsync);
-    AddIntItem(liste, "hq_distortion", param.hq_distortion);
+	AddIntItem(liste, "no_vsync", param.no_vsync);
+	AddIntItem(liste, "no_prediction", param.no_prediction);
+	AddIntItem(liste, "no_timewarp", param.no_timewarp);
+	AddIntItem(liste, "no_timewarp_spinwaits", param.no_timewarp_spinwaits);
+	AddIntItem(liste, "no_hq_distortion", param.no_hq_distortion);
+	AddIntItem(liste, "no_compute_shader", param.no_compute_shader);
+	AddIntItem(liste, "console_dump", param.console_dump);
     liste.Add("");
 
 

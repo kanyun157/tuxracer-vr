@@ -32,6 +32,7 @@ GNU General Public License for more details.
 #include "game_ctrl.h"
 #include "physics.h"
 #include "etr_types.h"
+#include "winsys.h"
 
 #define TEX_SCALE 6
 static const bool clip_course = true;
@@ -76,12 +77,11 @@ void DrawTrees() {
     TCollidable* treeLocs = &Course.CollArr[0];
     size_t numTrees = Course.CollArr.size();
 
-	// jdt: Ugly caching of trees in the local vicinity updated roughly every second.
+	// jdt: caching of trees in the local vicinity updated roughly every 1 seconds.
 	static list<TCollidable*> treeCache;
 	static unsigned int treesDirtyCount = 0; // how many frames since cache of trees was updated.
 	static string cachedName;
 	if (treesDirtyCount++ % 75 == 0 || !treeCache.size() || cachedName != Course.GetCurrCourse()->name) {
-		// update local list of trees every second or so (@75fps)
 		treeCache.clear();
 		int i = 0;
 		while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
@@ -91,6 +91,7 @@ void DrawTrees() {
 		}
 
 		cachedName = Course.GetCurrCourse()->name;
+		if (param.console_dump) printf("TREE CACHE FRAME!!!!\n");
 	}
 
 	vector<TCollidable*> trees;
@@ -109,6 +110,11 @@ void DrawTrees() {
 	std::sort(trees.begin(), trees.end(), [](const TCollidable *a, const TCollidable *b)
 			{ return a->tree_type < b->tree_type; });
 
+	Winsys.rendered_trees = trees.size();
+
+	glPushMatrix();
+	glBegin (GL_QUADS);
+
 	for (int i = 0; i < trees.size(); ++i) {
 		TCollidable &tree = *trees[i];
 		double dx = ctrl->viewpos.x - tree.pt.x;
@@ -116,16 +122,16 @@ void DrawTrees() {
 		double distsqr = dx * dx + dz * dz;
 
 		if (tree.tree_type != tree_type) {
-		    tree_type = tree.tree_type;
+			glEnd ();
+			tree_type = tree.tree_type;
 			object_types[tree_type].texture->Bind();
+			glBegin (GL_QUADS);
 		}
 
-        glPushMatrix();
-        glTranslatef (tree.pt.x, tree.pt.y, tree.pt.z);
-		if (param.perf_level > 1) glRotatef (1, 0, 1, 0);
+		//if (param.perf_level > 1) glRotatef (1, 0, 1, 0);
 
-        GLfloat treeRadius = tree.diam / 2.0;
-        GLfloat treeHeight = tree.height;
+		GLfloat treeRadius = tree.diam / 2.0;
+		GLfloat treeHeight = tree.height;
 
 		//TVector3 normal(0, 0, 1);
 		//glNormal3f (normal.x, normal.y, normal.z);
@@ -134,32 +140,29 @@ void DrawTrees() {
 		NormVector (normal);
 		glNormal3f (normal.x, normal.y, normal.z);
 
-		glBegin (GL_QUADS);
-			glTexCoord2f (0.0, 0.0);
-    	    glVertex3f (-treeRadius, 0.0, 0.0);
-    	    glTexCoord2f (1.0, 0.0);
-    	    glVertex3f (treeRadius, 0.0, 0.0);
-    	    glTexCoord2f (1.0, 1.0);
-    	    glVertex3f (treeRadius, treeHeight, 0.0);
-    	    glTexCoord2f (0.0, 1.0);
-    	    glVertex3f (-treeRadius, treeHeight, 0.0);
+		glTexCoord2f (0.0, 0.0);
+		glVertex3f (tree.pt.x + -treeRadius, tree.pt.y + 0.0, tree.pt.z + 0.0);
+		glTexCoord2f (1.0, 0.0);
+		glVertex3f (tree.pt.x + treeRadius, tree.pt.y + 0.0, tree.pt.z + 0.0);
+		glTexCoord2f (1.0, 1.0);
+		glVertex3f (tree.pt.x + treeRadius, tree.pt.y + treeHeight, tree.pt.z + 0.0);
+		glTexCoord2f (0.0, 1.0);
+		glVertex3f (tree.pt.x + -treeRadius, tree.pt.y + treeHeight, tree.pt.z + 0.0);
 
-			if (/*!clip_course || */distsqr < param.tree_detail_distance * param.tree_detail_distance)
-			{
-			    glTexCoord2f  (0., 0.);
-			    glVertex3f  (0.0, 0.0, -treeRadius);
-			    glTexCoord2f  (1., 0.);
-			    glVertex3f  (0.0, 0.0, treeRadius);
-			    glTexCoord2f  (1., 1.);
-			    glVertex3f  (0.0, treeHeight, treeRadius);
-			    glTexCoord2f  (0., 1.);
-			    glVertex3f  (0.0, treeHeight, -treeRadius);
-			} 
-
-		glEnd();
-
-        glPopMatrix();
+		if (distsqr < param.tree_detail_distance * param.tree_detail_distance)
+		{
+			glTexCoord2f  (0., 0.);
+			glVertex3f  (tree.pt.x + 0.0, tree.pt.y + 0.0, tree.pt.z + -treeRadius);
+			glTexCoord2f  (1., 0.);
+			glVertex3f  (tree.pt.x + 0.0, tree.pt.y + 0.0, tree.pt.z + treeRadius);
+			glTexCoord2f  (1., 1.);
+			glVertex3f  (tree.pt.x + 0.0, tree.pt.y + treeHeight, tree.pt.z + treeRadius);
+			glTexCoord2f  (0., 1.);
+			glVertex3f  (tree.pt.x + 0.0, tree.pt.y + treeHeight, tree.pt.z + -treeRadius);
+		}
 	}
+	glEnd();
+    glPopMatrix();
 
 //  items -----------------------------
 	TItem* itemLocs = &Course.NocollArr[0];
@@ -184,42 +187,45 @@ void DrawTrees() {
 	std::sort(items.begin(), items.end(), [](const TItem *a, const TItem *b)
 			{ return a->item_type < b->item_type; });
 
-    for (int i = 0; i<items.size(); i++) {
+	Winsys.rendered_items = items.size();
+
+	glPushMatrix();
+	glBegin (GL_QUADS);
+
+	for (int i = 0; i<items.size(); i++) {
 		TItem &item = *items[i];
 
 		if (item.item_type != item_type) {
-		    item_type = item.item_type;
+			glEnd ();
+			item_type = item.item_type;
 			object_types[item_type].texture->Bind();
+			glBegin (GL_QUADS);
 		}
 
-		glPushMatrix();
-		    glTranslatef (item.pt.x, item.pt.y,  item.pt.z);
-		    GLfloat itemRadius = item.diam / 2;
-		    GLfloat itemHeight = item.height;
+		GLfloat itemRadius = item.diam / 2;
+		GLfloat itemHeight = item.height;
 
-			TVector3 normal;
+		TVector3 normal;
 
-		    if (object_types[item_type].use_normal) {
-				normal = object_types[item_type].normal;
-		    } else {
+		if (object_types[item_type].use_normal) {
+			normal = object_types[item_type].normal;
+		} else {
 //				normal = MakeVector (0, 0, 1);
-				normal = SubtractVectors (ctrl->viewpos, item.pt);
-		    }
-		    NormVector (normal); // jdt: wasn't normalizing before glNormal3f all the time.
-		    glNormal3f (normal.x, normal.y, normal.z);
-		    normal.y = 0.0;
+			normal = SubtractVectors (ctrl->viewpos, item.pt);
+		}
+		NormVector (normal); // jdt: wasn't normalizing before glNormal3f all the time.
+		glNormal3f (normal.x, normal.y, normal.z);
+		normal.y = 0.0;
 
-			// orig 0.6 immediate mode extremely slow:
-		    glBegin (GL_QUADS);
-				glTexCoord2f (0., 0.);
-				glVertex3f (-itemRadius*normal.z, 0.0,  itemRadius*normal.x);
-				glTexCoord2f (1., 0.);
-				glVertex3f (itemRadius*normal.z, 0.0, -itemRadius*normal.x);
-				glTexCoord2f (1., 1.);
-				glVertex3f (itemRadius*normal.z, itemHeight, -itemRadius*normal.x);
-				glTexCoord2f (0., 1.);
-				glVertex3f (-itemRadius*normal.z, itemHeight, itemRadius*normal.x);
-	    	glEnd();
-        glPopMatrix();
+		glTexCoord2f (0., 0.);
+		glVertex3f (item.pt.x + -itemRadius*normal.z, item.pt.y + 0.0,  item.pt.z + itemRadius*normal.x);
+		glTexCoord2f (1., 0.);
+		glVertex3f (item.pt.x + itemRadius*normal.z, item.pt.y + 0.0, item.pt.z + -itemRadius*normal.x);
+		glTexCoord2f (1., 1.);
+		glVertex3f (item.pt.x + itemRadius*normal.z, item.pt.y + itemHeight, item.pt.z + -itemRadius*normal.x);
+		glTexCoord2f (0., 1.);
+		glVertex3f (item.pt.x + -itemRadius*normal.z, item.pt.y + itemHeight, item.pt.z + itemRadius*normal.x);
     }
+	glEnd ();
+	glPopMatrix();
 }

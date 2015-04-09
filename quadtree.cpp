@@ -6,6 +6,7 @@
 #include "textures.h"
 #include "course.h"
 #include "ogl.h"
+#include "winsys.h"
 
 #include "quadtree.h"
 
@@ -815,6 +816,9 @@ void quadsquare::Render (const quadcornerdata& cd, GLubyte *vnc_array) {
 	const TTerrType *TerrList = &Course.TerrList[0];
 
 	size_t numTerrains = Course.TerrList.size();
+
+	Winsys.rendered_course = numTerrains;
+
 	//	fog_on = is_fog_on ();
 	fog_on = true;
 	for (size_t j=0; j<numTerrains; j++) {

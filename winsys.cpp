@@ -64,6 +64,9 @@ CWinsys::CWinsys ()
 	frame_index = 0;
 
 	lookAtValid = false;
+	rendered_trees = 0;
+	rendered_items = 0;
+	rendered_course = 0;
 }
 
 const TScreenRes& CWinsys::GetResolution (size_t idx) const {
@@ -86,15 +89,15 @@ double CWinsys::CalcScreenScale () const {
 }
 
 void CWinsys::SetupVideoMode (const TScreenRes& res) {
-    resolution = res;
+	resolution = res;
 	scale = CalcScreenScale ();
 	if (param.use_quad_scale) scale = sqrt (scale);
 
 	printf("resizing SDL window to res: %dx%d\n", resolution.width, resolution.height);
-    SDL_SetWindowSize(sdlWindow, resolution.width, resolution.height);
-    SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	SDL_SetWindowSize(sdlWindow, resolution.width, resolution.height);
+	SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-    Reshape (resolution.width, resolution.height); // does nothing
+	Reshape (resolution.width, resolution.height); // does nothing
 }
 
 void CWinsys::SetupVideoMode (size_t idx) {
@@ -204,36 +207,35 @@ void CWinsys::OvrConfigureRendering()
 	}
 
 	// enable low-persistence display and dynamic prediction for latency compensation
-	hmd_caps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-    if (param.no_vsync) {
-        hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
-        // well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
-        printf("VSYNC Disabled.\n");
-    } else {
-        printf("VSYNC Enabled.\n");
-    }
+	hmd_caps = ovrHmdCap_LowPersistence;
+	hmd_caps |= param.no_prediction ? 0 : ovrHmdCap_DynamicPrediction;
+	if (param.no_vsync) {
+		hmd_caps |= ovrHmdCap_NoVSync; // This.. for whatever reason "solves" the low 37.5 fps problem.
+		// well.. now I don't have a 37.5 fps problem after updating mesa,xorg-server and restarting X...
+		printf("VSYNC Disabled.\n");
+	} else {
+		printf("VSYNC Enabled.\n");
+	}
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
-	printf("New HMD capabilities set.\n");
-
 	// configure SDK-rendering and enable chromatic abberation correction, vignetting, and
-	// timewrap, which shifts the image before drawing to counter any latency between the call
+	// timewarp, which shifts the image before drawing to counter any latency between the call
 	// to ovrHmd_GetEyePose and ovrHmd_EndFrame.
-	//
-	
-	distort_caps = ovrDistortionCap_Overdrive;
+
+	// Overdrive brightness transitions to reduce artifacts on DK2+ displays.
+	distort_caps = ovrDistortionCap_Overdrive | ovrDistortionCap_Vignette;
+	distort_caps |= param.no_timewarp ? 0 : ovrDistortionCap_TimeWarp;
+	distort_caps |= param.no_hq_distortion ? 0 : ovrDistortionCap_HqDistortion;
+
 #if OVR_MAJOR_VERSION < 5
-	distort_caps |= ovrDistortionCap_Chromatic;
+	distort_caps |= ovrDistortionCap_Chromatic; // can't turn it off in >0.5
+	distort_caps |= param.no_timewarp_spinwaits ? ovrDistortionCap_ProfileNoTimewarpSpinWaits : 0;
 #endif
-	distort_caps |= ovrDistortionCap_Vignette;
-	distort_caps |= ovrDistortionCap_TimeWarp;
+
 #ifdef WIN32
-	distort_caps |= ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
+	distort_caps |= param.no_compute_shader ? 0 : ovrDistortionCap_ComputeShader; // #ifdef'd out in the sdk for linux
 #endif
-#if OVR_MAJOR_VERSION < 5
-	distort_caps |= param.no_vsync ? ovrDistortionCap_ProfileNoTimewarpSpinWaits : 0;
-#endif
-	distort_caps |= param.hq_distortion ? ovrDistortionCap_HqDistortion : 0;
+
 	if(!ovrHmd_ConfigureRendering(hmd, &glcfg.Config, distort_caps, hmd->DefaultEyeFov, eye_rdesc)) {
 		fprintf(stderr, "failed to configure renderer for Oculus SDK\n");
 	}
@@ -247,18 +249,18 @@ void CWinsys::Init () {
 	ovr_Initialize();
 
 	Uint32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_TIMER;
-    if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
+	if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
 
 	// requiring anything higher than OpenGL 3.0 causes deprecation of 
 	// GL_LIGHTING GL_LIGHT0 GL_NORMALIZE, etc.. need replacements.
-    // also deprecates immediate mode, which would be a complete overhaul.
+	// also deprecates immediate mode, which would be a complete overhaul.
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
-	#if defined (USE_STENCIL_BUFFER)
-	    SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
-	#endif
+	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+#if defined (USE_STENCIL_BUFFER)
+	SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+#endif
 
 	resolution = GetResolution (param.res_type);
 	Uint32 window_width = resolution.width;
@@ -270,8 +272,8 @@ void CWinsys::Init () {
 	}
 
 	sdlWindow = SDL_CreateWindow(WINDOW_TITLE, 
-		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		window_width, window_height, window_flags);
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			window_width, window_height, window_flags);
 	if (sdlWindow == NULL) {
 		Message("Failed to create window: ", SDL_GetError());
 		SDL_Quit();
@@ -298,12 +300,12 @@ void CWinsys::Init () {
 	if (!(hmd = ovrHmd_Create(0))) {
 		Message ("No Oculus Rift device found.  Creating fake DK2.");
 		if(!(hmd = ovrHmd_CreateDebug(ovrHmd_DK2))) {
-    		Message("failed to create virtual debug HMD");
+			Message("failed to create virtual debug HMD");
 			SDL_Quit();
 		}
-        hmd_is_debug = true;
-    }
-    else hmd_is_debug = false;
+		hmd_is_debug = true;
+	}
+	else hmd_is_debug = false;
 
 	printf("initialized HMD: %s - %s\n", hmd->Manufacturer, hmd->ProductName);
 	printf("\tdisplay resolution: %dx%d\n", hmd->Resolution.w, hmd->Resolution.h);
@@ -315,7 +317,7 @@ void CWinsys::Init () {
 
 	KeyRepeat (false);
 	if (USE_JOYSTICK) InitJoystick ();
-//	SDL_EnableUNICODE (1);
+	//	SDL_EnableUNICODE (1);
 }
 
 void CWinsys::KeyRepeat (bool repeat) {
@@ -409,21 +411,28 @@ void CWinsys::ToggleHmdFullscreen()
 	}
 }
 
-const int maxFrames = 50;
-static int numFrames = 0;
+const unsigned int maxFrames = 5; //50;
+static unsigned int numFrames = 0;
 static float averagefps = 0;
 static float sumTime = 0;
+static unsigned int numDumps = 0;
 
 void dump_fps()
 {
-    if (numFrames >= maxFrames) {
+	sumTime += g_game.time_step;
+	numFrames++;
+
+    if (numFrames >= maxFrames && sumTime > 0) {
 		averagefps = 1 / sumTime * maxFrames;
 		numFrames = 0;
 		sumTime = 0;
-		printf("FPS: %.3f\n", averagefps);
-	} else {
-		sumTime += g_game.time_step;
-		numFrames++;
+		printf("%u fps:%.3f trees:%u items:%u course:%u\n", numDumps*maxFrames,
+				averagefps,
+				Winsys.rendered_trees,
+				Winsys.rendered_items,
+				Winsys.rendered_course
+				);
+		numDumps++;
 	}
 }
 
@@ -471,45 +480,46 @@ void LookAtSelection(ovrEyeType eye)
 
 void CWinsys::RenderFrame(State *current)
 {
-    ovrHmd_BeginFrame(hmd, frame_index);
+	ovrHmd_BeginFrame(hmd, frame_index);
 
-    ovrVector3f eye_view_offsets[2] = { eye_rdesc[0].HmdToEyeViewOffset,
+	ovrVector3f eye_view_offsets[2] = {
+		eye_rdesc[0].HmdToEyeViewOffset,
+		eye_rdesc[1].HmdToEyeViewOffset
+	};
+	ovrHmd_GetEyePoses(hmd, frame_index, eye_view_offsets, eyePose, &trackingState);
+	frame_index++;
 
-        eye_rdesc[1].HmdToEyeViewOffset };
-    ovrHmd_GetEyePoses(hmd, frame_index, eye_view_offsets, eyePose, &trackingState);
-    frame_index++;
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	// Set modelview to "cyclops" mode for non-opengl geometry culling (UpdateCourse).
+	// jdt: we just use the left eye for now. (might want to average values for both)
+	SetupDisplay (ovrEye_Left);
 
-    // Set modelview to "cyclops" mode for non-opengl geometry culling (UpdateCourse).
-    // jdt: we just use the left eye for now. (might want to average values for both)
-    SetupDisplay (ovrEye_Left);
+	glNewList(stereo_gl_list, GL_COMPILE);
+	current->Loop(g_game.time_step);
+	glEndList();
 
-    glNewList(stereo_gl_list, GL_COMPILE);
-    current->Loop(g_game.time_step);
-    glEndList();
+	ClearDisplay(); // was.. ClearRenderContext ();
 
-    ClearDisplay(); // was.. ClearRenderContext ();
+	for (int i = 0; i < 2; ++i)
+	{
+		ovrEyeType eye = hmd->EyeRenderOrder[i];
 
-    for (int i = 0; i < 2; ++i)
-    {
-        ovrEyeType eye = hmd->EyeRenderOrder[i];
+		if (eye == ovrEye_Left) {
+			glViewport(0, 0, fb_width/2, fb_height);
+		} else {
+			glViewport(fb_width/2, 0, fb_width/2, fb_height);
+		}
 
-        if (eye == ovrEye_Left) {
-            glViewport(0, 0, fb_width/2, fb_height);
-        } else {
-            glViewport(fb_width/2, 0, fb_width/2, fb_height);
-        }
+		SetupDisplay (eye);
 
-        SetupDisplay (eye);
-
-        glCallList(stereo_gl_list);
+		glCallList(stereo_gl_list);
 
 		if (!hmd_is_debug && current != &Racing && current != &Intro) 
 		{
 			LookAtSelection (eye);
 		}
-    }
+	}
 
 	lookAtValid = false;
 	if (!hmd_is_debug && current != &Racing && current != &Intro) // && current_render_mode() == GUI)
@@ -522,14 +532,14 @@ void CWinsys::RenderFrame(State *current)
 		}
 	}
 
-    // after drawing both eyes into the texture render target, revert to drawing directly to the
-    // display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
-    // compensated for lens distortion and chromatic abberation onto the HMD screen.
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// after drawing both eyes into the texture render target, revert to drawing directly to the
+	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
+	// compensated for lens distortion and chromatic abberation onto the HMD screen.
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
+	ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
 
-    dump_fps();
+	if (param.console_dump) dump_fps();
 }
 
 
