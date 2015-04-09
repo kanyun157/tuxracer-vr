@@ -1,6 +1,6 @@
 # Extreme Tuxracer VR
 
-Patches for Oculus Rift support!  Please read the following carefully for installing and running with proper settings to it to work acceptably.  WARNING: A decent gaming graphics card is necessary!  Integrated graphics hardware won't cut it.
+Patches for Oculus Rift support!  Please have patience and read the following for running with proper settings and getting it to work acceptably.  WARNING: A decent gaming graphics card is necessary!  Integrated graphics hardware won't cut it.
 
 ## Install
 
@@ -8,6 +8,7 @@ Patches for Oculus Rift support!  Please read the following carefully for instal
 * Please compile from source on linux:
 * Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git g++
 * Download the oculus rift sdk 0.4.4 (0.5 not supported yet) and extract somewhere:
+** Debian/Ubuntu:
 * https://developer.oculus.com/downloads/#version=pc-0.4.4-beta
 ```
 git clone https://github.com/jdtaylor/tuxracer-vr.git
@@ -16,6 +17,8 @@ export OVR_ROOT="/path/to/your/oculus/ovr_sdk_linux_0.4.4"
 CXXFLAGS="-O3" ./configure --datadir=${PWD}/data
 make
 ```
+* Please make sure your oculusd or ovrd is running and issue ./etr to start.
+* Oculus only support extended mode on Linux. 
 
 ### Windows:
 * Donwload package [TODO]
@@ -24,11 +27,6 @@ make
 * ... TODO
 
 ## Running:
-
-```python
-   from etr import vr
-   def func():
-```
 
 * See (http://sourceforge.net/projects/extremetuxracer/)
 
