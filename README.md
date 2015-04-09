@@ -1,14 +1,13 @@
-# Extreme Tuxracer VR
+# [Extreme Tuxracer](http://sourceforge.net/projects/extremetuxracer/) VR 
 
-Patches for Oculus Rift support!  Please have patience and read the following for running with proper settings and getting it to work acceptably.  WARNING: A decent gaming graphics card is necessary!  Integrated graphics hardware won't cut it.
+The classic downhill skiing game now with Oculus Rift support!  Please have patience and read the following for running with proper settings and getting it to work acceptably (low latency).  WARNING: A decent gaming graphics card is necessary!  Integrated graphics hardware won't cut it.
 
 ## Install
 
 ### Linux:
 * Please compile from source on linux:
-* Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git g++
+* Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git gcc
 * Download the oculus rift sdk 0.4.4 (0.5 not supported yet) and extract somewhere:
-** Debian/Ubuntu:
 * https://developer.oculus.com/downloads/#version=pc-0.4.4-beta
 ```
 git clone https://github.com/jdtaylor/tuxracer-vr.git
@@ -27,7 +26,4 @@ make
 * ... TODO
 
 ## Running:
-
-* See (http://sourceforge.net/projects/extremetuxracer/)
-
 
