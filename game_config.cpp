@@ -89,7 +89,10 @@ void LoadConfigFile () {
 		param.no_timewarp_spinwaits = SPBoolN(line, "no_timewarp_spinwaits", false);
 		param.no_hq_distortion = SPBoolN(line, "no_hq_distortion", true);
 		param.no_compute_shader = SPBoolN(line, "no_compute_shader", true);
+		param.no_restore = SPBoolN(line, "no_restore", false);
+		param.ipd_multiplier = SPFloatN(line, "ipd_multiplier", 16);
 		param.console_dump = SPBoolN(line, "console_dump", false);
+		param.use_fxaa = SPBoolN(line, "use_fxaa", true);
 	}
 }
 
@@ -130,7 +133,10 @@ void SetConfigDefaults () {
 	param.no_timewarp_spinwaits = false;
 	param.no_hq_distortion = true;
 	param.no_compute_shader = true;
+	param.no_restore = false;
+	param.ipd_multiplier = 16;
 	param.console_dump = false; // true for fps,tree,item count dumps.
+	param.use_fxaa = true;
 }
 
 
@@ -288,7 +294,10 @@ void SaveConfigFile () {
 	AddIntItem(liste, "no_timewarp_spinwaits", param.no_timewarp_spinwaits);
 	AddIntItem(liste, "no_hq_distortion", param.no_hq_distortion);
 	AddIntItem(liste, "no_compute_shader", param.no_compute_shader);
+	AddIntItem(liste, "no_restore", param.no_restore);
+	AddIntItem(liste, "ipd_multiplier", param.ipd_multiplier);
 	AddIntItem(liste, "console_dump", param.console_dump);
+	AddIntItem(liste, "use_fxaa", param.use_fxaa);
     liste.Add("");
 
 

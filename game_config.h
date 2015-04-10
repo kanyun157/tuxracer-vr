@@ -84,7 +84,10 @@ struct TParam {
 	bool    no_timewarp_spinwaits;
 	bool    no_hq_distortion;
 	bool    no_compute_shader;
+	bool    no_restore;
+	float   ipd_multiplier;
 	bool    console_dump;
+	bool    use_fxaa;
 
     TViewMode view_mode;
 };

@@ -40,6 +40,7 @@ TVector2 cursor_pos(0, 0);
 
 CWinsys Winsys;
 
+
 CWinsys::CWinsys ()
 	: auto_resolution(800, 600)
 {
@@ -152,12 +153,12 @@ void CWinsys::OvrConfigureRendering()
 	printf("fb_width: %d\n", fb_width);
 	printf("fb_height: %d\n", fb_height);
 
-	fbo = fb_tex = fb_depth = 0;
+	fbo = fb_tex[0] = fb_tex[1] = fb_depth = 0;
 	UpdateRenderTarget(fb_width, fb_height);
 
 	printf("fb_tex_width: %d\n", fb_tex_width); // firmware major: 2
 	printf("fb_tex_height: %d\n", fb_tex_height); // minor: 12
-	printf("fb_tex: %d\n", fb_tex);
+	printf("fb_tex: %d\n", fb_tex[1]);
 
 	// fill in the ovrGLTexture structures that describe our render target texture
 	for(int i=0; i<2; i++) {
@@ -169,7 +170,7 @@ void CWinsys::OvrConfigureRendering()
 		fb_ovr_tex[i].OGL.Header.RenderViewport.Pos.y = 0;
 		fb_ovr_tex[i].OGL.Header.RenderViewport.Size.w = fb_width / 2.0;
 		fb_ovr_tex[i].OGL.Header.RenderViewport.Size.h = fb_height;
-		fb_ovr_tex[i].OGL.TexId = fb_tex;	// both eyes will use the same texture id 
+		fb_ovr_tex[i].OGL.TexId = fb_tex[1];	// both eyes will use the same texture id 
 	}
 
 	// fill in the ovrGLConfig structure needed by the SDK to draw our stereo pair
@@ -226,6 +227,7 @@ void CWinsys::OvrConfigureRendering()
 	distort_caps = ovrDistortionCap_Overdrive | ovrDistortionCap_Vignette;
 	distort_caps |= param.no_timewarp ? 0 : ovrDistortionCap_TimeWarp;
 	distort_caps |= param.no_hq_distortion ? 0 : ovrDistortionCap_HqDistortion;
+	distort_caps |= param.no_restore ? ovrDistortionCap_NoRestore : 0;
 
 #if OVR_MAJOR_VERSION < 5
 	distort_caps |= ovrDistortionCap_Chromatic; // can't turn it off in >0.5
@@ -243,10 +245,17 @@ void CWinsys::OvrConfigureRendering()
 	ovrHmd_DismissHSWDisplay(hmd);
 }
 
+static GLuint fxaa_prog;
+static GLuint passthrough_prog;
+
+
 void CWinsys::Init () {
 
 	// jdt: oculus init needs better home
-	ovr_Initialize();
+	if (!ovr_Initialize()) {
+		Message ("ovr_Initialize failed.  Likely can't find OVR Runtime dll/so. Aborting.\n");
+		exit(1);
+	}
 
 	Uint32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_TIMER;
 	if (SDL_Init (sdl_flags) < 0) Message ("Could not initialize SDL");
@@ -260,6 +269,10 @@ void CWinsys::Init () {
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
 #if defined (USE_STENCIL_BUFFER)
 	SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+#endif
+#if 0
+	SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 1); // enable msaa
+	SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
 #endif
 
 	resolution = GetResolution (param.res_type);
@@ -318,6 +331,9 @@ void CWinsys::Init () {
 	KeyRepeat (false);
 	if (USE_JOYSTICK) InitJoystick ();
 	//	SDL_EnableUNICODE (1);
+
+	init_shader_program(&fxaa_prog, "shaders/passthrough.vect", "shaders/fxaa.glsl");
+	init_shader_program(&passthrough_prog, "shaders/passthrough.vect", "shaders/passthrough.frag");
 }
 
 void CWinsys::KeyRepeat (bool repeat) {
@@ -532,12 +548,42 @@ void CWinsys::RenderFrame(State *current)
 		}
 	}
 
+	// full-frame post processing before handing off to oculus sdk.
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex[1], 0);
+	bool use_fxaa = true;
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, fb_tex_width, fb_tex_height);
+	glLoadIdentity();
+	if (use_fxaa)
+		glUseProgram (fxaa_prog);
+	else
+		glUseProgram (passthrough_prog);
+	glBindTexture(GL_TEXTURE_2D, fb_tex[0]);
+	if (param.use_fxaa) {
+		glUniform1i(glGetUniformLocation(fxaa_prog, "u_texture0"), 0);
+		glUniform2f(glGetUniformLocation(fxaa_prog, "resolution"), fb_tex_width, fb_tex_height);
+		glUniform1i(glGetUniformLocation(fxaa_prog, "enabled"), 1);
+	} else {
+		glUniform1i(glGetUniformLocation(passthrough_prog, "fbo_texture"), 0);
+	}
+	glBegin (GL_QUADS);
+	glVertex2f(-1, -1); 
+	glVertex2f(1, -1);
+	glVertex2f(1, 1);
+	glVertex2f(-1, 1);
+	glEnd();
+	glUseProgram(0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex[0], 0);
+
 	// after drawing both eyes into the texture render target, revert to drawing directly to the
 	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
 	// compensated for lens distortion and chromatic abberation onto the HMD screen.
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
+
+
 
 	if (param.console_dump) dump_fps();
 }

@@ -29,6 +29,8 @@ void update_view (CControl *ctrl, double dt);
 void SetStationaryCamera (bool stat); // 0 follow, 1 stationary
 void IncCameraDistance (double timestep);
 void SetCameraDistance (double val);
+void IncCameraAngle (double dDeg); // change in degrees
+void SetCameraAngle (double val);
 
 // ------------- viewfrustum ------------------------------------------
 

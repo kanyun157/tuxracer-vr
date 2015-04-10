@@ -74,7 +74,7 @@ void CIntro::Enter() {
     ctrl->cvel = TVector3(0, 0, 0);
     clear_particles();
     set_view_mode (ctrl, ABOVE);
-	SetCameraDistance (4.0);
+	SetCameraDistance (9.0); // jdt: finish line changes this
 	SetStationaryCamera (false);
 	update_view (ctrl, EPS);
     size_t num_items = Course.NocollArr.size();

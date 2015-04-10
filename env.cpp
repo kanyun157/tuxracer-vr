@@ -60,8 +60,8 @@ CEnvironment::CEnvironment ()
 
 	default_fog.is_on = true;
 	default_fog.mode = GL_LINEAR;
-	default_fog.start = 20.0;
-	default_fog.end = 70.0;
+	default_fog.start = 10.0;
+	default_fog.end = 7000.0;
 	default_fog.height = 0;
 	for (int i=0; i<4; i++)
 		default_fog.color[i] = def_fogcol[i];
@@ -104,10 +104,10 @@ void CEnvironment::SetupLight () {
 }
 
 void CEnvironment::SetupFog () {
-	if (!fog.is_on) {
-		glDisable (GL_FOG);
-		return;
-	}
+	//if (!fog.is_on) {
+	//	glDisable (GL_FOG);
+	//	return;
+	//}
     glEnable (GL_FOG);
     glFogi   (GL_FOG_MODE, fog.mode);
     glFogf   (GL_FOG_START, fog.start);
@@ -221,11 +221,11 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	glPushMatrix();
 	glTranslatef (pos.x, pos.y, pos.z);
 	
-	// jdt: scale to roughtly 1 / sqrt(2) so corners are still 
-	// within the view frustum.
-	glScalef (param.forward_clip_distance / 1.5,
-			param.forward_clip_distance / 1.5, 
-			param.forward_clip_distance / 1.5); 
+	// jdt: distance depends on IPD. and looks funny when too close.
+	// WOW fog is a real problem with stereo because I can't 
+	// render the skybox close enough to avoid being washed out.
+	GLfloat hypot = param.forward_clip_distance * 3;
+	glScalef (hypot, hypot, hypot); 
 
 	// front
 	Skybox[0].Bind();

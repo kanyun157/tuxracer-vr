@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include "spx.h"
 #include "winsys.h"
 #include "env.h"
+#include <iostream>
 #include <cstdarg>
 #include <stack>
 
@@ -278,7 +279,7 @@ void quat_to_matrix(const float *quat, float *mat)
 // Author: John Tsiombikas <nuclear@member.fsf.org>
 // LICENSE: This code is in the public domain. Do whatever you like with it.
 // DOC: creates (and/or resizes) the render target used to draw the two stero views.
-unsigned int fbo, fb_tex, fb_depth;
+unsigned int fbo, fb_tex[2], fb_depth;
 unsigned int fb_width, fb_height;
 int fb_tex_width, fb_tex_height;
 unsigned int stereo_gl_list;
@@ -294,10 +295,14 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
 
         // if fbo does not exist, then nothing does... create every opengl object
         glGenFramebuffers(1, &fbo);
-        glGenTextures(1, &fb_tex);
+        glGenTextures(2, fb_tex);
         glGenRenderbuffers(1, &fb_depth);
 
-        glBindTexture(GL_TEXTURE_2D, fb_tex);
+        glBindTexture(GL_TEXTURE_2D, fb_tex[1]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glBindTexture(GL_TEXTURE_2D, fb_tex[0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
@@ -311,10 +316,13 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
     fb_tex_height = next_pow2(height);
 
     // create and attach the texture that will be used as a color buffer
-    glBindTexture(GL_TEXTURE_2D, fb_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fb_tex_width, fb_tex_height, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex, 0);
+	glBindTexture(GL_TEXTURE_2D, fb_tex[1]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fb_tex_width, fb_tex_height, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glBindTexture(GL_TEXTURE_2D, fb_tex[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fb_tex_width, fb_tex_height, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex[0], 0);
 
     check_gl_error();
 
@@ -647,3 +655,64 @@ void PopRenderMode()
 	//if(!modestack.empty() && modestack.top() != mode)
 	//	set_gl_options(modestack.top());
 }
+
+#define MAX_SHADER_SIZE (1 << 15)
+int load_shader(GLenum type, const char* filename)
+{
+	GLuint shader;
+	GLint chars_read;
+	SDL_RWops* file;
+	GLint compiled;
+
+	file=SDL_RWFromFile(filename, "r");
+
+	if (file==NULL)
+	{
+		printf("shader %s wasn't opened\n", filename);
+		exit(1);
+	}
+
+	shader=glCreateShader(type);
+
+	char* shader_source = new char[MAX_SHADER_SIZE];
+	chars_read = (GLint)SDL_RWread(file, shader_source, 1, MAX_SHADER_SIZE-1);
+
+	//const GLchar* sources[] = {shader_source, 0};
+	glShaderSource(shader, 1, (const GLchar**)&shader_source, &chars_read);
+
+	glCompileShader(shader);
+
+	delete[] shader_source;
+
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+	if (compiled==GL_FALSE) {
+		printf("shader %s failed to compile\n", filename);
+
+		GLsizei info_len;
+		glGetShaderInfoLog(shader, MAX_SHADER_SIZE, &info_len, shader_source);
+		cout << shader_source << std::endl;
+		exit(1);
+	}
+
+	return shader;
+}
+
+void init_shader_program(GLuint* program, const char* vertfile, const char* fragfile)
+{
+	GLint linked;
+
+	*program=glCreateProgram();
+
+	if (vertfile) glAttachShader(*program, load_shader(GL_VERTEX_SHADER, vertfile));
+	if (fragfile) glAttachShader(*program, load_shader(GL_FRAGMENT_SHADER, fragfile));
+
+	glLinkProgram(*program);
+
+	glGetProgramiv(*program, GL_LINK_STATUS, &linked);
+	if (linked==GL_FALSE)
+	{
+		printf("shader failed to link\n");
+		exit(1);
+	}
+}
+

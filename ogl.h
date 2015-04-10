@@ -26,7 +26,7 @@ GNU General Public License for more details.
 #define NEAR_CLIP_DIST 0.1
 
 // jdt TODO: get rid of globals
-extern unsigned int fbo, fb_tex, fb_depth;
+extern unsigned int fbo, fb_tex[2], fb_depth;
 extern unsigned int fb_width, fb_height;
 extern int fb_tex_width, fb_tex_height;
 extern unsigned int stereo_gl_list;
@@ -81,5 +81,9 @@ void Reshape (int w, int h);
 
 // convert a quaternion to a rotation matrix
 void quat_to_matrix(const float *quat, float *mat);
+
+int load_shader(GLenum type, const char* filename);
+void init_shader_program(GLuint* program, const char* vertfile, const char* fragfile);
+void use_program(GLuint program);
 
 #endif

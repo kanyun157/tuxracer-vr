@@ -81,8 +81,12 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_DOWN: {
 							IncCameraDistance(-0.1); break;
 						}//key_braking = !release; break;
-		case SDLK_LEFT: left_turn = !release; break;
-		case SDLK_RIGHT: right_turn = !release; break;
+		case SDLK_LEFT: { //left_turn = !release; break;
+							IncCameraAngle(1); break;
+						}
+		case SDLK_RIGHT: { //right_turn = !release; break;
+							 IncCameraAngle(-1); break;
+						 }
 		//case SDLK_t: trick_modifier = !release; break;
 		// mode changing and other actions
 		case SDLK_ESCAPE: if (!release) {
@@ -175,8 +179,6 @@ void CRacing::Enter (void) {
 	//if (param.view_mode < 0 || param.view_mode >= NUM_VIEW_MODES) {
 		param.view_mode = ABOVE; // first person/penguin
 	//}
-	SetCameraDistance (16.0);
-	
 
 	set_view_mode (ctrl, (TViewMode)param.view_mode);
 	left_turn = right_turn = false;

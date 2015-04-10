@@ -54,13 +54,20 @@ void SetStationaryCamera (bool stat) {
 	}
 }
 
-static double camera_distance = 4.0;
+static double camera_distance = 9.0;
 void IncCameraDistance (double timestep) {
 	camera_distance += timestep * CAMERA_DISTANCE_INCREMENT;
 	printf ("camera distance: %f\n", camera_distance);
 }
 
+static double camera_angle = 42.0; // ideal (though includes course angle)
+void IncCameraAngle (double dDeg) {
+	camera_angle += dDeg;
+	printf("camera angle: %f\n", camera_angle);
+}
+
 void SetCameraDistance (double val) {camera_distance = val;}
+void SetCameraAngle (double val) {camera_angle = val;}
 
 
 void set_view_mode (CControl *ctrl, TViewMode mode) {ctrl->viewmode = mode;}
@@ -213,10 +220,11 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 
 TVector3 MakeViewVector () {
     double course_angle = Course.GetCourseAngle();
-	double rad = ANGLES_TO_RADIANS (
-			    course_angle -
-			    CAMERA_ANGLE_ABOVE_SLOPE +
-			    PLAYER_ANGLE_IN_CAMERA);
+	double rad = ANGLES_TO_RADIANS ( camera_angle );
+	//		    course_angle - camera_angle);
+// jdt: making angle above player variable.
+//			    CAMERA_ANGLE_ABOVE_SLOPE +
+//			    PLAYER_ANGLE_IN_CAMERA);
 	TVector3 res(0, sin(rad), cos(rad));
 	return ScaleVector (camera_distance, res);
 }
@@ -351,7 +359,7 @@ void update_view (CControl *ctrl, double dt) {
 			TransformVector (rot_mat, view_vec));
         break;
     }
-	case FPP: { // first person penguin
+	case FPP: { // first person penguin.  I like ABOVE with large ipd.
 		view_pt = ctrl->cpos;
         double ycoord = Course.FindYCoord (view_pt.x, view_pt.z);
         if (view_pt.y < ycoord + MIN_CAMERA_HEIGHT) {
