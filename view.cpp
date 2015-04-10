@@ -27,9 +27,11 @@ GNU General Public License for more details.
 
 #define MIN_CAMERA_HEIGHT  1.5
 #define ABSOLUTE_MIN_CAMERA_HEIGHT  0.3
-#define CAMERA_ANGLE_ABOVE_SLOPE 10
-#define PLAYER_ANGLE_IN_CAMERA 20
-#define MAX_CAMERA_PITCH 40
+//#define CAMERA_ANGLE_ABOVE_SLOPE 10
+#define CAMERA_ANGLE_ABOVE_SLOPE 25
+//#define PLAYER_ANGLE_IN_CAMERA 20
+#define PLAYER_ANGLE_IN_CAMERA 40
+#define MAX_CAMERA_PITCH 60
 #define BEHIND_ORBIT_TIME_CONSTANT 0.06
 #define BEHIND_ORIENT_TIME_CONSTANT 0.06
 #define FOLLOW_ORBIT_TIME_CONSTANT 0.06
@@ -55,6 +57,7 @@ void SetStationaryCamera (bool stat) {
 static double camera_distance = 4.0;
 void IncCameraDistance (double timestep) {
 	camera_distance += timestep * CAMERA_DISTANCE_INCREMENT;
+	printf ("camera distance: %f\n", camera_distance);
 }
 
 void SetCameraDistance (double val) {camera_distance = val;}
@@ -342,14 +345,23 @@ void update_view (CControl *ctrl, double dt) {
         if (view_pt.y < ycoord + MIN_CAMERA_HEIGHT) {
             view_pt.y = ycoord + MIN_CAMERA_HEIGHT;
 		}
-
 		view_vec = SubtractVectors (view_pt, ctrl->cpos);
 		MakeRotationMatrix (rot_mat, PLAYER_ANGLE_IN_CAMERA, 'x');
 		view_dir = ScaleVector (-1.0,
 			TransformVector (rot_mat, view_vec));
         break;
     }
-
+	case FPP: { // first person penguin
+		view_pt = ctrl->cpos;
+        double ycoord = Course.FindYCoord (view_pt.x, view_pt.z);
+        if (view_pt.y < ycoord + MIN_CAMERA_HEIGHT) {
+            view_pt.y = ycoord + MIN_CAMERA_HEIGHT;
+		}
+		view_dir.x = 0;
+		view_dir.y = ctrl->cvel.y / 2; //TVector3(0, 0, -1);
+		view_dir.z = ctrl->cvel.z;
+		break;
+	}
 	    default: Message ("code not reached", ""); return;
     }
 

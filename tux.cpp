@@ -375,6 +375,7 @@ void CCharShape::CreateMaterial (const string& line) {
 // --------------------------------------------------------------------
 
 void CCharShape::DrawCharSphere (int num_divisions) {
+	// jdt: way too much geometry here even for num_divisions=1.
     GLUquadricObj *qobj = gluNewQuadric();
     gluQuadricDrawStyle (qobj, GLU_FILL);
     gluQuadricOrientation (qobj, GLU_OUTSIDE);

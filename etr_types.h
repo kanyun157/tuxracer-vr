@@ -139,6 +139,7 @@ enum TViewMode {
     BEHIND,
     FOLLOW,
     ABOVE,
+	FPP,
     NUM_VIEW_MODES
 };
 

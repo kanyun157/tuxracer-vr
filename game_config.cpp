@@ -356,7 +356,7 @@ void InitConfig (const char *arg0) {
 	param.ui_snow = false; // jdt: needs optimization and looks bad in hmd.
 	param.view_mode = FOLLOW;
 	param.display_fps = false;
-	param.show_hud = true;
+	param.show_hud = false; // jdt: the 2d hud messes w/ frame prediction.
 	param.attach_hud_to_face = false;
 
 	if (FileExists (param.configfile)) {

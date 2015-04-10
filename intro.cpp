@@ -89,7 +89,6 @@ void CIntro::Enter() {
 	InitWind ();
 
 	Music.PlayTheme (g_game.theme_id, MUS_RACING);
-    param.show_hud = true;
 	g_game.loopdelay = 1;
 }
 

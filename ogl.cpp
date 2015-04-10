@@ -218,9 +218,9 @@ void SetupDisplay (ovrEyeType eye) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x,
-            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y,
-            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z);
+    glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x * 16, //param.ipd_scale,
+            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y * 16, //param.ipd_scale,
+            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z * 16); //param.ipd_scale);
 
     // retrieve the orientation quaternion and convert it to a rotation matrix 
     float rot_mat[16];

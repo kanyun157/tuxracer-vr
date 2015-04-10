@@ -26,7 +26,7 @@ GNU General Public License for more details.
 #define	MAX_CHAR_NODES 256
 #define	MAX_CHAR_MAT 32
 
-#define MIN_SPHERE_DIV 3
+#define MIN_SPHERE_DIV 2
 #define MAX_SPHERE_DIV 16
 
 struct TCharMaterial {

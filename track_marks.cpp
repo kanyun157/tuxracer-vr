@@ -110,9 +110,7 @@ bool track_quad_visible(const track_quad_t &q)
 // --------------------------------------------------------------------
 
 void DrawTrackmarks() {
-	/* jdt: TODO: I'm seeing OpenGL errors with my changes here.
-	 * .. I'm guessing having to do with the switch from quad_strip 
-	 * to gl_quads for the middle track marks.
+	/* jdt: seeing crash on load level.. TODO turn back on and debug
 	if (param.perf_level < 3)
 		return;
 
@@ -129,8 +127,7 @@ void DrawTrackmarks() {
 
 	glBegin(GL_QUADS);
 
-	list<track_quad_t>::const_iterator qprev = track_marks.quads.end();
-	int prev_track_type = -1;
+	list<track_quad_t>::const_iterator qprev = track_marks.quads.end(); int prev_track_type = -1;
 
 	for (list<track_quad_t>::const_iterator q = track_marks.quads.begin(); q != track_marks.quads.end(); ++q) {
 
@@ -140,12 +137,15 @@ void DrawTrackmarks() {
 			continue;
 		}
 
-		track_colour.a = q->alpha;
-		set_material (track_colour, colBlack, 1.0);
-
 		if (q->track_type != prev_track_type) {
+			glEnd ();
+			// jdt: this isn't correct.. we only check if track type changes, not alpha.
+			track_colour.a = q->alpha;
+			set_material (track_colour, colBlack, 1.0);
+
 			textures[q->track_type]->Bind();
 			prev_track_type = q->track_type;
+			glBegin (GL_QUADS);
 		}
 
 		glNormal3f (q->n1.x, q->n1.y, q->n1.z);
@@ -169,7 +169,6 @@ void DrawTrackmarks() {
 
 	glEnd();
 	*/
-
 #if 0
 		if ((q->track_type == TRACK_HEAD) || (q->track_type == TRACK_TAIL) || qprev == track_marks.quads.end()) {
 			glNormal3f (q->n1.x, q->n1.y, q->n1.z);
