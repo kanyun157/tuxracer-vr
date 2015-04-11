@@ -550,21 +550,20 @@ void CWinsys::RenderFrame(State *current)
 
 	// full-frame post processing before handing off to oculus sdk.
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex[1], 0);
-	bool use_fxaa = true;
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, fb_tex_width, fb_tex_height);
 	glLoadIdentity();
-	if (use_fxaa)
-		glUseProgram (fxaa_prog);
-	else
-		glUseProgram (passthrough_prog);
-	glBindTexture(GL_TEXTURE_2D, fb_tex[0]);
 	if (param.use_fxaa) {
+		// jdt: TODO uniforms don't need to be set every frame
+		glUseProgram (fxaa_prog);
+		glBindTexture(GL_TEXTURE_2D, fb_tex[0]);
 		glUniform1i(glGetUniformLocation(fxaa_prog, "u_texture0"), 0);
 		glUniform2f(glGetUniformLocation(fxaa_prog, "resolution"), fb_tex_width, fb_tex_height);
 		glUniform1i(glGetUniformLocation(fxaa_prog, "enabled"), 1);
 	} else {
+		glUseProgram (passthrough_prog);
+		glBindTexture(GL_TEXTURE_2D, fb_tex[0]);
 		glUniform1i(glGetUniformLocation(passthrough_prog, "fbo_texture"), 0);
 	}
 	glBegin (GL_QUADS);

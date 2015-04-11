@@ -76,6 +76,7 @@ void State::Manager::PollEvent() {
 					switch(key) {
 						case SDLK_F2:
 						case SDLK_F9: Winsys.ToggleHmdFullscreen(); break;
+						case SDLK_x: param.use_fxaa = !param.use_fxaa; break;
 						default: break;
 					}
 					break;
