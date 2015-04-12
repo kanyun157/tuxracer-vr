@@ -36,7 +36,7 @@ GNU General Public License for more details.
 #define IDEAL_ROLL_FRIC 0.35
 #define WIND_FACTOR 1.5
 
-#define MIN_FRICT_SPEED 2.8
+#define MIN_FRICT_SPEED 30
 #define MAX_FRICT_FORCE 800
 #define MAX_TURN_ANGLE 45
 #define MAX_TURN_PERP 400

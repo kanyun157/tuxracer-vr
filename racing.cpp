@@ -296,6 +296,8 @@ void CalcFinishControls (CControl *ctrl, double timestep, bool airborne) {
 // ----------------------- trick --------------------------------------
 
 void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
+	// jdt: disabling all tricks.. using left/right/roll to steer in air now.
+#if 0
 	if (airborne && trick_modifier) {
 		// jdt: disabling tricks w/ keypad.. only perform w/ joystick or hmd lean.
 		if (/*left_turn ||*/ stick_turnfact < -2.0) ctrl->roll_left = true;
@@ -318,6 +320,7 @@ void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 			ctrl->front_flip = ctrl->back_flip = false;
 		}
 	}
+#endif
 }
 
 // ====================================================================

@@ -290,15 +290,15 @@ TVector3 CControl::CalcRollNormal (double speed) {
 	NormVector (vel);
 
 	double roll_angle = MAX_ROLL_ANGLE;
-    if (is_braking) roll_angle = BRAKING_ROLL_ANGLE;
+	if (is_braking) roll_angle = BRAKING_ROLL_ANGLE;
 
 	double angle = turn_fact * roll_angle *
 		MIN (1.0, MAX (0.0, ff.frict_coeff) / IDEAL_ROLL_FRIC) *
 		MIN (1.0, MAX (0.0, speed - minSpeed) / (IDEAL_ROLL_SPEED - minSpeed));
 
 	TMatrix rot_mat;
-    RotateAboutVectorMatrix (rot_mat, vel, angle);
-    return TransformVector (rot_mat, ff.surfnml);
+	RotateAboutVectorMatrix (rot_mat, vel, angle);
+	return TransformVector (rot_mat, ff.surfnml);
 }
 
 const double airlog[]  = {-1, 0, 1, 2, 3, 4, 5, 6};
@@ -319,21 +319,27 @@ TVector3 CControl::CalcAirForce () {
 }
 
 TVector3 CControl::CalcSpringForce () {
-	double springvel = DotProduct (ff.vel, ff.rollnml);
+	const TVector3 roll = ff.rollnml;
+	double springvel = DotProduct (ff.vel, roll);
 	double springfact = MIN (ff.compression, 0.05) * 1500;
-    springfact += MAX (0, min (ff.compression - 0.05, 0.12)) * 3000;
-    springfact += MAX (0, ff.compression - 0.12 - 0.05) * 10000;
+
+	springfact += MAX (0, min (ff.compression - 0.05, 0.12)) * 3000;
+	springfact += MAX (0, ff.compression - 0.12 - 0.05) * 10000;
 	springfact -= springvel * (ff.compression <= 0.05 ? 1500 : 500);
 	springfact = MAX (springfact, 0.0);
-    springfact = MIN (springfact, 3000);
-	return ScaleVector (springfact, ff.rollnml);
+	springfact = MIN (springfact, 3000);
+
+	return ScaleVector (springfact, roll);
 }
 
 TVector3 CControl::CalcNormalForce () {
 	if (ff.surfdistance <= -ff.comp_depth) {
 		ff.compression = -ff.surfdistance - ff.comp_depth;
 		return CalcSpringForce ();
-    }
+    } else {
+		return TVector3(ff.rollnml.x * 200, ff.rollnml.y * 50, ff.rollnml.z);
+	}
+
 	return TVector3(0, 0, 0);
 }
 
