@@ -211,7 +211,7 @@ void CScore::Enter() {
 	framewidth = 550 * Winsys.scale;
 	frameheight = 50 * Winsys.scale;
 	frametop = AutoYPosN (32);
-	area = AutoAreaN (30, 80, framewidth);
+	area = AutoAreaN (35, 80, framewidth - 100);
 	FT.AutoSizeN (3);
 	linedist = FT.AutoDistanceN (1);
 	listtop = AutoYPosN (44);
@@ -223,9 +223,9 @@ void CScore::Enter() {
 	CourseList = &Course.CourseList[0];
 
 	ResetGUI ();
-	course = AddUpDown(area.right + 8, frametop, 0, (int)Course.CourseList.size()-1, 0);
+	course = AddUpDown(area.right - 15, frametop, 0, (int)Course.CourseList.size()-1, 0);
 	int siz = FT.AutoSizeN (5);
-	textbutton = AddTextButton (Trans.Text(64), CENTER, AutoYPosN (80), siz);
+	textbutton = AddTextButton (Trans.Text(64), CENTER, AutoYPosN (70), siz);
 
 	g_game.loopdelay = 1;
 }
@@ -235,6 +235,7 @@ const string ordinals[10] =
 
 void CScore::Loop (double timestep) {
 	int ww = Winsys.resolution.width;
+
 	int hh = Winsys.resolution.height;
 
 	Music.Update ();
@@ -258,9 +259,9 @@ void CScore::Loop (double timestep) {
 
 	FT.AutoSizeN (7);
 	FT.SetColor (colWhite);
-	FT.DrawString (CENTER, AutoYPosN (22), Trans.Text(62));
+	FT.DrawString (CENTER, AutoYPosN (24), Trans.Text(62));
 
-	DrawFrameX (area.left, frametop, framewidth, frameheight, 3, colMBackgr, colDYell, 1.0);
+	DrawFrameX (area.left, frametop, framewidth - 150, frameheight, 3, colMBackgr, colDYell, 1.0);
 	FT.AutoSizeN (5);
 	FT.SetColor (colWhite);
 	FT.DrawString (area.left+20, frametop, CourseList[course->GetValue()].name);

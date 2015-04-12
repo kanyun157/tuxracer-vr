@@ -752,10 +752,10 @@ void DrawWidgetFrame(TWidget *w)
 	glColor4f (0, 0, 0, 0.5);
 	glPushMatrix ();
 	TRect frameRect = w->GetArea();
-	frameRect.left -= 0.1 * frameRect.width;
-	frameRect.top -= 0.1 * frameRect.height;
-	frameRect.width *= 1.2;
-	frameRect.height *= 1.2;
+	//frameRect.left -= 0.01 * frameRect.width;
+	//frameRect.top -= 0.01 * frameRect.height;
+	//frameRect.width *= 1.01;
+	//frameRect.height *= 1.01;
 	frameRect.top = (float)Winsys.resolution.height - frameRect.top - frameRect.height;
 	GLfloat depth = 0; //-param.forward_clip_distance / 2;
 	glTranslatef (frameRect.left, frameRect.top, 0);

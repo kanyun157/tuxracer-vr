@@ -110,8 +110,8 @@ void CRegist::Enter (void) {
 	player = AddUpDown(area.left + framewidth + 8, area.top, 0, (int)Players.numPlayers() - 1, (int)g_game.start_player);
 	character = AddUpDown(area.left + framewidth * 2 + arrowwidth + 8, area.top, 0, (int)Char.CharList.size() - 1, 0);
 	int siz = FT.AutoSizeN (5);
-	textbuttons[0] = AddTextButton (Trans.Text(60), CENTER, AutoYPosN (62), siz);
-	textbuttons[1] = AddTextButton (Trans.Text(61), CENTER, AutoYPosN (70), siz);
+	textbuttons[0] = AddTextButton (Trans.Text(60), CENTER, AutoYPosN (55), siz);
+	textbuttons[1] = AddTextButton (Trans.Text(61), CENTER, AutoYPosN (60), siz);
 
 	g_game.loopdelay = 10;
 	if(Char.CharList.empty())
@@ -144,7 +144,7 @@ void CRegist::Loop (double timestep) {
 //			0, colMBackgr, col, 0.2);
 	FT.AutoSizeN (3);
 	FT.SetColor (colWhite);
-	int top = AutoYPosN (24);
+	int top = AutoYPosN (26);
 	FT.DrawString (area.left, top, Trans.Text(58));
 	FT.DrawString (area.left + framewidth + arrowwidth, top, Trans.Text(59));
 

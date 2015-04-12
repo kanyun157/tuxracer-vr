@@ -88,9 +88,9 @@ void CEventSelect::Enter () {
 	EventList = &Events.EventList[0];
 	CupList = &Events.CupList[0];
 
-	framewidth = 500 * Winsys.scale;
+	framewidth = 500 * Winsys.scale - 200;
 	frameheight = 50 * Winsys.scale;
-	area = AutoAreaN (30, 80, framewidth);
+	area = AutoAreaN (35, 80, framewidth);
 	frametop1 = AutoYPosN (35);
 	frametop2 = AutoYPosN (50);
 
@@ -101,8 +101,8 @@ void CEventSelect::Enter () {
 	int siz = FT.AutoSizeN (5);
 
 	double len = FT.GetTextWidth (Trans.Text(9));
-	textbuttons[0] = AddTextButton (Trans.Text(9), area.right-len-50, AutoYPosN (70), siz);
-	textbuttons[1] = AddTextButton (Trans.Text(8), area.left+50, AutoYPosN (70), siz);
+	textbuttons[0] = AddTextButton (Trans.Text(9), area.right-len-50, AutoYPosN (60), siz);
+	textbuttons[1] = AddTextButton (Trans.Text(8), area.left+50, AutoYPosN (60), siz);
 	SetFocusGUI(textbuttons[1]);
 
 	Events.MakeUnlockList (Players.GetCurrUnlocked());

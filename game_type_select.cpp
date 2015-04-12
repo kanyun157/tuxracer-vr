@@ -95,7 +95,7 @@ void CGameTypeSelect::Enter () {
 	Winsys.ShowCursor (!param.ice_cursor);
 
 	ResetGUI ();
-	int top = AutoYPosN (40);
+	int top = AutoYPosN (30);
 	int siz = FT.AutoSizeN (6);
 	int dist = FT.AutoDistanceN (2);
 	textbuttons[0] = AddTextButton (Trans.Text(1), CENTER, top, siz);

@@ -113,7 +113,11 @@ void CCredits::DrawCreditsText (double time_step) {
     glEnable (GL_TEXTURE_2D);
 	*/
 
-	if (offs < TOP_Y) y_offset = 0;
+	if (offs < TOP_Y) {
+		y_offset = 0;
+		State::manager.RequestEnterState (GameTypeSelect);
+	}
+
 }
 
 static void DrawBackLogo (int x, int y, double size) {
@@ -148,8 +152,7 @@ static void DrawBackLogo (int x, int y, double size) {
 void CCredits::Keyb (unsigned int key, bool special, bool release, int x, int y) {
 	if (release) return;
 	switch (key) {
-		case 109: moving = !moving; break;
-		case 9: param.ui_snow = !param.ui_snow; break;
+		case SDLK_m: moving = !moving; break;
 		default: State::manager.RequestEnterState (GameTypeSelect);
 	}
 }
@@ -173,7 +176,8 @@ void CCredits::Enter() {
 	y_offset = 100;
 	moving = true;
 
-	backButton = AddTextButton (Trans.Text(8), CENTER, AutoYPosN(30), FT.AutoSizeN (8));
+	// jdt: looks bad. let user sit through credits, else they can hit ESC.
+	//backButton = AddTextButton (Trans.Text(8), CENTER, AutoYPosN(30), FT.AutoSizeN (8));
 }
 
 void CCredits::Loop(double time_step) {
@@ -203,7 +207,7 @@ void CCredits::Loop(double time_step) {
 	glTranslatef (0, 0, -10);
 	Tex.Draw (T_TITLE, CENTER, AutoYPosN (10), Winsys.scale);
 
-	DrawWidgetFrame (backButton);
+	//DrawWidgetFrame (backButton);
 	DrawGUI ();
 
 	Reshape (ww, hh);

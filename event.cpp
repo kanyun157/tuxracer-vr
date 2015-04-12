@@ -153,10 +153,10 @@ void CEvent::Enter () {
 
 	ResetGUI ();
 	int siz = FT.AutoSizeN (5);
-	textbuttons[1] = AddTextButton (Trans.Text(8), area.left + 100, AutoYPosN (80), siz);
+	textbuttons[1] = AddTextButton (Trans.Text(8), area.left + 100, AutoYPosN (65), siz);
 	double len = FT.GetTextWidth (Trans.Text(13));
-	textbuttons[0] = AddTextButton (Trans.Text(13), area.right -len - 100, AutoYPosN (80), siz);
-	textbuttons[2] = AddTextButton (Trans.Text(15), CENTER, AutoYPosN (80), siz);
+	textbuttons[0] = AddTextButton (Trans.Text(13), area.right -len - 100, AutoYPosN (65), siz);
+	textbuttons[2] = AddTextButton (Trans.Text(15), CENTER, AutoYPosN (65), siz);
 
 	Music.Play (param.menu_music, -1);
 	if (ready < 1) curr_focus = textbuttons[0]; else curr_focus = textbuttons[2];
