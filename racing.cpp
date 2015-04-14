@@ -297,6 +297,7 @@ void CalcFinishControls (CControl *ctrl, double timestep, bool airborne) {
 
 void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 	// jdt: disabling all tricks.. using left/right/roll to steer in air now.
+	//      also head pitch is reserved for jump charging.
 #if 0
 	if (airborne && trick_modifier) {
 		// jdt: disabling tricks w/ keypad.. only perform w/ joystick or hmd lean.

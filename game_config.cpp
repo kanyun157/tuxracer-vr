@@ -42,6 +42,7 @@ Then edit the below functions:
 #include "game_config.h"
 #include "spx.h"
 #include "translation.h"
+#include "physics.h"
 
 TParam param;
 
@@ -93,6 +94,7 @@ void LoadConfigFile () {
 		param.ipd_multiplier = SPFloatN(line, "ipd_multiplier", 16);
 		param.console_dump = SPBoolN(line, "console_dump", false);
 		param.use_fxaa = SPBoolN(line, "use_fxaa", true);
+		param.player_speed = SPBoolN(line, "player_speed", true);
 	}
 }
 
@@ -137,6 +139,7 @@ void SetConfigDefaults () {
 	param.ipd_multiplier = 16;
 	param.console_dump = false; // true for fps,tree,item count dumps.
 	param.use_fxaa = true;
+	param.player_speed = MIN_FRICT_SPEED;
 }
 
 
@@ -298,6 +301,7 @@ void SaveConfigFile () {
 	AddIntItem(liste, "ipd_multiplier", param.ipd_multiplier);
 	AddIntItem(liste, "console_dump", param.console_dump);
 	AddIntItem(liste, "use_fxaa", param.use_fxaa);
+	AddIntItem(liste, "player_speed", param.player_speed);
     liste.Add("");
 
 

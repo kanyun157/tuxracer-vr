@@ -54,8 +54,8 @@ void State::Manager::EnterNextState() {
 	previous = current;
 	current = next;
 	next = NULL;
-	current->Enter();
 	SetFocusGUI (NULL); // force new focus for lookAt stuff
+	current->Enter();
 }
 
 void State::Manager::PollEvent() {

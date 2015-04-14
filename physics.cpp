@@ -670,7 +670,7 @@ void CControl::UpdatePlayerPos (double timestep) {
 /// -----------------------------------------------------------
 	} else {
 		minSpeed = MIN_TUX_SPEED;
-		minFrictspeed = MIN_FRICT_SPEED;
+		minFrictspeed = param.player_speed; //MIN_FRICT_SPEED;
 	}
 
     if (timestep > 2 * EPS) SolveOdeSystem (timestep);

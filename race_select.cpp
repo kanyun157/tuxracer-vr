@@ -156,6 +156,7 @@ void CRaceSelect::Enter() {
 	ResetGUI ();
 
 	course = AddUpDown(area.left + framewidth - 100 + 8, frametop, 0, (int)Course.CourseList.size() - 1, (int)g_game.course_id);
+	SetFocusGUI (course); // for tab order
 
 	light = AddIconButton (iconleft, icontop, Tex.GetTexture (LIGHT_BUTT), iconsize, 3, (int)g_game.light_id);
 	snow = AddIconButton (iconleft + iconspace, icontop, Tex.GetTexture (SNOW_BUTT), iconsize, 3, g_game.snow_id);

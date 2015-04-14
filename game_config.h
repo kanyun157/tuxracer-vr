@@ -88,6 +88,7 @@ struct TParam {
 	float   ipd_multiplier;
 	bool    console_dump;
 	bool    use_fxaa;
+	float   player_speed; // speed that friction kicks in.
 
     TViewMode view_mode;
 };

@@ -38,12 +38,14 @@ GNU General Public License for more details.
 #include "event.h"
 #include "winsys.h"
 #include "physics.h"
+#include "loading.h"
 
 CGameOver GameOver;
 
 static CKeyframe *final_frame;
 static int highscore_pos = 999;
-static TTextButton* continueButton;
+static TTextButton* backButton;
+static TTextButton* retryButton;
 
 void QuitGameOver () {
     // jdt: set skybox back to what it was.. The various
@@ -64,7 +66,14 @@ void CGameOver::Keyb (unsigned int key, bool special, bool release, int x, int y
 }
 
 void CGameOver::Mouse (int button, int state, int x, int y) {
-	QuitGameOver ();
+	if (state == 1) {
+		TWidget* focussed = ClickGUI(x, y);
+		if (focussed == backButton) {
+			QuitGameOver ();
+		} else if (focussed == retryButton) {
+			State::manager.RequestEnterState (Loading);
+		}
+	}
 }
 
 void CGameOver::Motion (int x, int y) {
@@ -220,38 +229,42 @@ void CGameOver::Enter() {
 
 	int top = AutoYPosN (40);
 	int siz = FT.AutoSizeN (10);
-	continueButton = AddTextButton (Trans.Text(9), CENTER, top, siz);
-
-	//SetStationaryCamera (true); // jdt: hmd can still move around.
+	backButton = AddTextButton (Trans.Text(8), CENTER, top, siz);
+	string retryTxt;
+	if (param.language == 0 || param.language == Trans.GetLangIdx("de_DE"))
+		retryTxt = Trans.Text(84); // Retry / Race Again
+	else
+		retryTxt = Trans.Text(13); // Race!
+	retryButton = AddTextButton (retryTxt, CENTER, top + 100, siz);
 }
 
 
 void CGameOver::Loop(double time_step) {
-    CControl *ctrl = Players.GetCtrl (g_game.player_id);
-    int width, height;
-    width = Winsys.resolution.width;
-    height = Winsys.resolution.height;
+	CControl *ctrl = Players.GetCtrl (g_game.player_id);
+	int width, height;
+	width = Winsys.resolution.width;
+	height = Winsys.resolution.height;
 
-    check_gl_error();
+	check_gl_error();
 
 	Music.Update ();
 
 	ClearRenderContext ();
-    Env.SetupFog ();
+	Env.SetupFog ();
 
-    glPushMatrix();
+	glPushMatrix();
 	update_view (ctrl, 0);
 
 	if (final_frame != NULL) final_frame->Update (time_step);
 
-    SetupViewFrustum (ctrl);
-    Env.DrawSkybox (ctrl->viewpos);
-    Env.DrawFog ();
+	SetupViewFrustum (ctrl);
+	Env.DrawSkybox (ctrl->viewpos);
+	Env.DrawFog ();
 	Env.SetupLight ();
 
-    RenderCourse ();
-    DrawTrackmarks ();
-    DrawTrees ();
+	RenderCourse ();
+	DrawTrackmarks ();
+	DrawTrees ();
 
 	UpdateWind (time_step);
 	UpdateSnow (time_step, ctrl);
@@ -259,19 +272,22 @@ void CGameOver::Loop(double time_step) {
 
 	Char.Draw (g_game.char_id);
 
-    glPopMatrix();
-    ScopedRenderMode rm(GUI);
+	glPopMatrix();
+	ScopedRenderMode rm(GUI);
 
 	if (final_frame == NULL || !final_frame->active) {
-        SetupGuiDisplay ();
-        GameOverMessage (ctrl);
-		DrawWidgetFrame (continueButton);
-        DrawGUI ();
+		SetupGuiDisplay ();
+		GameOverMessage (ctrl);
+		//DrawWidgetFrame (backButton);
+		//DrawWidgetFrame (retryButton);
+		DrawGUI ();
 	} else {
-        SetupHudDisplay ();
-        DrawHud (ctrl);
+		if (param.show_hud) {
+			SetupHudDisplay ();
+			DrawHud (ctrl);
+		}
 	}
 
-    Reshape (width, height);
-    Winsys.SwapBuffers ();
+	Reshape (width, height);
+	Winsys.SwapBuffers ();
 }

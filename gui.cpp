@@ -601,7 +601,11 @@ void DrawGUI() {
 				Winsys.lookAtPos[0].y - Winsys.lookAtPrevPos[0].y);
 		}
 
-		if (focussed >= 0 && focussedPrev == focussed) {
+		// Test whether user is staring at a gui element for selection.  The 
+		// extra test for Inside() is for when the user mixes it with keyboard selection.
+		if (focussed >= 0 && focussedPrev == focussed &&
+			Inside(cursor_pos.x, cursor_pos.y, Widgets[focussed]->GetArea()))
+		{
 			if (State::manager.ClockTime() - focussedBeginTime >= focussedSelectDuration) {
 				// select widget
 				State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);

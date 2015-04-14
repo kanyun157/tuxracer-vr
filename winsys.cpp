@@ -537,6 +537,7 @@ void CWinsys::RenderFrame(State *current)
 		}
 	}
 
+	// Read pixels from framebuffer to get 3D position user is looking.
 	lookAtValid = false;
 	if (!hmd_is_debug && current != &Racing && current != &Intro) // && current_render_mode() == GUI)
 	{
@@ -548,7 +549,8 @@ void CWinsys::RenderFrame(State *current)
 		}
 	}
 
-	// full-frame post processing before handing off to oculus sdk.
+	// Full-frame post processing before handing off to oculus sdk. Bind to 
+	// previous framebuffer texture and write to the one Oculus is configured with.
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex[1], 0);
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -575,14 +577,12 @@ void CWinsys::RenderFrame(State *current)
 	glUseProgram(0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex[0], 0);
 
-	// after drawing both eyes into the texture render target, revert to drawing directly to the
-	// display, and we call ovrHmd_EndFrame, to let the Oculus SDK draw both images properly
-	// compensated for lens distortion and chromatic abberation onto the HMD screen.
+	// After drawing both eyes and post processing, revert to drawing directly to the
+	// display and call ovrHmd_EndFrame to let the Oculus SDK compensate for lens distortion
+	// and chromatic abberation and double buffering.
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);
-
-
 
 	if (param.console_dump) dump_fps();
 }
