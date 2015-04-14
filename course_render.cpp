@@ -117,9 +117,7 @@ void DrawTrees() {
 
 	for (int i = 0; i < trees.size(); ++i) {
 		TCollidable &tree = *trees[i];
-		double dx = ctrl->viewpos.x - tree.pt.x;
-		double dz = ctrl->viewpos.z - tree.pt.z;
-		double distsqr = dx * dx + dz * dz;
+		double dz = abs(ctrl->viewpos.z - tree.pt.z);
 
 		if (tree.tree_type != tree_type) {
 			glEnd ();
@@ -149,7 +147,7 @@ void DrawTrees() {
 		glTexCoord2f (0.0, 1.0);
 		glVertex3f (tree.pt.x + -treeRadius, tree.pt.y + treeHeight, tree.pt.z + 0.0);
 
-		if (distsqr < param.tree_detail_distance * param.tree_detail_distance)
+		if (dz < param.tree_detail_distance)
 		{
 			glTexCoord2f  (0., 0.);
 			glVertex3f  (tree.pt.x + 0.0, tree.pt.y + 0.0, tree.pt.z + -treeRadius);
