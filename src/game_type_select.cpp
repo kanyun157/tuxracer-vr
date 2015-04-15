@@ -116,17 +116,17 @@ void CGameTypeSelect::Loop (double time_step) {
 
 	Music.Update ();
 	check_gl_error();
-    ClearRenderContext ();
+	ClearRenderContext ();
 
 	Env.DrawSkyboxGui ();
 
-    ScopedRenderMode rm(GUI);
-    SetupGuiDisplay ();
+	ScopedRenderMode rm(GUI);
+	SetupGuiDisplay ();
 
 	if (param.ui_snow) {
 		update_ui_snow (time_step);
 		draw_ui_snow();
-    }
+	}
 
 	Tex.Draw (T_TITLE, CENTER, AutoYPosN (5), Winsys.scale);
 

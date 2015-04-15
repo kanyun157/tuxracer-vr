@@ -230,12 +230,15 @@ void CGameOver::Enter() {
 	int top = AutoYPosN (40);
 	int siz = FT.AutoSizeN (10);
 	backButton = AddTextButton (Trans.Text(8), CENTER, top, siz);
-	string retryTxt;
-	if (param.language == 0 || param.language == Trans.GetLangIdx("de_DE"))
-		retryTxt = Trans.Text(84); // Retry / Race Again
-	else
-		retryTxt = Trans.Text(13); // Race!
-	retryButton = AddTextButton (retryTxt, CENTER, top + 100, siz);
+	if (g_game.game_type == CUPRACING && g_game.race_result < 0) {
+		// Player failed so offer retry button
+		string retryTxt;
+		if (param.language == 0 || param.language == Trans.GetLangIdx("de_DE"))
+			retryTxt = Trans.Text(84); // Retry / Race Again
+		else
+			retryTxt = Trans.Text(13); // Race!
+		retryButton = AddTextButton (retryTxt, CENTER, top + 100, siz);
+	}
 }
 
 

@@ -54,20 +54,18 @@ void SetStationaryCamera (bool stat) {
 	}
 }
 
-static double camera_distance = 9.0;
 void IncCameraDistance (double timestep) {
-	camera_distance += timestep * CAMERA_DISTANCE_INCREMENT;
-	printf ("camera distance: %f\n", camera_distance);
+	param.camera_distance += timestep * CAMERA_DISTANCE_INCREMENT;
+	printf ("camera distance: %f\n", param.camera_distance);
 }
 
-static double camera_angle = 42.0; // ideal (though includes course angle)
 void IncCameraAngle (double dDeg) {
-	camera_angle += dDeg;
-	printf("camera angle: %f\n", camera_angle);
+	param.camera_angle += dDeg;
+	printf("camera angle: %f\n", param.camera_angle);
 }
 
-void SetCameraDistance (double val) {camera_distance = val;}
-void SetCameraAngle (double val) {camera_angle = val;}
+void SetCameraDistance (double val) {param.camera_distance = val;}
+void SetCameraAngle (double val) {param.camera_angle = val;}
 
 
 void set_view_mode (CControl *ctrl, TViewMode mode) {ctrl->viewmode = mode;}
@@ -220,13 +218,13 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 
 TVector3 MakeViewVector () {
     double course_angle = Course.GetCourseAngle();
-	double rad = ANGLES_TO_RADIANS ( camera_angle );
+	double rad = ANGLES_TO_RADIANS ( course_angle - param.camera_angle );
 	//		    course_angle - camera_angle);
 // jdt: making angle above player variable.
 //			    CAMERA_ANGLE_ABOVE_SLOPE +
 //			    PLAYER_ANGLE_IN_CAMERA);
 	TVector3 res(0, sin(rad), cos(rad));
-	return ScaleVector (camera_distance, res);
+	return ScaleVector (param.camera_distance, res);
 }
 
 void update_view (CControl *ctrl, double dt) {
@@ -272,7 +270,7 @@ void update_view (CControl *ctrl, double dt) {
 	    	for (int i=0; i<2; i++) {
 				view_pt = interpolate_view_pos (ctrl->cpos, ctrl->cpos,
 						MAX_CAMERA_PITCH, ctrl->viewpos,
-						view_pt, camera_distance, dt,
+						view_pt, param.camera_distance, dt,
 						BEHIND_ORBIT_TIME_CONSTANT *
 						time_constant_mult);
 	    	}
@@ -317,7 +315,7 @@ void update_view (CControl *ctrl, double dt) {
 	    	for (int i=0; i<2; i++) {
 				view_pt = interpolate_view_pos (ctrl->plyr_pos, ctrl->cpos,
 					MAX_CAMERA_PITCH, ctrl->viewpos,
-					view_pt, camera_distance, dt,
+					view_pt, param.camera_distance, dt,
 					FOLLOW_ORBIT_TIME_CONSTANT *
 					time_constant_mult);
 			}

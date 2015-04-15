@@ -91,10 +91,16 @@ void LoadConfigFile () {
 		param.no_hq_distortion = SPBoolN(line, "no_hq_distortion", true);
 		param.no_compute_shader = SPBoolN(line, "no_compute_shader", true);
 		param.no_restore = SPBoolN(line, "no_restore", false);
-		param.ipd_multiplier = SPFloatN(line, "ipd_multiplier", 16);
 		param.console_dump = SPBoolN(line, "console_dump", false);
 		param.use_fxaa = SPBoolN(line, "use_fxaa", true);
-		param.player_speed = SPBoolN(line, "player_speed", true);
+		param.quick_ipd_multiplier = SPFloatN(line, "quick_ipd_multiplier", 16);
+		float distance_warp = param.quick_ipd_multiplier/2.0f; // need radius
+		param.quick_player_min_speed = SPFloatN(line, "quick_player_min_speed", MIN_TUX_SPEED * distance_warp);
+		param.quick_player_frict_speed = SPFloatN(line, "quick_player_frict_speed", MIN_FRICT_SPEED * ((float)param.quick_ipd_multiplier/2));
+		param.event_ipd_multiplier = SPFloatN(line, "event_ipd_multiplier", 1);
+		distance_warp = param.event_ipd_multiplier/2.0f;
+		param.event_player_min_speed = SPFloatN(line, "event_player_quick_speed", MIN_TUX_SPEED * distance_warp);
+		param.event_player_frict_speed = SPFloatN(line, "event_player_frict_speed", MIN_FRICT_SPEED * distance_warp);
 	}
 }
 
@@ -136,10 +142,28 @@ void SetConfigDefaults () {
 	param.no_hq_distortion = true;
 	param.no_compute_shader = true;
 	param.no_restore = false;
-	param.ipd_multiplier = 16;
 	param.console_dump = false; // true for fps,tree,item count dumps.
 	param.use_fxaa = true;
-	param.player_speed = MIN_FRICT_SPEED;
+	param.quick_mode = true;
+	param.quick_ipd_multiplier = 16;
+	float distance_warp = param.quick_ipd_multiplier/2.0f;
+	param.quick_player_min_speed = MIN_FRICT_SPEED * distance_warp;
+	param.quick_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
+	param.quick_camera_distance = 9;
+	param.quick_camera_angle = -26;
+	param.event_ipd_multiplier = 1;
+	distance_warp = param.event_ipd_multiplier/2.0f;
+	param.event_player_min_speed = MIN_FRICT_SPEED * distance_warp;
+	param.event_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
+	param.event_camera_distance = 3;
+	param.event_camera_angle = -9;
+
+	// jdt arbitrary
+	param.ipd_multiplier = param.quick_ipd_multiplier;
+	param.player_min_speed = param.quick_player_min_speed;
+	param.player_frict_speed = param.quick_player_frict_speed;
+	param.camera_distance = param.quick_camera_distance;
+	param.camera_angle = param.quick_camera_angle;
 }
 
 
@@ -298,10 +322,14 @@ void SaveConfigFile () {
 	AddIntItem(liste, "no_hq_distortion", param.no_hq_distortion);
 	AddIntItem(liste, "no_compute_shader", param.no_compute_shader);
 	AddIntItem(liste, "no_restore", param.no_restore);
-	AddIntItem(liste, "ipd_multiplier", param.ipd_multiplier);
 	AddIntItem(liste, "console_dump", param.console_dump);
 	AddIntItem(liste, "use_fxaa", param.use_fxaa);
-	AddIntItem(liste, "player_speed", param.player_speed);
+	AddIntItem(liste, "quick_ipd_multiplier", param.quick_ipd_multiplier);
+	AddIntItem(liste, "quick_player_min_speed", param.quick_player_min_speed);
+	AddIntItem(liste, "quick_player_frict_speed", param.quick_player_frict_speed);
+	AddIntItem(liste, "event_ipd_multiplier", param.event_ipd_multiplier);
+	AddIntItem(liste, "event_player_min_speed", param.event_player_min_speed);
+	AddIntItem(liste, "event_player_frict_speed", param.event_player_frict_speed);
     liste.Add("");
 
 

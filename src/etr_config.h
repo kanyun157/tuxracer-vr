@@ -1,5 +1,5 @@
-/* etr_config.h.  Generated from etr_config.h.in by configure.  */
-/* etr_config.h.in.  Generated from configure.ac by autoheader.  */
+/* src/etr_config.h.  Generated from etr_config.h.in by configure.  */
+/* src/etr_config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if you have the <float.h> header file. */
 #define HAVE_FLOAT_H 1

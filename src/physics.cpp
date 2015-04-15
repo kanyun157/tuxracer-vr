@@ -337,7 +337,9 @@ TVector3 CControl::CalcNormalForce () {
 		ff.compression = -ff.surfdistance - ff.comp_depth;
 		return CalcSpringForce ();
     } else {
-		return TVector3(ff.rollnml.x * 200, ff.rollnml.y * 100, ff.rollnml.z);
+		float fly_amount = 0;
+		if (param.quick_mode) fly_amount = 100;
+		return TVector3(ff.rollnml.x * 200, ff.rollnml.y * fly_amount, ff.rollnml.z);
 	}
 
 	return TVector3(0, 0, 0);
@@ -669,8 +671,8 @@ void CControl::UpdatePlayerPos (double timestep) {
 		minFrictspeed = 0;
 /// -----------------------------------------------------------
 	} else {
-		minSpeed = MIN_TUX_SPEED;
-		minFrictspeed = param.player_speed; //MIN_FRICT_SPEED;
+		minSpeed = param.player_min_speed;
+		minFrictspeed = param.player_frict_speed;
 	}
 
     if (timestep > 2 * EPS) SolveOdeSystem (timestep);

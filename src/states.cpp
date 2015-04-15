@@ -23,6 +23,9 @@ GNU General Public License for more details.
 #include "ogl.h"
 #include "winsys.h"
 #include "gui.h"
+#include "loading.h"
+#include "event.h"
+#include "view.h"
 
 State::Manager State::manager(Winsys);
 
@@ -55,6 +58,24 @@ void State::Manager::EnterNextState() {
 	current = next;
 	next = NULL;
 	SetFocusGUI (NULL); // force new focus for lookAt stuff
+
+	// Switch between modes appropriate for collecting herrings versus
+	// fast-paced high-ipd mode.
+	if (current == &Loading && g_game.game_type == PRACTICING) {
+		param.quick_mode = true;
+		param.ipd_multiplier = param.quick_ipd_multiplier;
+		param.player_min_speed = param.quick_player_min_speed;
+		param.player_frict_speed = param.quick_player_frict_speed;
+		param.camera_distance = 9;
+		param.camera_angle = -26;
+	} else if (current == &Event) {
+		param.quick_mode = false;
+		param.ipd_multiplier = param.event_ipd_multiplier;
+		param.player_min_speed = param.event_player_min_speed;
+		param.player_frict_speed = param.event_player_frict_speed;
+		param.camera_distance = 3;
+		param.camera_angle = -9; //-24; //50; // CAMERA_ANGLE_ABOVE_SLOPE + PLAYER_ANGLE_IN_CAMERA
+	}
 	current->Enter();
 }
 

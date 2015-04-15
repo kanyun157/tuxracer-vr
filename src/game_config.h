@@ -85,10 +85,24 @@ struct TParam {
 	bool    no_hq_distortion;
 	bool    no_compute_shader;
 	bool    no_restore;
-	float   ipd_multiplier;
 	bool    console_dump;
 	bool    use_fxaa;
-	float   player_speed; // speed that friction kicks in.
+	bool    quick_mode; // switches between event/practice
+	float   ipd_multiplier;
+	float   player_min_speed;
+	float   player_frict_speed;
+	float   camera_distance;
+	float   camera_angle;
+	float   quick_ipd_multiplier; // I needed two modes of play for 'event' achievements.
+	float   quick_player_min_speed; // speed at which friction kicks in.
+	float   quick_player_frict_speed;
+	float   quick_camera_distance;
+	float   quick_camera_angle;
+	float   event_ipd_multiplier; // slower params for gameplay.
+	float   event_player_min_speed;
+	float   event_player_frict_speed;
+	float   event_camera_distance;
+	float   event_camera_angle;
 
     TViewMode view_mode;
 };
