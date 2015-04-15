@@ -586,7 +586,7 @@ PACKAGE_STRING='etr 0.6.0'
 PACKAGE_BUGREPORT='https://sourceforge.net/apps/phpbb/extremetuxracer'
 PACKAGE_URL=''
 
-ac_unique_file="gui.cpp"
+ac_unique_file="src/gui.cpp"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -2324,7 +2324,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-ac_config_headers="$ac_config_headers etr_config.h"
+ac_config_headers="$ac_config_headers src/etr_config.h"
 
 
 am__api_version='1.13'
@@ -6276,15 +6276,16 @@ fi
 # jdt: Change this to your Oculus SDK path:
 LIB_OVR_DIR="${OVR_ROOT}/LibOVR"
 CXXFLAGS="$CXXFLAGS -I${LIB_OVR_DIR}/Include -I${LIB_OVR_DIR}/Src"
-#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
 LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/x86_64/Release -lXrandr -lXinerama -lOVR -lX11 -lrt -ldl"
 
 CPPFLAGS="${CPPFLAGS} -DETR_DATA_DIR=\\\"$datadir\\\""
 
 # Request c++11 compatibility and profiling info
 CXXFLAGS="${CXXFLAGS} -std=c++11"
 
-ac_config_files="$ac_config_files Makefile build/Makefile build/Installer/Makefile data/Makefile data/char/Makefile data/char/beastie/Makefile data/char/boris/Makefile data/char/samuel/Makefile data/char/trixi/Makefile data/char/tux/Makefile data/courses/Makefile data/courses/bumpy_ride/Makefile data/courses/bunny_hill/Makefile data/courses/challenge_one/Makefile data/courses/chinese_wall/Makefile data/courses/chragis_gagiwaetter/Makefile data/courses/course/Makefile data/courses/downhill_fear/Makefile data/courses/explore_mountains/Makefile data/courses/frozen_lakes/Makefile data/courses/frozen_river/Makefile data/courses/hippo_run/Makefile data/courses/holygrail/Makefile data/courses/in_search_of_vodka/Makefile data/courses/keep_country_tidy/Makefile data/courses/milos_castle/Makefile data/courses/path_of_daggers/Makefile data/courses/penguins_cant_fly/Makefile data/courses/quiet_river/Makefile data/courses/secret_valleys/Makefile data/courses/this_means_something/Makefile data/courses/tux_at_home/Makefile data/courses/twisty_slope/Makefile data/courses/wild_mountains/Makefile data/env/Makefile data/env/etr/Makefile data/env/etr/cloudy/Makefile data/env/etr/evening/Makefile data/env/etr/night/Makefile data/env/etr/sunny/Makefile data/env/tuxracer/Makefile data/env/tuxracer/cloudy/Makefile data/env/tuxracer/evening/Makefile data/env/tuxracer/night/Makefile data/env/tuxracer/sunny/Makefile data/fonts/Makefile data/music/Makefile data/objects/Makefile data/players/Makefile data/sounds/Makefile data/terrains/Makefile data/textures/Makefile data/translations/Makefile doc/Makefile resources/Makefile"
+ac_config_files="$ac_config_files Makefile build/Makefile build/Installer/Makefile data/Makefile data/char/Makefile data/char/beastie/Makefile data/char/boris/Makefile data/char/samuel/Makefile data/char/trixi/Makefile data/char/tux/Makefile data/courses/Makefile data/courses/bumpy_ride/Makefile data/courses/bunny_hill/Makefile data/courses/challenge_one/Makefile data/courses/chinese_wall/Makefile data/courses/chragis_gagiwaetter/Makefile data/courses/course/Makefile data/courses/downhill_fear/Makefile data/courses/explore_mountains/Makefile data/courses/frozen_lakes/Makefile data/courses/frozen_river/Makefile data/courses/hippo_run/Makefile data/courses/holygrail/Makefile data/courses/in_search_of_vodka/Makefile data/courses/keep_country_tidy/Makefile data/courses/milos_castle/Makefile data/courses/path_of_daggers/Makefile data/courses/penguins_cant_fly/Makefile data/courses/quiet_river/Makefile data/courses/secret_valleys/Makefile data/courses/this_means_something/Makefile data/courses/tux_at_home/Makefile data/courses/twisty_slope/Makefile data/courses/wild_mountains/Makefile data/env/Makefile data/env/etr/Makefile data/env/etr/cloudy/Makefile data/env/etr/evening/Makefile data/env/etr/night/Makefile data/env/etr/sunny/Makefile data/env/tuxracer/Makefile data/env/tuxracer/cloudy/Makefile data/env/tuxracer/evening/Makefile data/env/tuxracer/night/Makefile data/env/tuxracer/sunny/Makefile data/fonts/Makefile data/music/Makefile data/objects/Makefile data/players/Makefile data/sounds/Makefile data/terrains/Makefile data/textures/Makefile data/translations/Makefile doc/Makefile resources/Makefile src/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -7015,7 +7016,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "etr_config.h") CONFIG_HEADERS="$CONFIG_HEADERS etr_config.h" ;;
+    "src/etr_config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/etr_config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "build/Makefile") CONFIG_FILES="$CONFIG_FILES build/Makefile" ;;
@@ -7072,6 +7073,7 @@ do
     "data/translations/Makefile") CONFIG_FILES="$CONFIG_FILES data/translations/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "resources/Makefile") CONFIG_FILES="$CONFIG_FILES resources/Makefile" ;;
+    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

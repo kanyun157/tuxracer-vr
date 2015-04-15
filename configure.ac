@@ -3,8 +3,8 @@
 
 AC_PREREQ([2.61])
 AC_INIT([etr], [0.6.0], [https://sourceforge.net/apps/phpbb/extremetuxracer])
-AC_CONFIG_SRCDIR([gui.cpp])
-AC_CONFIG_HEADERS([etr_config.h])
+AC_CONFIG_SRCDIR([src/gui.cpp])
+AC_CONFIG_HEADERS([src/etr_config.h])
 
 AM_INIT_AUTOMAKE([dist-xz dist-zip])
 
@@ -97,8 +97,9 @@ PKG_CHECK_MODULES(FTGL, [ftgl],
 # jdt: Change this to your Oculus SDK path:
 LIB_OVR_DIR="${OVR_ROOT}/LibOVR"
 CXXFLAGS="$CXXFLAGS -I${LIB_OVR_DIR}/Include -I${LIB_OVR_DIR}/Src"
-#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
 LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/x86_64/Release -lXrandr -lXinerama -lOVR -lX11 -lrt -ldl"
 
 CPPFLAGS="${CPPFLAGS} -DETR_DATA_DIR=\\\"$datadir\\\""
 
@@ -161,5 +162,6 @@ AC_CONFIG_FILES([
         data/translations/Makefile
         doc/Makefile
         resources/Makefile
+		src/Makefile
 ])
 AC_OUTPUT

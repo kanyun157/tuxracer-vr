@@ -14,9 +14,9 @@ The classic downhill winter game now with Oculus Rift support!  Please have pati
  ```
 git clone https://github.com/jdtaylor/tuxracer-vr.git
 cd tuxracer-vr
-export OVR_ROOT="/path/to/your/oculus/ovr_sdk_linux_0.4.4"
-# TODO: test w/ -Ofast -fomit-frame-pointer -march=native
-CXXFLAGS="-O3" ./configure --datadir=${PWD}/data
+export OVR_ROOT="/path/to/your/compiled/oculus/ovr_sdk_linux_0.4.4"
+export CXXFLAGS="-Ofast -fomit-frame-pointer -march=native" 
+./configure --datadir=${PWD}/data
 make 
  ```
 
@@ -27,13 +27,19 @@ make
 * ... TODO
 
 ## Running:
+### Windows:
+* Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
+* Extract zip to a new folder and run etr.exe from this new directory.
+* If in extended mode, use the F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
+* Use the extracted config/options file for tweaking performance options.
+
+### Linux:
 * Don't rotate the rift if using extended mode. Keep it in its default portrait mode.
 * On Linux, the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.
-* Please make sure your oculusd or ovrd service is running and issue ./etr from the build directory.
-* If in extended mode, use the F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
- * I'm getting 75 fps with xinerama and the open source xf86-video-ati drivers
+* Please make sure your oculusd or ovrd service is running and issue src/etr from the root build directory.
+* Use the F9 key to toggle to the rift and back.
  * If you get poor <75 fps performance, try disabling vsync in the configuration file.
-  * To disable vsync, in the etr/options file change '[no_vsync] 0' to '[no_vsync] 1'
+  * To disable vsync, in the ~/.etr/options file change '[no_vsync] 0' to '[no_vsync] 1'
 * Sometimes if the rift is turned off and back on while Xorg is running, judder starts and I havn't found a way to make it go away without an X shutdown and restart w/ the Rift on.
 * I've seen good results with the following in ~/.etr/options for the open source Radeon driver.
 
