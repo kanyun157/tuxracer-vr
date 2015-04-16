@@ -374,14 +374,63 @@ void CCharShape::CreateMaterial (const string& line) {
 //				drawing
 // --------------------------------------------------------------------
 
+void DrawCube ()
+{
+	glBegin(GL_QUADS);
+	{
+		// back (counter clockwise from outside)
+		glVertex3f ( 1,  1, -1);
+		glVertex3f ( 1, -1, -1);
+		glVertex3f (-1, -1, -1);
+		glVertex3f (-1,  1, -1);
+
+		// left
+		glVertex3f (-1,  1, -1);
+		glVertex3f (-1, -1, -1);
+		glVertex3f (-1, -1,  1);
+		glVertex3f (-1,  1,  1);
+
+		// right
+		glVertex3f (1,  1,  1);
+		glVertex3f (1, -1,  1);
+		glVertex3f (1, -1, -1);
+		glVertex3f (1,  1, -1);
+
+		// top
+		glVertex3f (-1, 1,  1);
+		glVertex3f ( 1, 1,  1);
+		glVertex3f ( 1, 1, -1);
+		glVertex3f (-1, 1, -1);
+
+		// bottom
+		glVertex3f (-1, -1, -1);
+		glVertex3f ( 1, -1, -1);
+		glVertex3f ( 1, -1,  1);
+		glVertex3f (-1, -1,  1);
+
+		// front
+		glVertex3f (-1, -1, 1);
+		glVertex3f ( 1, -1, 1);
+		glVertex3f ( 1,  1, 1);
+		glVertex3f (-1,  1, 1);
+	}
+	glEnd ();
+}
+
 void CCharShape::DrawCharSphere (int num_divisions) {
+	glPushMatrix ();
+	GLfloat f = 1.f / sqrt(3.f);
+	glScalef (f, f, f);
+	DrawCube ();
+	glPopMatrix ();
 	// jdt: way too much geometry here even for num_divisions=1.
-    GLUquadricObj *qobj = gluNewQuadric();
-    gluQuadricDrawStyle (qobj, GLU_FILL);
-    gluQuadricOrientation (qobj, GLU_OUTSIDE);
-    gluQuadricNormals (qobj, GLU_SMOOTH);
-    gluSphere (qobj, 1.0, (GLint)2.0 * num_divisions, num_divisions);
-    gluDeleteQuadric (qobj);
+	// it's time to move these.. refrigerators.. mode.
+    //GLUquadricObj *qobj = gluNewQuadric();
+    //gluQuadricDrawStyle (qobj, GLU_FILL);
+    //gluQuadricOrientation (qobj, GLU_OUTSIDE);
+    //gluQuadricNormals (qobj, GLU_SMOOTH);
+    //gluSphere (qobj, 1.0, (GLint)2.0 * num_divisions, num_divisions);
+    //gluDeleteQuadric (qobj);
 }
 
 void CCharShape::DrawNodes (const TCharNode *node) {

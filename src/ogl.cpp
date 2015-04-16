@@ -216,7 +216,7 @@ void SetupDisplay (ovrEyeType eye) {
     // to use glLoadTransposeMatrixf instead of glLoadMatrixf to load it.
     //
     //double far_clip = currentMode == GUI ? 2000.0f : param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
-    double far_clip = 2000.0f; // jdt: trying to lessen the difference between GUI and 3D modes.
+    double far_clip = 20000.0f; // jdt: trying to lessen the difference between GUI and 3D modes.
     // jdt: increase near_clip to get better depth buffer resolution if we turn that on.
     ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], NEAR_CLIP_DIST, far_clip, 1);
     glMatrixMode(GL_PROJECTION);
