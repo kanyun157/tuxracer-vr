@@ -176,7 +176,7 @@ void CCredits::Enter() {
 	y_offset = 100;
 	moving = true;
 
-	// jdt: looks bad. let user sit through credits, else they can hit ESC.
+	// jdt: looks bad. let user sit through credits, else they can hit ESC. ;)
 	//backButton = AddTextButton (Trans.Text(8), CENTER, AutoYPosN(30), FT.AutoSizeN (8));
 }
 
@@ -193,20 +193,21 @@ void CCredits::Loop(double time_step) {
 	ScopedRenderMode rm(GUI);
 	SetupGuiDisplay ();
 
-	glTranslatef (0, 0, 100);
-
-//	DrawBackLogo (-1,  AutoYPos (200), 1.0);
-	DrawCreditsText (time_step);
 	if (param.ui_snow) {
 		update_ui_snow (time_step);
 		draw_ui_snow();
     }
 
-	//glEnable (GL_DEPTH_TEST);
-	//glDepthFunc (GL_LESS);
+	glPushMatrix ();
+	glTranslatef (0, 0, 100);
+
+//	DrawBackLogo (-1,  AutoYPos (200), 1.0);
+	DrawCreditsText (time_step);
+
 	glTranslatef (0, 0, -10);
 	Tex.Draw (T_TITLE, CENTER, AutoYPosN (10), Winsys.scale);
 
+	glPopMatrix ();
 	//DrawWidgetFrame (backButton);
 	DrawGUI ();
 

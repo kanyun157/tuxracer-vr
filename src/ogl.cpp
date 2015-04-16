@@ -184,7 +184,7 @@ void SetupGuiDisplay(bool displayFrame) {
 		glColor4f (0, 0, 0, 0.4);
 		glBegin(GL_QUADS);
 		{
-			GLfloat depth = -10; //-param.forward_clip_distance / 2;
+			GLfloat depth = -1; //-param.forward_clip_distance / 2;
 			glVertex3f (0, 0, depth);
 			glVertex3f (0, resy, depth);
 			glVertex3f (resx, resy, depth);
