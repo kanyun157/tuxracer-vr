@@ -237,7 +237,7 @@ void CGameOver::Enter() {
 			retryTxt = Trans.Text(84); // Retry / Race Again
 		else
 			retryTxt = Trans.Text(13); // Race!
-		retryButton = AddTextButton (retryTxt, CENTER, top + 100, siz);
+		retryButton = AddTextButton (retryTxt, CENTER, top + 50, siz);
 	}
 }
 

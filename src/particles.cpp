@@ -197,8 +197,8 @@ void draw_ui_snow () {
 
     glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	Tex.BindTex (SNOW_PART);
-    glColor4f(part_col[0], part_col[1], part_col[2], part_col[3]);
-	part_col[3] = 0.3;
+    glColor4f(part_col[0], part_col[1], part_col[2], 0.7); //part_col[3]);
+	//part_col[3] = 0.3;
 	glBegin(GL_QUADS);
 	for (list<TGuiParticle>::const_iterator i = particles_2d.begin(); i != particles_2d.end(); ++i) {
 		i->Draw(xres, yres);

@@ -457,7 +457,7 @@ void LookAtSelection(ovrEyeType eye)
 	int idx = eye == ovrEye_Left ? 0 : 1;
 
 	SetupDisplay (eye);
-	SetupGuiDisplay ();
+	SetupGuiDisplay (false); // false to not render the background frame again.
 
 	GLdouble modelview[16];
 	GLdouble projection[16];
@@ -533,19 +533,23 @@ void CWinsys::RenderFrame(State *current)
 
 		if (!hmd_is_debug && current != &Racing && current != &Intro) 
 		{
-			LookAtSelection (eye);
+			// Optimization: only read from left viewport.. pixel reads are expensive.
+			if (eye == ovrEye_Left)
+				LookAtSelection (eye);
 		}
 	}
 
 	// Read pixels from framebuffer to get 3D position user is looking.
 	lookAtValid = false;
+	// jdt: TODO: need a better way to signify that a state is GUI enabled.
 	if (!hmd_is_debug && current != &Racing && current != &Intro) // && current_render_mode() == GUI)
 	{
 		float eps = 100.f;
 		if (abs(lookAtPos[0].x) > 0 && abs(lookAtPos[0].y) > 0) {
-			if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps && abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
+// jdt: only using one eye for now... for performance
+//			if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps && abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
 				lookAtValid = true;
-			}
+//			}
 		}
 	}
 
@@ -570,7 +574,7 @@ void CWinsys::RenderFrame(State *current)
 	}
 	glBegin (GL_QUADS);
 	glVertex2f(-1, -1); 
-	glVertex2f(1, -1);
+	glVertex2f( 1, -1);
 	glVertex2f(1, 1);
 	glVertex2f(-1, 1);
 	glEnd();

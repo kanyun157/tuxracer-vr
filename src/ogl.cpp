@@ -169,26 +169,32 @@ void ClearRenderContext (const TColor& col) {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void SetupGuiDisplay() {
+void SetupGuiDisplay(bool displayFrame) {
     // Move x,y coordinate system to positive quandrant.
     float offsetx = (float)Winsys.resolution.width/2;
     float offsety = (float)Winsys.resolution.height/2;
     glTranslatef (-offsetx, -offsety, -offsety);
 
-	glDisable (GL_TEXTURE_2D);
-	glColor4f (0, 0, 0, 0.1);
-	glBegin(GL_QUADS);
-	{
-		GLfloat depth = 0; //-param.forward_clip_distance / 2;
-		glVertex3f (0, 0, depth);
-		glVertex3f (0, offsety*2, depth);
-		glVertex3f (offsetx*2, offsety*2, depth);
-		glVertex3f (offsetx*2, 0, depth);
-	}
-	glEnd();
-	glEnable (GL_TEXTURE_2D);
+	if (displayFrame) { // semi-transparent frame behind gui elements
+		GLfloat resx = (GLfloat)Winsys.resolution.width;
+		GLfloat resy = (GLfloat)Winsys.resolution.height;
+		glDisable (GL_TEXTURE_2D);
+		glEnable (GL_DEPTH_TEST);
+		glDepthMask (GL_TRUE);
+		glColor4f (0, 0, 0, 0.4);
+		glBegin(GL_QUADS);
+		{
+			GLfloat depth = -10; //-param.forward_clip_distance / 2;
+			glVertex3f (0, 0, depth);
+			glVertex3f (0, resy, depth);
+			glVertex3f (resx, resy, depth);
+			glVertex3f (resx, 0, depth);
+		}
+		glEnd();
+		glEnable (GL_TEXTURE_2D);
 
-	glColor4f (1, 1, 1, 1);
+		glColor4f (1, 1, 1, 1);
+	}
 }
 
 void SetupHudDisplay(bool attachToFace) {
