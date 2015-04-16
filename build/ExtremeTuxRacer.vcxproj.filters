@@ -212,9 +212,6 @@
     <ClCompile Include="..\game_ctrl.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\game_over.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="..\game_type_select.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
