@@ -75,7 +75,8 @@ void LoadConfigFile () {
 
 		param.use_papercut_font = SPIntN (line, "use_papercut_font", 1);
 		param.ice_cursor = SPBoolN (line, "ice_cursor", true);
-		param.full_skybox = SPBoolN (line, "full_skybox", false);
+		param.full_skybox = SPBoolN (line, "full_skybox", true);
+		param.no_skybox = SPBoolN (line, "no_skybox", false);
 		param.audio_freq = SPIntN (line, "audio_freq", 22050);
 		param.audio_buffer_size = SPIntN (line, "audio_buffer_size", 512);
 		param.use_quad_scale = SPBoolN (line, "use_quad_scale", false);
@@ -97,11 +98,22 @@ void LoadConfigFile () {
 		float distance_warp = param.quick_ipd_multiplier/2.0f; // need radius
 		param.quick_player_min_speed = SPFloatN(line, "quick_player_min_speed", MIN_TUX_SPEED * distance_warp);
 		param.quick_player_frict_speed = SPFloatN(line, "quick_player_frict_speed", MIN_FRICT_SPEED * ((float)param.quick_ipd_multiplier/2));
-		param.event_ipd_multiplier = SPFloatN(line, "event_ipd_multiplier", 1);
+		param.quick_camera_distance = SPFloatN(line, "quick_camera_distance", 9);
+		param.quick_camera_angle = SPFloatN(line, "quick_camera_angle", -26);
+		param.event_ipd_multiplier = SPFloatN(line, "event_ipd_multiplier", 2);
 		distance_warp = param.event_ipd_multiplier/2.0f;
 		param.event_player_min_speed = SPFloatN(line, "event_player_quick_speed", MIN_TUX_SPEED * distance_warp);
 		param.event_player_frict_speed = SPFloatN(line, "event_player_frict_speed", MIN_FRICT_SPEED * distance_warp);
+		param.event_camera_distance = SPFloatN(line, "event_camera_distance", 3);
+		param.event_camera_angle = SPFloatN(line, "event_camera_angle", -9);
 	}
+
+	// jdt arbitrary
+	param.ipd_multiplier = param.quick_ipd_multiplier;
+	param.player_min_speed = param.quick_player_min_speed;
+	param.player_frict_speed = param.quick_player_frict_speed;
+	param.camera_distance = param.quick_camera_distance;
+	param.camera_angle = param.quick_camera_angle;
 }
 
 void SetConfigDefaults () {
@@ -129,6 +141,7 @@ void SetConfigDefaults () {
 	param.use_papercut_font = 1;
 	param.ice_cursor = true;
 	param.full_skybox = true;
+	param.no_skybox = false;
 	param.use_quad_scale = false;
 
 	param.menu_music = "start_1";
@@ -147,13 +160,13 @@ void SetConfigDefaults () {
 	param.quick_mode = true;
 	param.quick_ipd_multiplier = 16;
 	float distance_warp = param.quick_ipd_multiplier/2.0f;
-	param.quick_player_min_speed = MIN_FRICT_SPEED * distance_warp;
+	param.quick_player_min_speed = MIN_TUX_SPEED * distance_warp;
 	param.quick_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
-	param.quick_camera_distance = 9;
+	param.quick_camera_distance = 9; // TODO: base these on distance_warp.
 	param.quick_camera_angle = -26;
-	param.event_ipd_multiplier = 1;
+	param.event_ipd_multiplier = 2;
 	distance_warp = param.event_ipd_multiplier/2.0f;
-	param.event_player_min_speed = MIN_FRICT_SPEED * distance_warp;
+	param.event_player_min_speed = MIN_TUX_SPEED * distance_warp;
 	param.event_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
 	param.event_camera_distance = 3;
 	param.event_camera_angle = -9;
@@ -290,6 +303,7 @@ void SaveConfigFile () {
 	AddComment (liste, "3 textures are invisible (top, bottom and back).");
 	AddComment (liste, "These textures needn't be drawn.");
 	AddIntItem (liste, "full_skybox", param.full_skybox);
+	AddIntItem (liste, "no_skybox", param.no_skybox);
 	liste.Add ("");
 
 	AddComment (liste, "Audio frequency");
@@ -327,9 +341,13 @@ void SaveConfigFile () {
 	AddIntItem(liste, "quick_ipd_multiplier", param.quick_ipd_multiplier);
 	AddIntItem(liste, "quick_player_min_speed", param.quick_player_min_speed);
 	AddIntItem(liste, "quick_player_frict_speed", param.quick_player_frict_speed);
+	AddIntItem(liste, "quick_camera_distance", param.quick_camera_distance);
+	AddIntItem(liste, "quick_camera_angle", param.quick_camera_angle);
 	AddIntItem(liste, "event_ipd_multiplier", param.event_ipd_multiplier);
 	AddIntItem(liste, "event_player_min_speed", param.event_player_min_speed);
 	AddIntItem(liste, "event_player_frict_speed", param.event_player_frict_speed);
+	AddIntItem(liste, "event_camera_distance", param.event_camera_distance);
+	AddIntItem(liste, "event_camera_angle", param.event_camera_angle);
     liste.Add("");
 
 
@@ -394,7 +412,7 @@ void InitConfig (const char *arg0) {
 	param.trans_dir = param.data_dir + SEP + "translations";
 	param.player_dir = param.data_dir + SEP + "players";
 
-	param.ui_snow = false; // jdt: needs optimization and looks bad in hmd.
+	param.ui_snow = true;
 	param.view_mode = FOLLOW;
 	param.display_fps = false;
 	param.show_hud = false; // jdt: the 2d hud messes w/ frame prediction.

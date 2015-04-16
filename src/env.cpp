@@ -165,6 +165,7 @@ string CEnvironment::GetDir (size_t location, size_t light) const {
 }
 
 void CEnvironment::LoadSkybox () {
+	if (param.no_skybox) return; // jdt: has issue w/ fog and stereo, atm
 	Skybox = new TTexture[param.full_skybox?6:3];
 	Skybox[0].Load(EnvDir, "front.png");
 	Skybox[1].Load(EnvDir, "left.png");

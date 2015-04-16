@@ -99,7 +99,12 @@ void CGameTypeSelect::Enter () {
 	int siz = FT.AutoSizeN (6);
 	int dist = FT.AutoDistanceN (2);
 	textbuttons[0] = AddTextButton (Trans.Text(1), CENTER, top, siz);
-	textbuttons[1] = AddTextButton (Trans.Text(2), CENTER, top + dist, siz);
+	if (param.language == 0 || param.language == Trans.GetLangIdx("de_DE")) {
+		// "Quick Race" to denote that it isn't the same settings as in events mode
+		textbuttons[1] = AddTextButton (Trans.Text(86), CENTER, top + dist, siz);
+	}
+	else
+		textbuttons[1] = AddTextButton (Trans.Text(2), CENTER, top + dist, siz);
 	textbuttons[2] = AddTextButton (Trans.Text(3), CENTER, top + dist * 2, siz);
 	textbuttons[3] = AddTextButton (Trans.Text(62), CENTER, top + dist * 3, siz);
 	textbuttons[4] = AddTextButton (Trans.Text(43), CENTER, top + dist * 4, siz);

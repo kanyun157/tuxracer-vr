@@ -76,10 +76,10 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 	switch (key) {
 		// steering flipflops
 		case SDLK_UP: {
-						  IncCameraDistance(0.1); break;
+						  IncCameraDistance(-0.1); break;
 					  }//key_paddling = !release; break;
 		case SDLK_DOWN: {
-							IncCameraDistance(-0.1); break;
+							IncCameraDistance(0.1); break;
 						}//key_braking = !release; break;
 		case SDLK_LEFT: { //left_turn = !release; break;
 							IncCameraAngle(1); break;
@@ -339,13 +339,19 @@ void CRacing::Loop (double time_step) {
 	OVR::Quatf head_orient = Winsys.trackingState.HeadPose.ThePose.Orientation;
 	head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
 	Jaxis(0, -headRoll * 4.f);
-	Jaxis(1, -1.0); // jdt always paddle! //headPitch * 4.f); 
 
-	// trigger charging with head-down.  Keep charging until head rises up to 0' pitch.
-	if (headPitch < -0.2 || (ctrl->jump_charging && headPitch < 0.1)) {
-		key_charging = true;
-	} else if (ctrl->jump_charging) {
-		key_charging = false; // jump
+	// always paddle unless player is leaning back
+	stick_braking = headPitch > 0.1;
+	stick_paddling = !stick_braking;
+
+	if (g_game.game_type != CUPRACING) {
+		// jump charging with head-down.
+		// Keep charging until head rises up to 0' pitch.
+		if (headPitch < -0.2 || (ctrl->jump_charging && headPitch < 0.1)) {
+			key_charging = true;
+		} else if (ctrl->jump_charging) {
+			key_charging = false; // jump
+		}
 	}
 
 	check_gl_error();

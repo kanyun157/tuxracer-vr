@@ -130,6 +130,7 @@ void CTranslation::SetDefaultTranslations () {
 	texts[83] = "Randomize settings";
 	texts[84] = "Race Again";
 	texts[85] = "Retry";
+	texts[86] = "Quick Race";
 }
 
 const string& CTranslation::Text (size_t idx) const {

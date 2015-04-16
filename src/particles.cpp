@@ -95,19 +95,16 @@ TGuiParticle::TGuiParticle(double x, double y) {
 }
 
 void TGuiParticle::Draw(double xres, double yres) const {
-	glPushMatrix();
-	glTranslatef (pt.x * xres, pt.y * yres, 0);
-	glBegin (GL_QUADS);
-		glTexCoord2f (tex_min.x, tex_min.y);
-		glVertex2f (0, 0);
-		glTexCoord2f (tex_max.x, tex_min.y);
-		glVertex2f (size, 0);
-		glTexCoord2f (tex_max.x, tex_max.y);
-		glVertex2f (size, size);
-		glTexCoord2f (tex_min.x, tex_max.y);
-		glVertex2f (0, size);
-	glEnd();
-	glPopMatrix();
+	GLfloat x = pt.x * xres;
+	GLfloat y = pt.y * yres;
+	glTexCoord2f (tex_min.x, tex_min.y);
+	glVertex2f (x, y);
+	glTexCoord2f (tex_max.x, tex_min.y);
+	glVertex2f (x + size, y);
+	glTexCoord2f (tex_max.x, tex_max.y);
+	glVertex2f (x + size, y + size);
+	glTexCoord2f (tex_min.x, tex_max.y);
+	glVertex2f (x, y + size);
 }
 
 void TGuiParticle::Update(double time_step, double push_timestep, const TVector2& push_vector) {
@@ -202,9 +199,11 @@ void draw_ui_snow () {
 	Tex.BindTex (SNOW_PART);
     glColor4f(part_col[0], part_col[1], part_col[2], part_col[3]);
 	part_col[3] = 0.3;
+	glBegin(GL_QUADS);
 	for (list<TGuiParticle>::const_iterator i = particles_2d.begin(); i != particles_2d.end(); ++i) {
 		i->Draw(xres, yres);
     }
+	glEnd();
 }
 
 void push_ui_snow (const TVector2& pos) {

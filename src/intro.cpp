@@ -53,7 +53,9 @@ void CIntro::Enter() {
 	ctrl->orientation_initialized = false;
     ctrl->view_init = false;
     ctrl->cpos.x = start_pt.x;
-    ctrl->cpos.z = start_pt.y - 1; // jdt: hide clipping at start of course.
+	ctrl->cpos.z = start_pt.y - 1; // jdt: hide clipping at start of course.
+	if (param.ipd_multiplier > 1)
+		ctrl->cpos.z -= 1;
 
 	startframe = Char.GetKeyframe (g_game.char_id, START);
 	if (startframe->loaded) {
