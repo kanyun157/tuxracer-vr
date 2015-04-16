@@ -4,6 +4,12 @@ The classic downhill winter game now with Oculus Rift support!  Please have pati
 
 ## Installation
 
+### Windows:
+* Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
+* Download, unzip, and run exe from the extracted directory.
+* If in extended mode, use the F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
+* See config/options.txt for performance tweaks if needed (see below).
+
 ### Linux:
 * Please compile from source on linux (for now):
 * Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git gcc
@@ -20,20 +26,6 @@ export CXXFLAGS="-Ofast -fomit-frame-pointer -march=native"
 make 
  ```
 
-### Windows:
-* ... TODO
-
-### OSX:
-* ... TODO
-
-## Running:
-### Windows:
-* Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
-* Extract zip to a new folder and run etr.exe from this new directory.
-* If in extended mode, use the F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
-* Use the extracted config/options file for tweaking performance options.
-
-### Linux:
 * Don't rotate the rift if using extended mode. Keep it in its default portrait mode.
 * On Linux, the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.
 * Please make sure your oculusd or ovrd service is running and issue src/etr from the root build directory.
@@ -60,20 +52,23 @@ make
 [no_hq_distortion] 0
 [no_compute_shader] 1
 [quick_ipd_multiplier] 16
-[quick_player_min_speed] 5
-[quick_player_frict_speed] 300
+[quick_player_frict_speed] 240
 [quick_camera_distance] 9
-[quick_camera_angle] 42
-[event_ipd_multiplier] 1 
-[event_player_min_speed] 1.4
-[event_player_frict_speed] 2.8
+[quick_camera_angle] -26
+[quick_fly_amount] 50
+[event_ipd_multiplier] 2
+[event_player_frict_speed] 30
 [event_camera_distance] 3
 [event_camera_angle] -9
-
+[event_fly_amount] 1
+[dire_straits_tux] 1
 ```
 
+### OSX:
+* It should compile.. I havn't tried yet. 
+
 ## Gameplay
-All controls are based on the Oculus sensor data.
+Controls are all based on head movements (hopefully).
 * Look at gui components and wait for a second to select them.
 * Lean left/right to control Tux's direction down the course.
 * Look down and pop up to get more air before a jump.
@@ -91,14 +86,18 @@ All controls are based on the Oculus sensor data.
 * ESC quits the level.
 
 ## Quick Race
-This mode enables a toy-like feeling by increasing the eye's interpupilary distance which makes the course seem like a different size.  It has a nice omnicient feeling to it.  This mode isn't used for the official events because it affects the speed and other gameplay dynamics which would make the events too difficult without changing their layout.  
+This mode enables a toy-like feeling by increasing the eye's interpupilary distance (IPD) which makes the course seem like a different size.  This mode isn't used for the official events because it affects the speed and other gameplay dynamics which would make the events too difficult without changing their layout.  
 * The details for these can be tweaked at the bottom of the options file.
 
-## Need Help!
-* Translations are behind.  Spanish, etc.  See data/translations for language files.
+## Things Needing Attention
+* I've only been testing with open source radeon drivers.  Please let me know if other cards/drivers work or not.
 * Optimization is needed for higher detail levels, track marks, ice env maps, snow.
-* The snow particle system for GUI and racing needs a lot of attention to work w/ VR.
 * Skybox doesn't show up w/ fog.. and I can't render it up close because of stereo depth.
+* The snow particle system for GUI and racing needs a lot of attention to work w/ VR.
+* Fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
+ * Occurs when using the xf86-video-ati open source radeon driver. See the following for a patch to the Oculus SDK:
+ * https://forums.oculus.com/viewtopic.php?t=16664#p252973
+* Translations are behind.  Spanish, etc.  See data/translations for language files.
 
 ## Contact:
 * IRC: I'm metric on #etuxracer (Freenode)

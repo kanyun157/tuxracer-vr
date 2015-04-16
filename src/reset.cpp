@@ -70,6 +70,8 @@ void CReset::Loop(double time_step) {
     DrawTrees ();
 
     if ((elapsed_time > BLINK_IN_PLACE_TIME) && (!position_reset)) {
+		/* jdt: appears to be an issue here. I think with first/last reset skipping around.
+		 *
 		TObjectType* object_types = &Course.ObjTypes[0];
 		TItem* item_locs  = &Course.NocollArr[0];
 		size_t num_item_types = Course.ObjTypes.size();
@@ -85,8 +87,10 @@ void CReset::Loop(double time_step) {
 		} // for
 
 		if (last_reset == 0) {
+		*/
 		    ctrl->cpos.x = Course.GetDimensions().x/2.0;
 		    ctrl->cpos.z = min(ctrl->cpos.z + 10, -1.0);
+			/*
 		} else {
 			int best_loc = -1;
 		    for (size_t i = first_reset; i <= last_reset; i++) {
@@ -108,6 +112,7 @@ void CReset::Loop(double time_step) {
 				ctrl->cpos.z = item_locs[best_loc].pt.z;
 		    } // if
 		}
+		*/
 
 		ctrl->view_init = false;
 		ctrl->Init ();
