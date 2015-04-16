@@ -418,19 +418,22 @@ void DrawCube ()
 }
 
 void CCharShape::DrawCharSphere (int num_divisions) {
-	glPushMatrix ();
-	GLfloat f = 1.f / sqrt(3.f);
-	glScalef (f, f, f);
-	DrawCube ();
-	glPopMatrix ();
 	// jdt: way too much geometry here even for num_divisions=1.
 	// it's time to move these.. refrigerators.. mode.
-    //GLUquadricObj *qobj = gluNewQuadric();
-    //gluQuadricDrawStyle (qobj, GLU_FILL);
-    //gluQuadricOrientation (qobj, GLU_OUTSIDE);
-    //gluQuadricNormals (qobj, GLU_SMOOTH);
-    //gluSphere (qobj, 1.0, (GLint)2.0 * num_divisions, num_divisions);
-    //gluDeleteQuadric (qobj);
+	if (param.dire_straits_tux) {
+		glPushMatrix ();
+		GLfloat f = 1.f / sqrt(3.f);
+		glScalef (f, f, f);
+		DrawCube ();
+		glPopMatrix ();
+	} else {
+		GLUquadricObj *qobj = gluNewQuadric();
+		gluQuadricDrawStyle (qobj, GLU_FILL);
+		gluQuadricOrientation (qobj, GLU_OUTSIDE);
+		gluQuadricNormals (qobj, GLU_SMOOTH);
+		gluSphere (qobj, 1.0, (GLint)2.0 * num_divisions, num_divisions);
+		gluDeleteQuadric (qobj);
+	}
 }
 
 void CCharShape::DrawNodes (const TCharNode *node) {

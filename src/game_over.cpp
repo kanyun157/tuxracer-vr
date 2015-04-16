@@ -227,7 +227,7 @@ void CGameOver::Enter() {
 		}
 	}
 
-	int top = AutoYPosN (40);
+	int top = AutoYPosN (35);
 	int siz = FT.AutoSizeN (10);
 	backButton = AddTextButton (Trans.Text(8), CENTER, top, siz);
 	if (g_game.game_type != CUPRACING || g_game.race_result < 0) {

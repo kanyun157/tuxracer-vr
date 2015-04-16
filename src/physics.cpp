@@ -337,9 +337,7 @@ TVector3 CControl::CalcNormalForce () {
 		ff.compression = -ff.surfdistance - ff.comp_depth;
 		return CalcSpringForce ();
     } else {
-		float fly_amount = 0;
-		if (param.quick_mode) fly_amount = 100;
-		return TVector3(ff.rollnml.x * 200, ff.rollnml.y * fly_amount, ff.rollnml.z);
+		return TVector3(ff.rollnml.x * 200, ff.rollnml.y * param.fly_amount, ff.rollnml.z);
 	}
 
 	return TVector3(0, 0, 0);

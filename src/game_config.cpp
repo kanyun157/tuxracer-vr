@@ -64,7 +64,7 @@ void LoadConfigFile () {
 		param.sound_volume = SPIntN (line, "sound_volume", 100);
 		param.music_volume = SPIntN (line, "music_volume", 20);
 
-		param.forward_clip_distance = SPIntN (line, "forward_clip_distance", 75);
+		param.forward_clip_distance = SPIntN (line, "forward_clip_distance", 80);
 		param.backward_clip_distance = SPIntN (line, "backward_clip_distance", 20);
 		param.fov = SPIntN (line, "fov", 60);
 		param.bpp_mode = SPIntN (line, "bpp_mode", 1);
@@ -96,16 +96,19 @@ void LoadConfigFile () {
 		param.use_fxaa = SPBoolN(line, "use_fxaa", true);
 		param.quick_ipd_multiplier = SPFloatN(line, "quick_ipd_multiplier", 16);
 		float distance_warp = param.quick_ipd_multiplier/2.0f; // need radius
-		param.quick_player_min_speed = SPFloatN(line, "quick_player_min_speed", MIN_TUX_SPEED * distance_warp);
+		param.quick_player_min_speed = SPFloatN(line, "quick_player_min_speed", MIN_TUX_SPEED);
 		param.quick_player_frict_speed = SPFloatN(line, "quick_player_frict_speed", MIN_FRICT_SPEED * ((float)param.quick_ipd_multiplier/2));
 		param.quick_camera_distance = SPFloatN(line, "quick_camera_distance", 9);
 		param.quick_camera_angle = SPFloatN(line, "quick_camera_angle", -26);
+		param.quick_fly_amount = SPFloatN(line, "quick_fly_amount", 100);
 		param.event_ipd_multiplier = SPFloatN(line, "event_ipd_multiplier", 2);
 		distance_warp = param.event_ipd_multiplier/2.0f;
-		param.event_player_min_speed = SPFloatN(line, "event_player_quick_speed", MIN_TUX_SPEED * distance_warp);
+		param.event_player_min_speed = SPFloatN(line, "event_player_min_speed", MIN_TUX_SPEED);
 		param.event_player_frict_speed = SPFloatN(line, "event_player_frict_speed", MIN_FRICT_SPEED * distance_warp);
 		param.event_camera_distance = SPFloatN(line, "event_camera_distance", 3);
 		param.event_camera_angle = SPFloatN(line, "event_camera_angle", -9);
+		param.event_fly_amount = SPFloatN(line, "event_fly_amount", 1);
+		param.dire_straits_tux = SPBoolN(line, "dire_straits_tux", 1);
 	}
 
 	// jdt arbitrary
@@ -114,6 +117,7 @@ void LoadConfigFile () {
 	param.player_frict_speed = param.quick_player_frict_speed;
 	param.camera_distance = param.quick_camera_distance;
 	param.camera_angle = param.quick_camera_angle;
+	param.fly_amount = param.quick_fly_amount;
 }
 
 void SetConfigDefaults () {
@@ -127,7 +131,7 @@ void SetConfigDefaults () {
 
 	// ---------------------------------------
 
-	param.forward_clip_distance = 60;
+	param.forward_clip_distance = 80;
 	param.backward_clip_distance = 30;
 	param.fov = 95;
 	param.bpp_mode = 0;
@@ -160,16 +164,19 @@ void SetConfigDefaults () {
 	param.quick_mode = true;
 	param.quick_ipd_multiplier = 16;
 	float distance_warp = param.quick_ipd_multiplier/2.0f;
-	param.quick_player_min_speed = MIN_TUX_SPEED * distance_warp;
+	param.quick_player_min_speed = MIN_TUX_SPEED;
 	param.quick_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
 	param.quick_camera_distance = 9; // TODO: base these on distance_warp.
 	param.quick_camera_angle = -26;
+	param.quick_fly_amount = 100;
 	param.event_ipd_multiplier = 2;
 	distance_warp = param.event_ipd_multiplier/2.0f;
-	param.event_player_min_speed = MIN_TUX_SPEED * distance_warp;
+	param.event_player_min_speed = MIN_TUX_SPEED;
 	param.event_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
 	param.event_camera_distance = 3;
 	param.event_camera_angle = -9;
+	param.event_fly_amount = 1;
+	param.dire_straits_tux = true;
 
 	// jdt arbitrary
 	param.ipd_multiplier = param.quick_ipd_multiplier;
@@ -177,6 +184,7 @@ void SetConfigDefaults () {
 	param.player_frict_speed = param.quick_player_frict_speed;
 	param.camera_distance = param.quick_camera_distance;
 	param.camera_angle = param.quick_camera_angle;
+	param.fly_amount = param.quick_fly_amount;
 }
 
 
@@ -339,15 +347,20 @@ void SaveConfigFile () {
 	AddIntItem(liste, "console_dump", param.console_dump);
 	AddIntItem(liste, "use_fxaa", param.use_fxaa);
 	AddIntItem(liste, "quick_ipd_multiplier", param.quick_ipd_multiplier);
-	AddIntItem(liste, "quick_player_min_speed", param.quick_player_min_speed);
+	//AddIntItem(liste, "quick_player_min_speed", param.quick_player_min_speed);
 	AddIntItem(liste, "quick_player_frict_speed", param.quick_player_frict_speed);
 	AddIntItem(liste, "quick_camera_distance", param.quick_camera_distance);
 	AddIntItem(liste, "quick_camera_angle", param.quick_camera_angle);
+	AddIntItem(liste, "quick_fly_amount", param.quick_fly_amount);
 	AddIntItem(liste, "event_ipd_multiplier", param.event_ipd_multiplier);
-	AddIntItem(liste, "event_player_min_speed", param.event_player_min_speed);
+	//AddIntItem(liste, "event_player_min_speed", param.event_player_min_speed);
 	AddIntItem(liste, "event_player_frict_speed", param.event_player_frict_speed);
 	AddIntItem(liste, "event_camera_distance", param.event_camera_distance);
 	AddIntItem(liste, "event_camera_angle", param.event_camera_angle);
+	AddIntItem(liste, "event_fly_amount", param.event_fly_amount);
+	liste.Add ("");
+	AddComment (liste, "Render Tux with cubes to reduce polygon count [0,1]:");
+	AddIntItem(liste, "dire_straits_tux", param.dire_straits_tux);
     liste.Add("");
 
 
