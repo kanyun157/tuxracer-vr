@@ -99,6 +99,7 @@ LIB_OVR_DIR="${OVR_ROOT}/LibOVR"
 CXXFLAGS="$CXXFLAGS -I${LIB_OVR_DIR}/Include -I${LIB_OVR_DIR}/Src"
 LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
 #LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
+# For sdk >= 0.5
 #LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/x86_64/Release -lXrandr -lXinerama -lOVR -lX11 -lrt -ldl"
 
 CPPFLAGS="${CPPFLAGS} -DETR_DATA_DIR=\\\"$datadir\\\""
