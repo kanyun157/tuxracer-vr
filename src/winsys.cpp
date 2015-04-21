@@ -616,6 +616,13 @@ void CWinsys::PrintJoystickInfo () const {
 void CWinsys::ToggleHmdFullscreen()
 {
 	static int fullscr, prev_x, prev_y;
+
+	// Using F9 in direct-to-rift mode causes hard-to-debug performance issues.
+	if(hmd->HmdCaps & ovrHmdCap_ExtendDesktop == 0) {
+		printf("Not switching to fullscreen in Direct-to-rift mode\n");
+		return;
+	}
+
 	fullscr = !fullscr;
 
 	if(fullscr) {
