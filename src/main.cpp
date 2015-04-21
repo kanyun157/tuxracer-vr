@@ -106,7 +106,7 @@ int main( int argc, char **argv ) {
 		case 9: State::manager.Run(OglTest); break;
 	}
 
+	SaveConfigFile ();
 	Winsys.Quit();
-
     return 0;
 }

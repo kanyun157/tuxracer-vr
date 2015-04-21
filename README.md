@@ -1,6 +1,6 @@
 # [Extreme Tuxracer](http://sourceforge.net/projects/extremetuxracer/) VR 
 
-The classic downhill winter game now with Oculus Rift support!  Please have patience and read the following to get it running acceptably (low latency).  WARNING: A decent gaming graphics card is necessary!  Integrated graphics hardware, eg. most laptops, won't be fast enough to create the proper feeling of presence in VR applications.
+The classic downhill winter game now with Oculus Rift support!  Please have patience and read the following to get it running acceptably (low latency).  WARNING: A decent gaming graphics card is necessary!  Integrated graphics hardware, eg. most laptops, won't be fast enough.
 
 ## Installation
 
@@ -12,7 +12,7 @@ The classic downhill winter game now with Oculus Rift support!  Please have pati
 * See config/options.txt for performance tweaks if needed (see below).
 
 ### Linux:
-* Please compile from source on linux (for now):
+* Please compile from source on linux for now:
 * Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git gcc
 * Download the oculus rift sdk 0.4.4 (0.5 not supported yet), extract somewhere, and compile it:
  * https://developer.oculus.com/downloads/#version=pc-0.4.4-beta
@@ -25,14 +25,14 @@ export OVR_ROOT="/path/to/your/compiled/oculus/ovr_sdk_linux_0.4.4"
 export CXXFLAGS="-Ofast -fomit-frame-pointer -march=native" 
 ./configure --datadir=${PWD}/data
 make 
+src/etr
  ```
 
 * Don't rotate the rift if using extended mode. Keep it in its default portrait mode.
-* On Linux, the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.
+* On Linux the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.
 * Please make sure your oculusd or ovrd service is running and issue src/etr from the root build directory.
 * Use F2 or F9 key to toggle to the rift and back.
- * If you get poor <75 fps performance, try disabling vsync in the configuration file.
-  * To disable vsync, in the ~/.etr/options file change '[no_vsync] 0' to '[no_vsync] 1'
+* If you get poor <75 fps performance, try disabling vsync in the configuration file.  In the ~/.etr/options file change '[no_vsync] 0' to '[no_vsync] 1'
 * Sometimes if the rift is turned off and back on while Xorg is running, judder starts and I havn't found a way to make it go away without an X shutdown and restart w/ the Rift on.
 * I've seen good results with the following in ~/.etr/options for the open source Radeon driver.
 
@@ -54,11 +54,11 @@ make
 [no_compute_shader] 1
 [no_restore] 0
 [use_fxaa] 1
-[ipd_multiplier] 8
-[player_frict_speed] 10
-[camera_distance] 9
+[ipd_multiplier] 1
+[player_frict_speed] 11
+[camera_distance] 3.5
 [camera_angle] -26
-[fly_amount] 1
+[fly_amount] 30
 [dire_straits_tux] 1
 [console_dump] 0
 ```
@@ -81,9 +81,9 @@ Controls are all based on head movements (hopefully).
 * Up/Down arrows changes distance behind tux.
 * Right/Left changes the angle above/behind tux.
 * h: cycles through different modes of heads up display. 
+ * Off -> World Relative -> FPS toggle -> Stuck to Face -> Off
 * w/s: increases/decreases IPD.
 * a/d: increases/decreases player speed.
-* a: attaches the HUD to your face instead of floating in the world.
 * '1,2,3,4' flips between preset camera positions.
 * F3-F8 toggles display of elements in the course.
 * ESC quits the level.

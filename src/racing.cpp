@@ -134,8 +134,8 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 			if (!release) {
 				// cycle through modes of hud
 				if (!param.show_hud) param.show_hud = true;
-				else if (!param.attach_hud_to_face) param.attach_hud_to_face = true;
 				else if (!param.display_fps) param.display_fps = true;
+				else if (!param.attach_hud_to_face) param.attach_hud_to_face = true;
 				else {
 					param.show_hud = param.attach_hud_to_face = false;
 					param.display_fps = false;
