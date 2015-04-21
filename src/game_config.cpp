@@ -94,13 +94,13 @@ void LoadConfigFile () {
 		param.no_restore = SPBoolN(line, "no_restore", false);
 		param.console_dump = SPBoolN(line, "console_dump", false);
 		param.use_fxaa = SPBoolN(line, "use_fxaa", true);
-		param.ipd_multiplier = SPFloatN(line, "ipd_multiplier", 8);
-		float distance_warp = param.ipd_multiplier/2.0f; // need radius
+		param.ipd_multiplier = SPFloatN(line, "ipd_multiplier", 1);
+		//float distance_warp = param.ipd_multiplier/2.0f; // need radius
 		param.player_min_speed = SPFloatN(line, "player_min_speed", MIN_TUX_SPEED);
-		param.player_frict_speed = SPFloatN(line, "player_frict_speed", MIN_FRICT_SPEED * ((float)param.ipd_multiplier/2));
-		param.camera_distance = SPFloatN(line, "camera_distance", 9);
+		param.player_frict_speed = SPFloatN(line, "player_frict_speed", MIN_FRICT_SPEED); // * ((float)param.ipd_multiplier/2));
+		param.camera_distance = SPFloatN(line, "camera_distance", 3.5);
 		param.camera_angle = SPFloatN(line, "camera_angle", -26);
-		param.fly_amount = SPFloatN(line, "fly_amount", 20);
+		param.fly_amount = SPFloatN(line, "fly_amount", 30);
 		param.dire_straits_tux = SPBoolN(line, "dire_straits_tux", 1);
 	}
 }
@@ -146,13 +146,13 @@ void SetConfigDefaults () {
 	param.no_restore = false;
 	param.use_fxaa = true;
 
-	param.ipd_multiplier = 8;
-	float distance_warp = param.ipd_multiplier/2.0f;
+	param.ipd_multiplier = 1;
+	//float distance_warp = param.ipd_multiplier/2.0f;
 	param.player_min_speed = MIN_TUX_SPEED;
-	param.player_frict_speed = MIN_FRICT_SPEED * distance_warp;
-	param.camera_distance = 9; // TODO: base these on distance_warp.
+	param.player_frict_speed = MIN_FRICT_SPEED; // * distance_warp;
+	param.camera_distance = 3.5;
 	param.camera_angle = -26;
-	param.fly_amount = 20;
+	param.fly_amount = 30;
 	param.dire_straits_tux = true;
 
 	param.console_dump = false; // true for fps,tree,item count dumps.

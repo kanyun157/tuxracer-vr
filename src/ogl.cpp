@@ -234,7 +234,9 @@ void SetupDisplay (ovrEyeType eye) {
     quat_to_matrix(&Winsys.eyePose[eye].Orientation.x, rot_mat);
     glMultMatrixf(rot_mat);
     // translate the view matrix with the positional tracking
-    glTranslatef(-Winsys.eyePose[eye].Position.x, -Winsys.eyePose[eye].Position.y, -Winsys.eyePose[eye].Position.z);
+    glTranslatef(-Winsys.eyePose[eye].Position.x * param.ipd_multiplier,
+			-Winsys.eyePose[eye].Position.y * param.ipd_multiplier,
+			-Winsys.eyePose[eye].Position.z * param.ipd_multiplier);
     // move the camera to the eye level of the user
     //glTranslate(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
 

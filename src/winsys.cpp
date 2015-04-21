@@ -507,8 +507,9 @@ void CWinsys::Init () {
 	Uint32 window_height = resolution.height;
 	Uint32 window_flags = SDL_WINDOW_OPENGL;
 	if (param.fullscreen) {
-		window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-		window_width = window_height = 0; // don't switch display mode.
+		printf("Ignoring fullscreen option.  Use F9 to send window fullscreen to Rift\n");
+		//window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		//window_width = window_height = 0; // don't switch display mode.
 	}
 
 	sdlWindow = SDL_CreateWindow(WINDOW_TITLE, 

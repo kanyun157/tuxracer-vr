@@ -65,7 +65,9 @@ void IncCameraAngle (double dDeg) {
 }
 
 void SetCameraDistance (double val) {camera_distance = val;}
+double GetCameraDistance () {return camera_distance;}
 void SetCameraAngle (double val) {camera_angle = val;}
+double GetCameraAngle () {return camera_angle;}
 
 
 void set_view_mode (CControl *ctrl, TViewMode mode) {ctrl->viewmode = mode;}

@@ -72,6 +72,8 @@ static bool character = true;
 static int newsound = -1;
 static int lastsound = -1;
 
+static bool camera_fadeout = false;
+
 void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) {
 	switch (key) {
 		// steering flipflops
@@ -100,6 +102,8 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_ESCAPE: if (!release) {
 			g_game.raceaborted = true;
 			g_game.race_result = -1;
+			param.camera_distance = GetCameraDistance ();
+			param.camera_angle = GetCameraAngle ();
 			State::manager.RequestEnterState (GameOver);
 		} break;
 		case SDLK_p: if (!release) State::manager.RequestEnterState (Paused); break;
@@ -192,9 +196,13 @@ void SetSoundVolumes () {
 	Sound.SetVolume ("rock_sound", CalcSoundVol (1.1));
 }
 
+
 // ---------------------------- init ----------------------------------
 void CRacing::Enter (void) {
 	CControl *ctrl = Players.GetCtrl (g_game.player_id);
+
+	SetCameraDistance (param.camera_distance);
+	SetCameraAngle (param.camera_angle);
 
 	// jdt: ABOVE seems more comfortable in stereo
 	//if (param.view_mode < 0 || param.view_mode >= NUM_VIEW_MODES) {
@@ -220,6 +228,8 @@ void CRacing::Enter (void) {
 
 	SetSoundVolumes ();
 	Music.PlayTheme (g_game.theme_id, MUS_RACING);
+
+	camera_fadeout = false;
 
 	g_game.finish = false;
 	g_game.loopdelay = 0; // jdt: don't call SDL_Delay
@@ -391,7 +401,15 @@ void CRacing::Loop (double time_step) {
 
 	// save modelview matrix before applying 3D character orientation.
 	glPushMatrix();
-	if (g_game.finish) IncCameraDistance (time_step);
+	if (g_game.finish) {
+		if (!camera_fadeout) {
+			camera_fadeout = true;
+			// save camera distance and angle before fading out.
+			param.camera_distance = GetCameraDistance ();
+			param.camera_angle = GetCameraAngle ();
+		}
+		IncCameraDistance (time_step);
+	}
 	update_view (ctrl, time_step);
 	UpdateTrackmarks (ctrl);
 
@@ -435,4 +453,3 @@ void CRacing::Exit() {
 	Sound.HaltAll ();
     break_track_marks ();
 }
-
