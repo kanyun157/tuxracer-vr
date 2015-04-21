@@ -5,6 +5,7 @@ The classic downhill winter game now with Oculus Rift support!  Please have pati
 ## Installation
 
 ### Windows:
+* [TuxRacerVR_v0.62.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.62/TuxRacerVR_v0.62.zip)
 * Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
 * Download, unzip, and run exe from the extracted directory.
 * If in extended mode, use the F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
