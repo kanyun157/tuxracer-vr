@@ -75,18 +75,26 @@ static int lastsound = -1;
 void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) {
 	switch (key) {
 		// steering flipflops
-		case SDLK_UP: {
-						  IncCameraDistance(-0.1); break;
-					  }//key_paddling = !release; break;
-		case SDLK_DOWN: {
-							IncCameraDistance(0.1); break;
-						}//key_braking = !release; break;
-		case SDLK_LEFT: { //left_turn = !release; break;
-							IncCameraAngle(1); break;
-						}
-		case SDLK_RIGHT: { //right_turn = !release; break;
-							 IncCameraAngle(-1); break;
-						 }
+		case SDLK_UP:
+			IncCameraDistance(-0.1);
+			//key_paddling = !release;
+			break;
+		case SDLK_DOWN:
+			IncCameraDistance(0.1);
+			//key_braking = !release;
+			break;
+		case SDLK_LEFT:
+			//left_turn = !release; break;
+			IncCameraAngle(1);
+			break;
+		case SDLK_RIGHT:
+			//right_turn = !release; break;
+			IncCameraAngle(-1);
+			break;
+		case SDLK_w:  if (!release) param.ipd_multiplier++; break;
+		case SDLK_s:  if (!release) param.ipd_multiplier--; break;
+		case SDLK_a:  if (!release) param.player_frict_speed++; break;
+		case SDLK_d:  if (!release) param.player_frict_speed--; break;
 		//case SDLK_t: trick_modifier = !release; break;
 		// mode changing and other actions
 		case SDLK_ESCAPE: if (!release) {
@@ -96,7 +104,7 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		} break;
 		case SDLK_p: if (!release) State::manager.RequestEnterState (Paused); break;
 		case SDLK_r: if (!release) State::manager.RequestEnterState (Reset); break;
-		case SDLK_s: if (!release) ScreenshotN (); break;
+		case SDLK_PRINTSCREEN: if (!release) ScreenshotN (); break;
 
 		// view changing
 		case SDLK_1: if (!release) {
@@ -111,17 +119,30 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 			set_view_mode (Players.GetCtrl (g_game.player_id), BEHIND);
 			param.view_mode = BEHIND;
 		} break;
+		case SDLK_4: if (!release) {
+			set_view_mode (Players.GetCtrl (g_game.player_id), FPP);
+			param.view_mode = FPP; // first person.. makes me sick (too bumpy right now)
+			character = false;
+		} break;
 
 		// toggle
-		case SDLK_h:  if (!release) param.show_hud = !param.show_hud; break;
-		case SDLK_a:  if (!release) param.attach_hud_to_face = !param.attach_hud_to_face; break;
-		case SDLK_f:  if (!release) param.display_fps = !param.display_fps; break;
+		case SDLK_h:
+			if (!release) {
+				// cycle through modes of hud
+				if (!param.show_hud) param.show_hud = true;
+				else if (!param.attach_hud_to_face) param.attach_hud_to_face = true;
+				else if (!param.display_fps) param.display_fps = true;
+				else {
+					param.show_hud = param.attach_hud_to_face = false;
+					param.display_fps = false;
+				}
+			} break;
 		case SDLK_F4: if (!release) character = !character; break;
 		case SDLK_F5: if (!release) sky = !sky; break;
 		case SDLK_F6: if (!release) fog = !fog; break;
 		case SDLK_F7: if (!release) terr = !terr; break;
 		case SDLK_F8: if (!release) trees = !trees; break;
-		case SDLK_SPACE: key_charging = !release; break;
+		//case SDLK_SPACE: key_charging = !release; break; // jdt: used for hmd pose recentering.
 	}
 }
 
@@ -341,8 +362,8 @@ void CRacing::Loop (double time_step) {
 	Jaxis(0, -headRoll * 4.f);
 
 	// always paddle unless player is leaning back
-	stick_braking = headPitch > 0.1;
-	stick_paddling = !stick_braking;
+	stick_braking = headPitch > -0.1;
+	stick_paddling = headPitch < -0.2;
 
 	if (g_game.game_type != CUPRACING) {
 		// jump charging with head-down.

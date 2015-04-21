@@ -92,12 +92,13 @@ struct TParam {
 	float   ipd_multiplier;
 	float   player_min_speed;
 	float   player_frict_speed;
+	float   player_height;
 	float   camera_distance;
 	float   camera_angle;
 	float   fly_amount;
 	float   quick_ipd_multiplier; // I needed two modes of play for 'event' achievements.
-	float   quick_player_min_speed; // speed at which friction kicks in.
-	float   quick_player_frict_speed;
+	float   quick_player_min_speed;
+	float   quick_player_frict_speed; // speed at which friction kicks in.
 	float   quick_camera_distance;
 	float   quick_camera_angle;
 	float   quick_fly_amount;

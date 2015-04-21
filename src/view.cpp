@@ -56,12 +56,12 @@ void SetStationaryCamera (bool stat) {
 
 void IncCameraDistance (double timestep) {
 	param.camera_distance += timestep * CAMERA_DISTANCE_INCREMENT;
-	printf ("camera distance: %f\n", param.camera_distance);
+	//printf ("camera distance: %f\n", param.camera_distance);
 }
 
 void IncCameraAngle (double dDeg) {
 	param.camera_angle += dDeg;
-	printf("camera angle: %f\n", param.camera_angle);
+	//printf("camera angle: %f\n", param.camera_angle);
 }
 
 void SetCameraDistance (double val) {param.camera_distance = val;}
@@ -359,13 +359,14 @@ void update_view (CControl *ctrl, double dt) {
     }
 	case FPP: { // first person penguin.  I like ABOVE with large ipd.
 		view_pt = ctrl->cpos;
-        double ycoord = Course.FindYCoord (view_pt.x, view_pt.z);
+        double ycoord = Course.FindYCoord (view_pt.x, view_pt.z) + param.player_height;
         if (view_pt.y < ycoord + MIN_CAMERA_HEIGHT) {
             view_pt.y = ycoord + MIN_CAMERA_HEIGHT;
 		}
 		view_dir.x = 0;
 		view_dir.y = ctrl->cvel.y / 2; //TVector3(0, 0, -1);
 		view_dir.z = ctrl->cvel.z;
+		NormVector (view_dir);
 		break;
 	}
 	    default: Message ("code not reached", ""); return;

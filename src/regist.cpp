@@ -63,13 +63,11 @@ void CRegist::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 				g_game.player_id = player->GetValue();
 				State::manager.RequestEnterState (NewPlayer);
 			} else QuitRegistration ();	break;
+		case SDLK_u: param.ui_snow = !param.ui_snow; break;
 	}
 }
 
 void CRegist::Mouse (int button, int state, int x, int y) {
-    // jdt: grr this damn oculus safety screen won't go away.
-    ovrHmd_DismissHSWDisplay(Winsys.hmd);
-
 	if (state == 1) {
 		TWidget* focussed = ClickGUI(x, y);
 		if(focussed == textbuttons[0])
@@ -83,7 +81,7 @@ void CRegist::Mouse (int button, int state, int x, int y) {
 
 void CRegist::Motion (int x, int y) {
     // jdt: grr this damn oculus safety screen won't go away.
-    ovrHmd_DismissHSWDisplay(Winsys.hmd);
+    //ovrHmd_DismissHSWDisplay(Winsys.hmd);
 
 	MouseMoveGUI(x, y);
 

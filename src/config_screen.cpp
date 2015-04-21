@@ -55,26 +55,32 @@ Then edit the below functions:
 #include "winsys.h"
 
 CGameConfig GameConfig;
-static string res_names[NUM_RESOLUTIONS];
+//static string res_names[NUM_RESOLUTIONS];
 
 static TLang *LangList;
-static TCheckbox* fullscreen;
+//static TCheckbox* fullscreen;
 static TUpDown* language;
-static TUpDown* resolution;
+//static TUpDown* resolution;
+static TUpDown* player_speed;
+static TUpDown* ipd_multiple;
 static TUpDown* mus_vol;
 static TUpDown* sound_vol;
 static TUpDown* detail_level;
 static TWidget* textbuttons[2];
 
 
-void SetConfig () {
+void SetConfig (bool enterNextState=true)
+{
 	if (mus_vol->GetValue() != param.music_volume ||
 		sound_vol->GetValue() != param.sound_volume ||
 		language->GetValue() != param.language ||
-		resolution->GetValue() != param.res_type ||
-		detail_level->GetValue() != param.perf_level ||
-		fullscreen->checked != param.fullscreen) {
-
+		player_speed->GetValue() != param.quick_player_frict_speed ||
+		ipd_multiple->GetValue() != param.quick_ipd_multiplier ||
+		detail_level->GetValue() != param.perf_level)
+		//resolution->GetValue() != param.res_type ||
+		//fullscreen->checked != param.fullscreen) {
+	{
+		/*
 		if (resolution->GetValue() != param.res_type || fullscreen->checked != param.fullscreen) {
 			// these changes require a new VideoMode
 			param.res_type = resolution->GetValue();
@@ -87,6 +93,12 @@ void SetConfig () {
 			Winsys.SetupVideoMode(param.res_type);
 #endif
 		}
+		*/
+		param.quick_player_frict_speed = player_speed->GetValue();
+		param.quick_ipd_multiplier = ipd_multiple->GetValue();
+
+		param.ipd_multiplier = param.quick_ipd_multiplier;
+		printf("Set IPD multiplier to: %f\n", param.ipd_multiplier);
 
 		// the followind config params don't require a new VideoMode
 		// they only must stored in the param structure (and saved)
@@ -101,14 +113,16 @@ void SetConfig () {
 		}
 		SaveConfigFile ();
 	}
-	State::manager.RequestEnterState(*State::manager.PreviousState());
+
+	if (enterNextState) State::manager.RequestEnterState(*State::manager.PreviousState());
 }
 
 void CGameConfig::Keyb (unsigned int key, bool special, bool release, int x, int y) {
     if (release) return;
 
-	if(key != SDLK_UP && key != SDLK_DOWN)
+	if(key != SDLK_UP && key != SDLK_DOWN) {
 		KeyGUI(key, 0, release);
+	}
 	switch (key) {
 		case SDLK_q: State::manager.RequestQuit(); break;
 		case SDLK_ESCAPE: State::manager.RequestEnterState (*State::manager.PreviousState()); break;
@@ -118,8 +132,17 @@ void CGameConfig::Keyb (unsigned int key, bool special, bool release, int x, int
 			else if(textbuttons[1]->focussed())
 				SetConfig ();
 			break;
-		case SDLK_UP: DecreaseFocus(); break;
-		case SDLK_DOWN: IncreaseFocus(); break;
+		case SDLK_UP:
+			DecreaseFocus();
+			break;
+		case SDLK_DOWN:
+			IncreaseFocus();
+			break;
+		case SDLK_RIGHT:
+		case SDLK_LEFT:
+			SetConfig (false); // jdt: see ipd adjustment
+			break;
+
 	}
 }
 
@@ -152,7 +175,7 @@ void CGameConfig::Enter() {
 
 	LangList = &Trans.languages[0];
 
-	for (int i=0; i<NUM_RESOLUTIONS; i++) res_names[i] = Winsys.GetResName (i);
+	//for (int i=0; i<NUM_RESOLUTIONS; i++) res_names[i] = Winsys.GetResName (i);
 
 	framewidth = 550 * Winsys.scale;
 	frameheight = 50 * Winsys.scale;
@@ -163,14 +186,19 @@ void CGameConfig::Enter() {
 	rightpos = area.right -48;
 
 	ResetGUI ();
-	fullscreen = AddCheckbox (area.left, area.top, framewidth-16, Trans.Text(31));
-	fullscreen->checked = param.fullscreen;
 
-	resolution = AddUpDown(rightpos, area.top+dd*1, 0, NUM_RESOLUTIONS-1, (int)param.res_type);
-	mus_vol = AddUpDown(rightpos, area.top+dd*2, 0, 120, param.music_volume);
-	sound_vol = AddUpDown(rightpos, area.top+dd*3, 0, 120, param.sound_volume);
-	detail_level = AddUpDown(rightpos, area.top+dd*4, 1, 3, param.perf_level);
-	language = AddUpDown(rightpos, area.top+dd*5, 0, (int)Trans.languages.size() - 1, (int)param.language);
+	// jdt: .. always fullscreen w/ rift
+	//fullscreen = AddCheckbox (area.left, area.top, framewidth-16, Trans.Text(31));
+	//fullscreen->checked = param.fullscreen;
+	//resolution = AddUpDown(rightpos, area.top+dd*1, 0, NUM_RESOLUTIONS-1, (int)param.res_type);
+
+	player_speed = AddUpDown(rightpos, area.top+dd, 1, 128, (int)param.quick_player_frict_speed);
+	ipd_multiple = AddUpDown(rightpos, area.top+dd*2, 1, 64, (int)param.quick_ipd_multiplier);
+
+	mus_vol = AddUpDown(rightpos, area.top+dd*3, 0, 120, param.music_volume);
+	sound_vol = AddUpDown(rightpos, area.top+dd*4, 0, 120, param.sound_volume);
+	detail_level = AddUpDown(rightpos, area.top+dd*5, 1, 3, param.perf_level);
+	language = AddUpDown(rightpos, area.top+dd*6, 0, (int)Trans.languages.size() - 1, (int)param.language);
 
 	int siz = FT.AutoSizeN (5);
 	textbuttons[0] = AddTextButton (Trans.Text(28), area.left+50, AutoYPosN (80), siz);
@@ -208,24 +236,31 @@ void CGameConfig::Loop (double time_step) {
 
 	FT.AutoSizeN (4);
 
-	if (resolution->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
-	FT.DrawString (area.left, area.top + dd, Trans.Text(32));
+	//if (resolution->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
+	//FT.DrawString (area.left, area.top + dd, Trans.Text(32));
+	if (player_speed->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
+	FT.DrawString (area.left, area.top + dd, Trans.Text(88));
+	if (ipd_multiple->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
+	FT.DrawString (area.left, area.top + dd*2, Trans.Text(87));
 	if (mus_vol->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
-	FT.DrawString (area.left, area.top + dd*2, Trans.Text(33));
+	FT.DrawString (area.left, area.top + dd*3, Trans.Text(33));
 	if (sound_vol->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
-	FT.DrawString (area.left, area.top + dd*3, Trans.Text(34));
+	FT.DrawString (area.left, area.top + dd*4, Trans.Text(34));
 	if (detail_level->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
-	FT.DrawString (area.left, area.top + dd*4, Trans.Text(36));
+	FT.DrawString (area.left, area.top + dd*5, Trans.Text(36));
 	if (language->focussed()) FT.SetColor (colDYell); else FT.SetColor (colWhite);
-	FT.DrawString (area.left, area.top + dd*5, Trans.Text(35));
+	FT.DrawString (area.left, area.top + dd*6, Trans.Text(35));
 
 	FT.SetColor (colWhite);
-	FT.DrawString (area.left+240, area.top + dd, res_names[resolution->GetValue()]);
-	FT.DrawString (area.left+240, area.top + dd*2, Int_StrN (mus_vol->GetValue()));
-	FT.DrawString (area.left+240, area.top + dd*3, Int_StrN (sound_vol->GetValue()));
-	FT.DrawString (area.left+240, area.top + dd*4, Int_StrN (detail_level->GetValue()));
-	FT.DrawString (area.left+240, area.top + dd*5, LangList[language->GetValue()].language);
+	//FT.DrawString (area.left+240, area.top + dd, res_names[resolution->GetValue()]);
+	FT.DrawString (area.left+240, area.top + dd, Int_StrN (player_speed->GetValue()));
+	FT.DrawString (area.left+240, area.top + dd*2, Int_StrN (ipd_multiple->GetValue()));
+	FT.DrawString (area.left+240, area.top + dd*3, Int_StrN (mus_vol->GetValue()));
+	FT.DrawString (area.left+240, area.top + dd*4, Int_StrN (sound_vol->GetValue()));
+	FT.DrawString (area.left+240, area.top + dd*5, Int_StrN (detail_level->GetValue()));
+	FT.DrawString (area.left+240, area.top + dd*6, LangList[language->GetValue()].language);
 
+	/*
 	#if defined (_WIN32)
 		if (fullscreen->checked != param.fullscreen) {
 			FT.SetColor (colDYell);
@@ -239,11 +274,12 @@ void CGameConfig::Loop (double time_step) {
 			FT.DrawString (CENTER, AutoYPosN (72), Trans.Text(42));
 		}
 	#else
+	*/
 		FT.SetColor (colWhite);
 		FT.AutoSizeN (3);
 		FT.DrawString (CENTER, AutoYPosN (68), Trans.Text(41));
 		FT.DrawString (CENTER, AutoYPosN (72), Trans.Text(42));
-	#endif
+	//#endif
 
 	DrawGUI();
 

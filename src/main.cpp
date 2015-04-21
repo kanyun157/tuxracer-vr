@@ -82,10 +82,12 @@ int main( int argc, char **argv ) {
 	InitGame (argc, argv);
 	Winsys.Init ();
     InitOpenglExtensions ();
-	// for checking the joystick and the OpgenGL version (the info is
-	// written on the console):
-	//	Winsys.PrintJoystickInfo ();
-	//	PrintGLInfo ();
+	if (param.console_dump) {
+		// for checking the joystick and the OpgenGL version (the info is
+		// written on the console):
+		Winsys.PrintJoystickInfo ();
+		PrintGLInfo ();
+	}
 
 	// theses resources must or should be loaded before splashscreen starts
 	Tex.LoadTextureList ();

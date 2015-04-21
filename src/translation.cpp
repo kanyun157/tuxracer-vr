@@ -131,6 +131,8 @@ void CTranslation::SetDefaultTranslations () {
 	texts[84] = "Race Again";
 	texts[85] = "Retry";
 	texts[86] = "Quick Race";
+	texts[87] = "IPD Multiplier";
+	texts[88] = "Player Speed";
 }
 
 const string& CTranslation::Text (size_t idx) const {

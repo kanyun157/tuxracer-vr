@@ -227,7 +227,7 @@ void CGameOver::Enter() {
 		}
 	}
 
-	int top = AutoYPosN (35);
+	int top = AutoYPosN (30);
 	int siz = FT.AutoSizeN (10);
 	backButton = AddTextButton (Trans.Text(8), CENTER, top, siz);
 	if (g_game.game_type != CUPRACING || g_game.race_result < 0) {
@@ -237,7 +237,7 @@ void CGameOver::Enter() {
 			retryTxt = Trans.Text(84); // Retry / Race Again
 		else
 			retryTxt = Trans.Text(13); // Race!
-		retryButton = AddTextButton (retryTxt, CENTER, top + 50, siz);
+		retryButton = AddTextButton (retryTxt, CENTER, top + 100, siz);
 	}
 }
 

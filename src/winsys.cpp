@@ -128,6 +128,218 @@ void CWinsys::InitJoystick () {
 	joystick_active = true;
 }
 
+bool chooseFBConfig()
+{
+	struct _XDisplay* display = glXGetCurrentDisplay();
+
+	static int attribs[] =
+	{
+		GLX_RENDER_TYPE, GLX_RGBA_BIT,
+		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+		GLX_DOUBLEBUFFER, true,
+		GLX_RED_SIZE, 1,
+		GLX_GREEN_SIZE, 1,
+		GLX_BLUE_SIZE, 1,
+		None
+	};
+
+	int screen;
+	glXQueryContext(display, glXGetCurrentContext(), GLX_SCREEN, &screen);
+
+	int numElems;
+	GLXFBConfig* config = glXChooseFBConfig(display, screen, attribs, &numElems);
+	if (numElems > 0)
+	{
+		XVisualInfo* chosen = glXGetVisualFromFBConfig(display, *config);
+		//*vinfoOut = *chosen;
+		XFree(config);
+		return true;
+	}
+
+	return false;
+}
+
+// Used in chooseVisual. May need to expose this to the end use so they can
+// choose an appropriate framebuffer configuration.
+struct FBConfig
+{
+  FBConfig() :
+      redBits(8),
+      greenBits(8),
+      blueBits(8),
+      alphaBits(8),
+      depthBits(8),
+      stencilBits(-1),
+      doubleBuffer(true),
+      auxBuffers(-1)
+  {}
+
+  int  redBits;
+  int  greenBits;
+  int  blueBits;
+  int  alphaBits;
+  int  depthBits;
+  int  stencilBits;
+  bool doubleBuffer;
+  int  auxBuffers;
+
+  int xcfg;
+};
+
+static int fbCalcContrib(int desired, int current)
+{
+    int diff = desired - current;
+    if (current != -1) { return diff * diff; }
+    else               { return 0; }
+}
+
+// Choose frame buffer configuration and return fbConfigID.
+int chooseFBConfigID()
+{
+	struct _XDisplay* display = glXGetCurrentDisplay();
+
+	int xscreen;
+	glXQueryContext(display, glXGetCurrentContext(), GLX_SCREEN, &xscreen);
+	printf("Found X11 screen: %d\n", xscreen);
+
+    int nativeCount = 0;
+    GLXFBConfig* nativeConfigs =
+        glXGetFBConfigs(display, xscreen, &nativeCount);
+    if (!nativeCount)
+    {
+		printf("glXGetFBConfigs return zero fbconfigs\n");
+		exit(0);
+    }
+
+    FBConfig* usables = static_cast<FBConfig*>(calloc(nativeCount, sizeof(FBConfig)));
+    int numUsables = 0;
+
+    for (int i = 0; i < nativeCount; ++i)
+    {
+        GLXFBConfig native = nativeConfigs[i];
+        FBConfig* usable   = &usables[numUsables];
+        int v              = 0;
+
+        // Only frame buffer configcs with attached visuals.
+        glXGetFBConfigAttrib(display, native, GLX_VISUAL_ID, &v);
+        if (!v) { continue; }
+
+        // Only RGBA frame buffers.
+        glXGetFBConfigAttrib(display, native, GLX_RENDER_TYPE, &v);
+        if (!(v & GLX_RGBA_BIT)) { continue; }
+
+        glXGetFBConfigAttrib(display, native, GLX_DRAWABLE_TYPE, &v);
+        if (!(v & GLX_WINDOW_BIT)) { continue; }
+
+        glXGetFBConfigAttrib(display, native, GLX_DEPTH_SIZE,   &usable->depthBits);
+        glXGetFBConfigAttrib(display, native, GLX_STENCIL_SIZE, &usable->stencilBits);
+
+        glXGetFBConfigAttrib(display, native, GLX_RED_SIZE,     &usable->redBits);
+        glXGetFBConfigAttrib(display, native, GLX_GREEN_SIZE,   &usable->greenBits);
+        glXGetFBConfigAttrib(display, native, GLX_BLUE_SIZE,    &usable->blueBits);
+        glXGetFBConfigAttrib(display, native, GLX_ALPHA_SIZE,   &usable->alphaBits);
+
+        glXGetFBConfigAttrib(display, native, GLX_ALPHA_SIZE,   &usable->auxBuffers);
+
+        glXGetFBConfigAttrib(display, native, GLX_DOUBLEBUFFER, &v);
+        usable->doubleBuffer = v ? true : false;
+
+        glXGetFBConfigAttrib(display, native, GLX_FBCONFIG_ID, &usable->xcfg);
+
+        ++numUsables;
+    }
+
+    // We really want std::numeric_limits<int>::max() instead of hardcoded vals.
+    const int MostMissing = 100;
+    int leastMissing      = MostMissing;
+    int leastBias         = MostMissing;
+
+    const FBConfig* closest = NULL;
+    
+    // Desired is currently the default config built by constructor.
+    FBConfig desired;
+
+    for (int i = 0; i < numUsables; ++i)
+    {
+        const FBConfig* cur = &usables[i];
+
+        if (desired.doubleBuffer != cur->doubleBuffer) { continue; }
+
+        int missing = 0;
+        if (desired.alphaBits > 0 && cur->alphaBits == 0) { ++missing; }
+        if (desired.depthBits > 0 && cur->depthBits == 0) { ++missing; }
+        if (desired.stencilBits > 0 && cur->stencilBits == 0) { ++missing; }
+        if (desired.redBits > 0 && desired.redBits != cur->redBits) { ++missing; }
+        if (desired.greenBits > 0 && desired.greenBits != cur->greenBits) { ++missing; }
+        if (desired.blueBits > 0 && desired.blueBits != cur->blueBits) { ++missing; }
+
+        int bias = fbCalcContrib(desired.redBits,     cur->redBits)
+                 + fbCalcContrib(desired.greenBits,   cur->greenBits)
+                 + fbCalcContrib(desired.blueBits,    cur->blueBits)
+                 + fbCalcContrib(desired.alphaBits,   cur->alphaBits)
+                 + fbCalcContrib(desired.depthBits,   cur->depthBits)
+                 + fbCalcContrib(desired.stencilBits, cur->stencilBits);
+
+        if (missing < leastMissing)
+        {
+            closest = cur;
+        }
+        else if (missing == leastMissing)
+        {
+            // Now select against squared differences.
+            if (bias < leastBias)
+            {
+                closest = cur;
+            }
+        }
+
+        if (closest == cur)
+        {
+            leastMissing = missing;
+            leastBias    = bias;
+        }
+    }
+
+    if (closest == NULL)
+    {
+        printf("Failed to select appropriate frame buffer.\n");
+        XFree(nativeConfigs);
+        free(usables);
+        return 0;
+    }
+
+    int fbConfigID = closest->xcfg;
+	printf("fbConfigID: %d\n", fbConfigID);
+
+	int numElems;
+	const int attribs[] = {GLX_FBCONFIG_ID, fbConfigID, None};
+	GLXFBConfig* config = glXChooseFBConfig(display, xscreen, attribs, &numElems);
+	if (numElems > 0) {
+		XVisualInfo* chosen = glXGetVisualFromFBConfig(display, *config);
+		if (chosen) {
+			printf("SUCCESS glXGetVisualFromFBConfig. numElems: %d\n", numElems);
+		} else {
+			printf("Failed to glXGetVisualFromFBConfig. numElems: %d\n", numElems);
+		}
+		//*vinfoOut = *chosen;
+		XFree(config);
+	} else {
+		printf("glXChooseFBConfig failed.  numElems:%d\n", numElems);
+	}
+
+	unsigned int fbConfigID2 = 0;
+	GLXDrawable drawable = glXGetCurrentDrawable();
+	glXQueryDrawable(display, drawable, GLX_FBCONFIG_ID, &fbConfigID2);
+	printf("drawable: %d\n", (int)drawable);
+	printf("fbConfigID2: %u\n", fbConfigID2);
+
+    XFree(nativeConfigs);
+    free(usables);
+
+    return fbConfigID;
+}
+
+
 void CWinsys::OvrConfigureRendering()
 {
 	// enable position and rotation tracking
@@ -266,7 +478,22 @@ void CWinsys::Init () {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	/*
+	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+	SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1); // enables TrueColor
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	*/
+	//SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+	//		SDL_GL_CONTEXT_PROFILE_CORE        // deprecated functions are disabled
+			//SDL_GL_CONTEXT_PROFILE_COMPATIBILITY // deprecated functions are allowed
+			//SDL_GL_CONTEXT_PROFILE_ES // subset of the base OpenGL functionality
+	//);
 #if defined (USE_STENCIL_BUFFER)
 	SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
 #endif
@@ -332,6 +559,7 @@ void CWinsys::Init () {
 	if (USE_JOYSTICK) InitJoystick ();
 	//	SDL_EnableUNICODE (1);
 
+	// jdt: put back in
 	init_shader_program(&fxaa_prog, "shaders/passthrough.vect", "shaders/fxaa.glsl");
 	init_shader_program(&passthrough_prog, "shaders/passthrough.vect", "shaders/passthrough.frag");
 }

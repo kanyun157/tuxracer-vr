@@ -62,19 +62,23 @@ void State::Manager::EnterNextState() {
 	// Switch between modes appropriate for collecting herrings versus
 	// fast-paced high-ipd mode.
 	if (current == &Loading && g_game.game_type == PRACTICING) {
+		printf("Entering Practice mode\n");
 		param.quick_mode = true;
 		param.ipd_multiplier = param.quick_ipd_multiplier;
 		param.player_min_speed = param.quick_player_min_speed;
 		param.player_frict_speed = param.quick_player_frict_speed;
-		param.camera_distance = 9;
-		param.camera_angle = -26;
+		param.camera_distance = param.quick_camera_distance;
+		param.camera_angle = param.quick_camera_angle;
+		param.fly_amount = param.quick_fly_amount;
 	} else if (current == &Event) {
+		printf("Entering Events mode\n");
 		param.quick_mode = false;
 		param.ipd_multiplier = param.event_ipd_multiplier;
 		param.player_min_speed = param.event_player_min_speed;
 		param.player_frict_speed = param.event_player_frict_speed;
-		param.camera_distance = 3;
-		param.camera_angle = -9; //-24; //50; // CAMERA_ANGLE_ABOVE_SLOPE + PLAYER_ANGLE_IN_CAMERA
+		param.camera_distance = param.event_camera_distance;
+		param.camera_angle = param.event_camera_angle;
+		param.fly_amount = param.event_fly_amount;
 	}
 	current->Enter();
 }
@@ -98,6 +102,7 @@ void State::Manager::PollEvent() {
 						case SDLK_F2:
 						case SDLK_F9: Winsys.ToggleHmdFullscreen(); break;
 						case SDLK_x: param.use_fxaa = !param.use_fxaa; break;
+						case SDLK_SPACE: ovrHmd_RecenterPose(Winsys.hmd); break;
 						default: break;
 					}
 					break;
