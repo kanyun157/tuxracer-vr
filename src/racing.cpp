@@ -108,7 +108,6 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		} break;
 		case SDLK_p: if (!release) State::manager.RequestEnterState (Paused); break;
 		case SDLK_r: if (!release) State::manager.RequestEnterState (Reset); break;
-		case SDLK_PRINTSCREEN: if (!release) ScreenshotN (); break;
 
 		// view changing
 		case SDLK_1: if (!release) {

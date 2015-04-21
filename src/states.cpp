@@ -26,6 +26,7 @@ GNU General Public License for more details.
 #include "loading.h"
 #include "event.h"
 #include "view.h"
+#include "textures.h"
 
 State::Manager State::manager(Winsys);
 
@@ -81,6 +82,7 @@ void State::Manager::PollEvent() {
 						case SDLK_F9: Winsys.ToggleHmdFullscreen(); break;
 						case SDLK_x: param.use_fxaa = !param.use_fxaa; break;
 						case SDLK_SPACE: ovrHmd_RecenterPose(Winsys.hmd); break;
+						case SDLK_PRINTSCREEN: ScreenshotN(); break;
 						default: break;
 					}
 					break;
