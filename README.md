@@ -8,7 +8,7 @@ The classic downhill winter game now with Oculus Rift support!  Please have pati
 * [TuxRacerVR_v0.63.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.63/TuxRacerVR_v0.63.zip)
 * Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
 * Download, unzip, and run exe from the extracted directory.
-* If in extended mode, use the F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
+* If in extended mode, use F2 or F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
 * See config/options.txt for performance tweaks if needed (see below).
 
 ### Linux:
@@ -30,7 +30,7 @@ make
 * Don't rotate the rift if using extended mode. Keep it in its default portrait mode.
 * On Linux, the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.
 * Please make sure your oculusd or ovrd service is running and issue src/etr from the root build directory.
-* Use the F9 key to toggle to the rift and back.
+* Use F2 or F9 key to toggle to the rift and back.
  * If you get poor <75 fps performance, try disabling vsync in the configuration file.
   * To disable vsync, in the ~/.etr/options file change '[no_vsync] 0' to '[no_vsync] 1'
 * Sometimes if the rift is turned off and back on while Xorg is running, judder starts and I havn't found a way to make it go away without an X shutdown and restart w/ the Rift on.
@@ -55,13 +55,16 @@ make
 [no_restore] 0
 [use_fxaa] 1
 [ipd_multiplier] 8
-[player_frict_speed] 18
+[player_frict_speed] 10
 [camera_distance] 9
 [camera_angle] -26
 [fly_amount] 1
 [dire_straits_tux] 1
 [console_dump] 0
 ```
+
+If you need to lose your lunch.. accidentally set 'player_frict_speed' to something over 120.
+
 
 ### OSX:
 * It should compile though I havn't tried yet. 
@@ -73,7 +76,7 @@ Controls are all based on head movements (hopefully).
 * Look down and pop up to get more air before a jump.
 * Lean back to brake and slow down.
 
-## Keyboard Settings
+## Settings
 * SPACE bar recenters the view to the current HMD orientation.
 * Up/Down arrows changes distance behind tux.
 * Right/Left changes the angle above/behind tux.
