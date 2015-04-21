@@ -58,28 +58,6 @@ void State::Manager::EnterNextState() {
 	current = next;
 	next = NULL;
 	SetFocusGUI (NULL); // force new focus for lookAt stuff
-
-	// Switch between modes appropriate for collecting herrings versus
-	// fast-paced high-ipd mode.
-	if (current == &Loading && g_game.game_type == PRACTICING) {
-		printf("Entering Practice mode\n");
-		param.quick_mode = true;
-		param.ipd_multiplier = param.quick_ipd_multiplier;
-		param.player_min_speed = param.quick_player_min_speed;
-		param.player_frict_speed = param.quick_player_frict_speed;
-		param.camera_distance = param.quick_camera_distance;
-		param.camera_angle = param.quick_camera_angle;
-		param.fly_amount = param.quick_fly_amount;
-	} else if (current == &Event) {
-		printf("Entering Events mode\n");
-		param.quick_mode = false;
-		param.ipd_multiplier = param.event_ipd_multiplier;
-		param.player_min_speed = param.event_player_min_speed;
-		param.player_frict_speed = param.event_player_frict_speed;
-		param.camera_distance = param.event_camera_distance;
-		param.camera_angle = param.event_camera_angle;
-		param.fly_amount = param.event_fly_amount;
-	}
 	current->Enter();
 }
 

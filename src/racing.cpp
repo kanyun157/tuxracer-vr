@@ -92,9 +92,9 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 			IncCameraAngle(-1);
 			break;
 		case SDLK_w:  if (!release) param.ipd_multiplier++; break;
-		case SDLK_s:  if (!release) param.ipd_multiplier--; break;
+		case SDLK_s:  if (!release) param.ipd_multiplier = max(1.f, param.ipd_multiplier-1); break;
 		case SDLK_a:  if (!release) param.player_frict_speed++; break;
-		case SDLK_d:  if (!release) param.player_frict_speed--; break;
+		case SDLK_d:  if (!release) param.player_frict_speed = max(1.f, param.player_frict_speed-1); break;
 		//case SDLK_t: trick_modifier = !release; break;
 		// mode changing and other actions
 		case SDLK_ESCAPE: if (!release) {

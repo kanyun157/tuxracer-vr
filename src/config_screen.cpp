@@ -74,8 +74,8 @@ void SetConfig (bool enterNextState=true)
 	if (mus_vol->GetValue() != param.music_volume ||
 		sound_vol->GetValue() != param.sound_volume ||
 		language->GetValue() != param.language ||
-		player_speed->GetValue() != param.quick_player_frict_speed ||
-		ipd_multiple->GetValue() != param.quick_ipd_multiplier ||
+		player_speed->GetValue() != param.player_frict_speed ||
+		ipd_multiple->GetValue() != param.ipd_multiplier ||
 		detail_level->GetValue() != param.perf_level)
 		//resolution->GetValue() != param.res_type ||
 		//fullscreen->checked != param.fullscreen) {
@@ -94,11 +94,8 @@ void SetConfig (bool enterNextState=true)
 #endif
 		}
 		*/
-		param.quick_player_frict_speed = player_speed->GetValue();
-		param.quick_ipd_multiplier = ipd_multiple->GetValue();
-
-		param.ipd_multiplier = param.quick_ipd_multiplier;
-		printf("Set IPD multiplier to: %f\n", param.ipd_multiplier);
+		param.player_frict_speed = max(1, player_speed->GetValue());
+		param.ipd_multiplier = max(1, ipd_multiple->GetValue());
 
 		// the followind config params don't require a new VideoMode
 		// they only must stored in the param structure (and saved)
@@ -140,7 +137,7 @@ void CGameConfig::Keyb (unsigned int key, bool special, bool release, int x, int
 			break;
 		case SDLK_RIGHT:
 		case SDLK_LEFT:
-			SetConfig (false); // jdt: see ipd adjustment
+			SetConfig (false); // jdt: see ipd adjustment. doesn't work..
 			break;
 
 	}
@@ -192,8 +189,8 @@ void CGameConfig::Enter() {
 	//fullscreen->checked = param.fullscreen;
 	//resolution = AddUpDown(rightpos, area.top+dd*1, 0, NUM_RESOLUTIONS-1, (int)param.res_type);
 
-	player_speed = AddUpDown(rightpos, area.top+dd, 1, 128, (int)param.quick_player_frict_speed);
-	ipd_multiple = AddUpDown(rightpos, area.top+dd*2, 1, 64, (int)param.quick_ipd_multiplier);
+	player_speed = AddUpDown(rightpos, area.top+dd, 1, 128, (int)param.player_frict_speed);
+	ipd_multiple = AddUpDown(rightpos, area.top+dd*2, 1, 64, (int)param.ipd_multiplier);
 
 	mus_vol = AddUpDown(rightpos, area.top+dd*3, 0, 120, param.music_volume);
 	sound_vol = AddUpDown(rightpos, area.top+dd*4, 0, 120, param.sound_volume);

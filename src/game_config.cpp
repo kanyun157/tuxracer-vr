@@ -94,31 +94,15 @@ void LoadConfigFile () {
 		param.no_restore = SPBoolN(line, "no_restore", false);
 		param.console_dump = SPBoolN(line, "console_dump", false);
 		param.use_fxaa = SPBoolN(line, "use_fxaa", true);
-		param.quick_ipd_multiplier = SPFloatN(line, "quick_ipd_multiplier", 8);
-		float distance_warp = param.quick_ipd_multiplier/2.0f; // need radius
-		param.quick_player_min_speed = SPFloatN(line, "quick_player_min_speed", MIN_TUX_SPEED);
-		param.quick_player_frict_speed = SPFloatN(line, "quick_player_frict_speed", MIN_FRICT_SPEED * ((float)param.quick_ipd_multiplier/2));
-		param.quick_camera_distance = SPFloatN(line, "quick_camera_distance", 9);
-		param.quick_camera_angle = SPFloatN(line, "quick_camera_angle", -26);
-		param.quick_fly_amount = SPFloatN(line, "quick_fly_amount", 20);
-		param.event_ipd_multiplier = SPFloatN(line, "event_ipd_multiplier", 2);
-		distance_warp = param.event_ipd_multiplier/2.0f;
-		param.event_player_min_speed = SPFloatN(line, "event_player_min_speed", MIN_TUX_SPEED);
-		param.event_player_frict_speed = SPFloatN(line, "event_player_frict_speed", MIN_FRICT_SPEED * distance_warp);
-		param.event_camera_distance = SPFloatN(line, "event_camera_distance", 3);
-		param.event_camera_angle = SPFloatN(line, "event_camera_angle", -9);
-		param.event_fly_amount = SPFloatN(line, "event_fly_amount", 1);
+		param.ipd_multiplier = SPFloatN(line, "ipd_multiplier", 8);
+		float distance_warp = param.ipd_multiplier/2.0f; // need radius
+		param.player_min_speed = SPFloatN(line, "player_min_speed", MIN_TUX_SPEED);
+		param.player_frict_speed = SPFloatN(line, "player_frict_speed", MIN_FRICT_SPEED * ((float)param.ipd_multiplier/2));
+		param.camera_distance = SPFloatN(line, "camera_distance", 9);
+		param.camera_angle = SPFloatN(line, "camera_angle", -26);
+		param.fly_amount = SPFloatN(line, "fly_amount", 20);
 		param.dire_straits_tux = SPBoolN(line, "dire_straits_tux", 1);
 	}
-
-	// jdt arbitrary
-	param.ipd_multiplier = param.quick_ipd_multiplier;
-	param.player_min_speed = param.quick_player_min_speed;
-	param.player_frict_speed = param.quick_player_frict_speed;
-	param.player_height = 1;
-	param.camera_distance = param.quick_camera_distance;
-	param.camera_angle = param.quick_camera_angle;
-	param.fly_amount = param.quick_fly_amount;
 }
 
 void SetConfigDefaults () {
@@ -160,32 +144,18 @@ void SetConfigDefaults () {
 	param.no_hq_distortion = true;
 	param.no_compute_shader = true;
 	param.no_restore = false;
-	param.console_dump = false; // true for fps,tree,item count dumps.
 	param.use_fxaa = true;
-	param.quick_mode = true;
-	param.quick_ipd_multiplier = 8;
-	float distance_warp = param.quick_ipd_multiplier/2.0f;
-	param.quick_player_min_speed = MIN_TUX_SPEED;
-	param.quick_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
-	param.quick_camera_distance = 9; // TODO: base these on distance_warp.
-	param.quick_camera_angle = -26;
-	param.quick_fly_amount = 20;
-	param.event_ipd_multiplier = 2;
-	distance_warp = param.event_ipd_multiplier/2.0f;
-	param.event_player_min_speed = MIN_TUX_SPEED;
-	param.event_player_frict_speed = MIN_FRICT_SPEED * distance_warp;
-	param.event_camera_distance = 3;
-	param.event_camera_angle = -9;
-	param.event_fly_amount = 1;
+
+	param.ipd_multiplier = 8;
+	float distance_warp = param.ipd_multiplier/2.0f;
+	param.player_min_speed = MIN_TUX_SPEED;
+	param.player_frict_speed = MIN_FRICT_SPEED * distance_warp;
+	param.camera_distance = 9; // TODO: base these on distance_warp.
+	param.camera_angle = -26;
+	param.fly_amount = 20;
 	param.dire_straits_tux = true;
 
-	// jdt arbitrary
-	param.ipd_multiplier = param.quick_ipd_multiplier;
-	param.player_min_speed = param.quick_player_min_speed;
-	param.player_frict_speed = param.quick_player_frict_speed;
-	param.camera_distance = param.quick_camera_distance;
-	param.camera_angle = param.quick_camera_angle;
-	param.fly_amount = param.quick_fly_amount;
+	param.console_dump = false; // true for fps,tree,item count dumps.
 }
 
 
@@ -338,6 +308,7 @@ void SaveConfigFile () {
 	AddIntItem (liste, "use_quad_scale", param.use_quad_scale);
 	liste.Add ("");
 
+	AddComment (liste, "Oculus Rift settings.");
 	AddIntItem(liste, "no_vsync", param.no_vsync);
 	AddIntItem(liste, "no_prediction", param.no_prediction);
 	AddIntItem(liste, "no_timewarp", param.no_timewarp);
@@ -345,24 +316,27 @@ void SaveConfigFile () {
 	AddIntItem(liste, "no_hq_distortion", param.no_hq_distortion);
 	AddIntItem(liste, "no_compute_shader", param.no_compute_shader);
 	AddIntItem(liste, "no_restore", param.no_restore);
-	AddIntItem(liste, "console_dump", param.console_dump);
-	AddIntItem(liste, "use_fxaa", param.use_fxaa);
-	AddIntItem(liste, "quick_ipd_multiplier", param.quick_ipd_multiplier);
-	//AddIntItem(liste, "quick_player_min_speed", param.quick_player_min_speed);
-	AddIntItem(liste, "quick_player_frict_speed", param.quick_player_frict_speed);
-	AddIntItem(liste, "quick_camera_distance", param.quick_camera_distance);
-	AddIntItem(liste, "quick_camera_angle", param.quick_camera_angle);
-	AddIntItem(liste, "quick_fly_amount", param.quick_fly_amount);
-	AddIntItem(liste, "event_ipd_multiplier", param.event_ipd_multiplier);
-	//AddIntItem(liste, "event_player_min_speed", param.event_player_min_speed);
-	AddIntItem(liste, "event_player_frict_speed", param.event_player_frict_speed);
-	AddIntItem(liste, "event_camera_distance", param.event_camera_distance);
-	AddIntItem(liste, "event_camera_angle", param.event_camera_angle);
-	AddIntItem(liste, "event_fly_amount", param.event_fly_amount);
 	liste.Add ("");
+
+	AddComment (liste, "Antialiasing.");
+	AddIntItem(liste, "use_fxaa", param.use_fxaa);
+	liste.Add ("");
+
+	AddComment (liste, "Gameplay settings.");
+	AddIntItem(liste, "ipd_multiplier", param.ipd_multiplier);
+	AddIntItem(liste, "player_frict_speed", param.player_frict_speed);
+	AddIntItem(liste, "camera_distance", param.camera_distance);
+	AddIntItem(liste, "camera_angle", param.camera_angle);
+	AddIntItem(liste, "fly_amount", param.fly_amount);
+	liste.Add ("");
+
 	AddComment (liste, "Render Tux with cubes to reduce polygon count [0,1]:");
 	AddIntItem(liste, "dire_straits_tux", param.dire_straits_tux);
     liste.Add("");
+
+	AddComment (liste, "Dump extra debug info to the console.");
+	AddIntItem(liste, "console_dump", param.console_dump);
+	liste.Add ("");
 
 
 
