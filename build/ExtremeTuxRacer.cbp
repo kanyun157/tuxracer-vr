@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ExtremeTuxRacer" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug x64">
+				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DFTGL_LIBRARY_STATIC" />
+					<Add option="-DWIN32_LEAN_AND_MEAN" />
+					<Add option="-D_SCL_SECURE_NO_WARNINGS" />
+					<Add option='-DETR_DATA_DIR=\&quot;/home/yottahz/download/src/etr-0.6.0/data\&quot;' />
+					<Add directory="../../ovr_sdk_linux_0.4.4/LibOVR/Include" />
+					<Add directory="../../ovr_sdk_linux_0.4.4/LibOVR/Src" />
+					<Add directory="/usr/include/freetype2" />
+				</Compiler>
+				<Linker>
+					<Add library="freetype.lib" />
+					<Add library="sdl.lib" />
+					<Add library="sdl_mixer.lib" />
+					<Add library="sdl_image.lib" />
+					<Add library="sdlmain.lib" />
+					<Add library="opengl32.lib" />
+					<Add library="glu32.lib" />
+					<Add directory="../../ovr_sdk_linux_0.4.4/LibOVR/Lib/Linux/Release/x86_64" />
+				</Linker>
+			</Target>
+			<Target title="Release x64">
+				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DFTGL_LIBRARY_STATIC" />
+					<Add option="-DWIN32_LEAN_AND_MEAN" />
+				</Compiler>
+				<Linker>
+					<Add library="freetype.lib" />
+					<Add library="sdl.lib" />
+					<Add library="sdl_mixer.lib" />
+					<Add library="sdl_image.lib" />
+					<Add library="sdlmain.lib" />
+					<Add library="opengl32.lib" />
+					<Add library="glu32.lib" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DFTGL_LIBRARY_STATIC" />
+					<Add option="-DWIN32_LEAN_AND_MEAN" />
+				</Compiler>
+				<Linker>
+					<Add library="freetype.lib" />
+					<Add library="sdl.lib" />
+					<Add library="sdl_mixer.lib" />
+					<Add library="sdl_image.lib" />
+					<Add library="sdlmain.lib" />
+					<Add library="opengl32.lib" />
+					<Add library="glu32.lib" />
+				</Linker>
+			</Target>
+			<Target title="Debug Win32">
+				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="-DFTGL_LIBRARY_STATIC" />
+					<Add option="-DWIN32_LEAN_AND_MEAN" />
+					<Add option="-D_SCL_SECURE_NO_WARNINGS" />
+				</Compiler>
+				<Linker>
+					<Add library="freetype.lib" />
+					<Add library="sdl.lib" />
+					<Add library="sdl_mixer.lib" />
+					<Add library="sdl_image.lib" />
+					<Add library="sdlmain.lib" />
+					<Add library="opengl32.lib" />
+					<Add library="glu32.lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++0x" />
+		</Compiler>
+		<Unit filename="../audio.cpp" />
+		<Unit filename="../audio.h" />
+		<Unit filename="../bh.h" />
+		<Unit filename="../common.cpp" />
+		<Unit filename="../common.h" />
+		<Unit filename="../config_screen.cpp" />
+		<Unit filename="../config_screen.h" />
+		<Unit filename="../course.cpp" />
+		<Unit filename="../course.h" />
+		<Unit filename="../course_render.cpp" />
+		<Unit filename="../course_render.h" />
+		<Unit filename="../credits.cpp" />
+		<Unit filename="../credits.h" />
+		<Unit filename="../env.cpp" />
+		<Unit filename="../env.h" />
+		<Unit filename="../etr_types.h" />
+		<Unit filename="../event.cpp" />
+		<Unit filename="../event.h" />
+		<Unit filename="../event_select.cpp" />
+		<Unit filename="../event_select.h" />
+		<Unit filename="../font.cpp" />
+		<Unit filename="../font.h" />
+		<Unit filename="../ft_font.cpp" />
+		<Unit filename="../ft_font.h" />
+		<Unit filename="../game_config.cpp" />
+		<Unit filename="../game_config.h" />
+		<Unit filename="../game_ctrl.cpp" />
+		<Unit filename="../game_ctrl.h" />
+		<Unit filename="../game_over.cpp" />
+		<Unit filename="../game_over.h" />
+		<Unit filename="../game_type_select.cpp" />
+		<Unit filename="../game_type_select.h" />
+		<Unit filename="../gui.cpp" />
+		<Unit filename="../gui.h" />
+		<Unit filename="../help.cpp" />
+		<Unit filename="../help.h" />
+		<Unit filename="../hud.cpp" />
+		<Unit filename="../hud.h" />
+		<Unit filename="../intro.cpp" />
+		<Unit filename="../intro.h" />
+		<Unit filename="../keyframe.cpp" />
+		<Unit filename="../keyframe.h" />
+		<Unit filename="../loading.cpp" />
+		<Unit filename="../loading.h" />
+		<Unit filename="../main.cpp" />
+		<Unit filename="../mathlib.cpp" />
+		<Unit filename="../mathlib.h" />
+		<Unit filename="../newplayer.cpp" />
+		<Unit filename="../newplayer.h" />
+		<Unit filename="../ogl.cpp" />
+		<Unit filename="../ogl.h" />
+		<Unit filename="../ogl_test.cpp" />
+		<Unit filename="../ogl_test.h" />
+		<Unit filename="../particles.cpp" />
+		<Unit filename="../particles.h" />
+		<Unit filename="../paused.cpp" />
+		<Unit filename="../paused.h" />
+		<Unit filename="../physics.cpp" />
+		<Unit filename="../physics.h" />
+		<Unit filename="../quadtree.cpp" />
+		<Unit filename="../quadtree.h" />
+		<Unit filename="../race_select.cpp" />
+		<Unit filename="../race_select.h" />
+		<Unit filename="../racing.cpp" />
+		<Unit filename="../racing.h" />
+		<Unit filename="../regist.cpp" />
+		<Unit filename="../regist.h" />
+		<Unit filename="../reset.cpp" />
+		<Unit filename="../reset.h" />
+		<Unit filename="../score.cpp" />
+		<Unit filename="../score.h" />
+		<Unit filename="../splash_screen.cpp" />
+		<Unit filename="../splash_screen.h" />
+		<Unit filename="../spx.cpp" />
+		<Unit filename="../spx.h" />
+		<Unit filename="../states.cpp" />
+		<Unit filename="../states.h" />
+		<Unit filename="../textures.cpp" />
+		<Unit filename="../textures.h" />
+		<Unit filename="../tool_char.cpp" />
+		<Unit filename="../tool_char.h" />
+		<Unit filename="../tool_frame.cpp" />
+		<Unit filename="../tool_frame.h" />
+		<Unit filename="../tools.cpp" />
+		<Unit filename="../tools.h" />
+		<Unit filename="../track_marks.cpp" />
+		<Unit filename="../track_marks.h" />
+		<Unit filename="../translation.cpp" />
+		<Unit filename="../translation.h" />
+		<Unit filename="../tux.cpp" />
+		<Unit filename="../tux.h" />
+		<Unit filename="../version.h" />
+		<Unit filename="../version.rc" />
+		<Unit filename="../view.cpp" />
+		<Unit filename="../view.h" />
+		<Unit filename="../winsys.cpp" />
+		<Unit filename="../winsys.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

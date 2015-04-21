@@ -5,7 +5,7 @@ The classic downhill winter game now with Oculus Rift support!  Please have pati
 ## Installation
 
 ### Windows:
-* [TuxRacerVR_v0.62.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.62/TuxRacerVR_v0.62.zip)
+* [TuxRacerVR_v0.63.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.63/TuxRacerVR_v0.63.zip)
 * Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
 * Download, unzip, and run exe from the extracted directory.
 * If in extended mode, use the F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
@@ -48,25 +48,23 @@ make
 [full_skybox] 1
 [no_vsync] 0
 [no_prediction] 0
-[no_timewarp] 1
-[no_timewarp_spinwaits] 1
+[no_timewarp] 0
+[no_timewarp_spinwaits] 0
 [no_hq_distortion] 0
 [no_compute_shader] 1
-[quick_ipd_multiplier] 16
-[quick_player_frict_speed] 240
-[quick_camera_distance] 9
-[quick_camera_angle] -26
-[quick_fly_amount] 50
-[event_ipd_multiplier] 2
-[event_player_frict_speed] 30
-[event_camera_distance] 3
-[event_camera_angle] -9
-[event_fly_amount] 1
+[no_restore] 0
+[use_fxaa] 1
+[ipd_multiplier] 8
+[player_frict_speed] 18
+[camera_distance] 9
+[camera_angle] -26
+[fly_amount] 1
 [dire_straits_tux] 1
+[console_dump] 0
 ```
 
 ### OSX:
-* It should compile.. I havn't tried yet. 
+* It should compile though I havn't tried yet. 
 
 ## Gameplay
 Controls are all based on head movements (hopefully).
@@ -76,26 +74,23 @@ Controls are all based on head movements (hopefully).
 * Lean back to brake and slow down.
 
 ## Keyboard Settings
-* Arrow keys can be used to adjust the camera position behind Tux:
- * Up/Down changes distance behind tux.
- * Right/Left changes the angle above and behind.
-* 'H' toggles the heads up display. 
-* 'A' attaches the HUD to your face instead of floating in the world.
-* 'F' toggles display of fps (requires HUD to be enabled).
-* '1,2,3' flips between preset camera positions.
+* SPACE bar recenters the view to the current HMD orientation.
+* Up/Down arrows changes distance behind tux.
+* Right/Left changes the angle above/behind tux.
+* h: cycles through different modes of heads up display. 
+* w/s: increases/decreases IPD.
+* a/d: increases/decreases player speed.
+* a: attaches the HUD to your face instead of floating in the world.
+* '1,2,3,4' flips between preset camera positions.
 * F3-F8 toggles display of elements in the course.
 * ESC quits the level.
-
-## Quick Race
-This mode enables a toy-like feeling by increasing the eye's interpupilary distance (IPD) which makes the course seem like a different size.  This mode isn't used for the official events because it affects the speed and other gameplay dynamics which would make the events too difficult without changing their layout.  
-* The details for these can be tweaked at the bottom of the options file.
 
 ## Things Needing Attention
 * I've only been testing with open source radeon drivers.  Please let me know if other cards/drivers work or not.
 * Optimization is needed for higher detail levels, track marks, ice env maps, snow.
 * Skybox doesn't show up w/ fog.. and I can't render it up close because of stereo depth.
 * The snow particle system for GUI and racing needs a lot of attention to work w/ VR.
-* Fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
+* If it fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
  * Occurs when using the xf86-video-ati open source radeon driver. See the following for a patch to the Oculus SDK:
  * https://forums.oculus.com/viewtopic.php?t=16664#p252973
 * Translations are behind.  Spanish, etc.  See data/translations for language files.
