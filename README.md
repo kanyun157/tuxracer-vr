@@ -14,6 +14,11 @@ The classic downhill winter game now with Oculus Rift support!  Please have pati
 ### Linux:
 * Please compile from source on linux for now:
 * Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git gcc
+ * apt-get install git libsdl2-dev libftgl-dev libftgl2 libfreetype6-dev libglew-dev libvorbis-dev libjpeg8-dev libpng-dev
+ * optional but recommended for changes to configure.ac: autotools-dev libltdl-dev
+ * For older debian (squeeze or wheezy) follow: http://backports.debian.org/Instructions/
+  * apt-get -t wheezy-backports install "libsdl2-dev"
+  * Other libs need to be compiled manually if not in your distro already: sdl2-mixer sdl2-image
 * Download the oculus rift sdk 0.4.4 (0.5 not supported yet), extract somewhere, and compile it:
  * https://developer.oculus.com/downloads/#version=pc-0.4.4-beta
 * Download and compile tuxracer vr:
