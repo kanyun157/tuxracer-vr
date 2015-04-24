@@ -24,10 +24,11 @@ The open source downhill winter game with Oculus Rift support!  Please have pati
 * Download and compile tuxracer vr:
 
  ```
+sudo apt-get install git
 git clone https://github.com/jdtaylor/tuxracer-vr.git
-cd tuxracer-vr
 export OVR_ROOT="/path/to/your/compiled/oculus/ovr_sdk_linux_0.4.4"
 export CXXFLAGS="-Ofast -fomit-frame-pointer -march=native" 
+cd tuxracer-vr
 ./configure --datadir=${PWD}/data
 make 
 src/etr
