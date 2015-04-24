@@ -7,18 +7,29 @@ The open source downhill winter game with Oculus Rift support!  Please have pati
 ### Windows:
 * [TuxRacerVR_v0.63.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.63/TuxRacerVR_v0.63.zip)
 * Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
-* Download, unzip, and run exe from the extracted directory.
+* Download, unzip, and run TuxRacerVR.exe from the extracted directory.
 * If in extended mode, use F2 or F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
 * See config/options.txt for performance tweaks if needed (see below).
 
 ### Linux:
-* Please compile from source on linux for now:
-* Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git gcc
- * apt-get install git libsdl2-dev libftgl-dev libftgl2 libfreetype6-dev libglew-dev libvorbis-dev libjpeg8-dev libpng-dev
- * optional but recommended for changes to configure.ac: autotools-dev libltdl-dev
+* [TuxRacerVR_v0.64_linux64.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.64/TuxRacerVR_v0.64_linux64.zip)
+* Make sure the Oculus runtime is installed and running.
+* Download, unzip, and run ./TuxRacerVR from the extracted directory.
+ * If you get this: "Error: [Context] Unable to obtain x11 visual from context", PLEASE report back if this helps:
+  * OVR_FBCONFIG_OVERRIDE=1 ./TuxRacerVR
+* Use F2 or F9 key to toggle between the Rift and back.
+* See config/options.txt for performance tweaks if needed (see below).
+
+### OSX:
+* It should compile from source though I havn't tried yet. 
+
+### Compile from source:
+* Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git g++
+ * apt-get install git libsdl2-dev libftgl-dev libftgl2 libfreetype6-dev libglew-dev libvorbis-dev libjpeg8-dev libpng-dev libsmpeg-dev chrpath
+ * optional but recommended for changes to configure.ac: autotools-dev libltdl-dev automake autoconf
  * For older debian (squeeze or wheezy) follow: http://backports.debian.org/Instructions/
-  * apt-get -t wheezy-backports install "libsdl2-dev"
-  * Other libs need to be compiled manually if not in your distro already: sdl2-mixer sdl2-image
+   * apt-get -t wheezy-backports install "libsdl2-dev"
+   * Other libs need to be compiled manually if not in your distro already: sdl2-mixer sdl2-image
 * Download the oculus rift sdk 0.4.4 (0.5 not supported yet), extract somewhere, and compile it:
  * https://developer.oculus.com/downloads/#version=pc-0.4.4-beta
 * Download and compile tuxracer vr:
@@ -29,7 +40,7 @@ git clone https://github.com/jdtaylor/tuxracer-vr.git
 export OVR_ROOT="/path/to/your/compiled/oculus/ovr_sdk_linux_0.4.4"
 export CXXFLAGS="-Ofast -fomit-frame-pointer -march=native" 
 cd tuxracer-vr
-./configure --datadir=${PWD}/data
+./configure
 make 
 src/etr
  ```
@@ -52,11 +63,12 @@ src/etr
 [tux_shadow_sphere_div] 1
 [course_detail_level] 75
 [full_skybox] 1
+[no_skybox] 0
 [no_vsync] 0
 [no_prediction] 0
 [no_timewarp] 0
 [no_timewarp_spinwaits] 0
-[no_hq_distortion] 0
+[no_hq_distortion] 1
 [no_compute_shader] 1
 [no_restore] 0
 [use_fxaa] 1
@@ -69,11 +81,7 @@ src/etr
 [console_dump] 0
 ```
 
-If you need to lose your lunch.. accidentally set 'player_frict_speed' to something over 120.
-
-
-### OSX:
-* It should compile though I havn't tried yet. 
+If you want to lose your lunch.. accidentally set 'player_frict_speed' to something over 120.
 
 ## Gameplay
 Controls are all based on head movements (hopefully).
@@ -83,14 +91,15 @@ Controls are all based on head movements (hopefully).
 * Lean back to brake and slow down.
 
 ## Settings
-* SPACE bar recenters the view to the current HMD orientation.
-* Up/Down arrows changes distance behind tux.
-* Right/Left changes the angle above/behind tux.
-* h: cycles through different modes of heads up display. 
- * Off -> World Relative -> FPS toggle -> Stuck to Face -> Off
-* w/s: increases/decreases IPD.
-* a/d: increases/decreases player speed.
-* '1,2,3,4' flips between preset camera positions.
+* F2 or F9 toggles the window to the Rift and back (ONLY for extended mode).
+* SPACE: recenter the view to the current HMD orientation.
+* Up/Down arrows change the distance behind tux.
+* Right/Left: change the angle above/behind tux.
+* h: cycle through different modes of heads up display. 
+ * hud cycles: Off -> World Relative -> FPS toggle -> Stuck to Face -> Off
+* w/s: increase/decrease IPD.
+* a/d: increase/decrease player speed.
+* '1,2,3,4' flip between preset camera positions.
 * F3-F8 toggles display of elements in the course.
 * ESC quits the level.
 

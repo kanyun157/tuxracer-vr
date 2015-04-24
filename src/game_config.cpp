@@ -347,12 +347,11 @@ void SaveConfigFile () {
 // --------------------------------------------------------------------
 
 void InitConfig (const char *arg0) {
-#if defined (OS_WIN32_MINGW) || defined (OS_WIN32_MSC)
-	// the progdir is always the current dir
+	// the progdir is always the current dir.
+	// jdt: TODO: change for proper distribution.
 	param.config_dir = "config";
 	param.data_dir = "data";
 	param.configfile = param.config_dir + SEP + "options.txt";
-#else
 
 #if 0
 	char buff[256];
@@ -368,7 +367,6 @@ void InitConfig (const char *arg0) {
 	}
 
 	param.prog_dir = buff;
-#endif
 
 	struct passwd *pwent = getpwuid (getuid ());
 	param.config_dir = pwent->pw_dir;
