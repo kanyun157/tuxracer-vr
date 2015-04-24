@@ -1,6 +1,6 @@
 # [Extreme Tuxracer](http://sourceforge.net/projects/extremetuxracer/) VR 
 
-The classic downhill winter game now with Oculus Rift support!  Please have patience and read the following to get it running acceptably (low latency).  WARNING: A decent gaming graphics card is necessary!  Integrated graphics hardware, eg. most laptops, won't be fast enough.
+The open source downhill winter game with Oculus Rift support!  Please have patience and read the following to get it running acceptably (low latency).  WARNING: A decent gaming graphics card is necessary. Integrated graphics hardware, eg. most laptops, won't be fast enough.
 
 ## Installation
 
@@ -47,7 +47,7 @@ src/etr
 [forward_clip_distance] 80
 [backward_clip_distance] 30
 [tree_detail_distance] 30
-[tux_sphere_divisions] 1
+[tux_sphere_divisions] 2
 [tux_shadow_sphere_div] 1
 [course_detail_level] 75
 [full_skybox] 1
