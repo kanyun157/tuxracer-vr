@@ -219,7 +219,7 @@ void CWinsys::OvrConfigureRendering()
 	}
 	ovrHmd_SetEnabledCaps(hmd, hmd_caps);
 
-	// configure SDK-rendering and enable chromatic abberation correction, vignetting, and
+	// configure SDK-rendering and enable chromatic aberation correction, vignetting, and
 	// timewarp, which shifts the image before drawing to counter any latency between the call
 	// to ovrHmd_GetEyePose and ovrHmd_EndFrame.
 
@@ -607,7 +607,7 @@ void CWinsys::RenderFrame(State *current)
 
 	// After drawing both eyes and post processing, revert to drawing directly to the
 	// display and call ovrHmd_EndFrame to let the Oculus SDK compensate for lens distortion
-	// and chromatic abberation and double buffering.
+	// and chromatic aberation and double buffering.
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	ovrHmd_EndFrame(hmd, eyePose, &fb_ovr_tex[0].Texture);

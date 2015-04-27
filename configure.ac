@@ -14,12 +14,6 @@ AC_CANONICAL_HOST
 AC_PROG_CXX
 AC_PROG_CC
 
-# Checks for libraries.
-AC_CHECK_FT2
-
-CXXFLAGS="$CXXFLAGS $FT2_CFLAGS"
-LIBS="$LIBS $FT2_LIBS"
-
 # Checks for header files.
 AC_CHECK_HEADERS([float.h limits.h stdlib.h string.h sys/time.h unistd.h])
 
@@ -39,37 +33,21 @@ case "$host_os" in
 esac
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+# http://nerdland.net/unstumping-the-internet/malloc-has-not-been-declared/
+#AC_FUNC_MALLOC
 AC_CHECK_FUNCS([floor getcwd memmove memset mkdir pow sqrt strchr strdup])
 
-#AM_PATH_SDL([1.0.0])
-AM_PATH_SDL2([2.0.0])
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $SDL_LIBS"
-
-PKG_CHECK_MODULES([SDLIMAGE], [SDL2_image],
+PKG_CHECK_MODULES(X11, [x11 xrandr xinerama],
 [
-  CFLAGS="${CFLAGS} $SDLIMAGE_CFLAGS"
-  LIBS="${LIBS} $SDLIMAGE_LIBS"
+  CFLAGS="$CFLAGS $X11_CFLAGS"
+  LIBS="$LIBS $X11_LIBS"
 ],
-[AC_MSG_ERROR([SDL2_image not found])])
+[AC_MSG_ERROR([Xorg not found])])
 
-PKG_CHECK_MODULES([SDLMIXER], [SDL2_mixer],
-[
-  CFLAGS="${CFLAGS} $SDLMIXER_CFLAGS"
-  LIBS="${LIBS} $SDLMIXER_LIBS"
-],
-[AC_MSG_ERROR([SDL2_mixer not found])])
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
 
-AC_CHECK_LIB([GL], [glBegin], [],
-[AC_MSG_ERROR([libGL not found])])
-
-LIBS="$LIBS -lGL"
-
-AC_CHECK_LIB([GLU], [gluBeginCurve], [],
-[AC_MSG_ERROR([libGLU not found])])
-
-LIBS="$LIBS -lGLU"
+# For static linking of libs:
+#LIBS="$LIBS -Wl,-Bstatic"
 
 GLEW_CFLAGS=""
 GLEW_LIBS="-lGLEW"
@@ -87,25 +65,60 @@ AC_CHECK_LIB([GLEW],
 CFLAGS="$CFLAGS $GLEW_CFLAGS"
 LIBS="$LIBS $GLEW_LIBS"
 
+# Checks for libraries.
+AC_CHECK_FT2
+CFLAGS="$CFLAGS $FT2_CFLAGS"
+LIBS="$LIBS $FT2_LIBS"
+
+# jdt: FTGL doesn't have multilib support on Gentoo (32 bit support)
+#LIBS="${LIBS} -L${FTGL_ROOT}/lib/i386 -lftgl"
 PKG_CHECK_MODULES(FTGL, [ftgl],
 [
-  CFLAGS="${CFLAGS} $FTGL_CFLAGS"
-  LIBS="${LIBS} $FTGL_LIBS"
+  CFLAGS="$CFLAGS $FTGL_CFLAGS"
+  LIBS="$LIBS $FTGL_LIBS"
 ],
 [AC_MSG_ERROR([FTGL not found])])
 
-# jdt: Change this to your Oculus SDK path:
+AM_PATH_SDL2([2.0.0])
+#SDL_CFLAGS=`sdl2-config --cflags`
+#SDL_LIBS=`sdl2-config --static-libs`
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+LIBS="$LIBS $SDL_LIBS"
+
+PKG_CHECK_MODULES([SDLIMAGE], [SDL2_image],
+[
+  CFLAGS="$CFLAGS $SDLIMAGE_CFLAGS"
+  LIBS="$LIBS $SDLIMAGE_LIBS"
+],
+[AC_MSG_ERROR([SDL2_image not found])])
+
+PKG_CHECK_MODULES([SDLMIXER], [SDL2_mixer],
+[
+  CFLAGS="$CFLAGS $SDLMIXER_CFLAGS"
+  LIBS="$LIBS $SDLMIXER_LIBS"
+],
+[AC_MSG_ERROR([SDL2_mixer not found])])
+
+AC_CHECK_LIB([GL], [glBegin], [],
+[AC_MSG_ERROR([libGL not found])])
+LIBS="$LIBS -lGL"
+AC_CHECK_LIB([GLU], [gluBeginCurve], [],
+[AC_MSG_ERROR([libGLU not found])])
+LIBS="$LIBS -lGLU"
+
+# Set OVR_ROOT to your oculus ovr_sdk_linux_0.4.4 path.
 LIB_OVR_DIR="${OVR_ROOT}/LibOVR"
-CXXFLAGS="$CXXFLAGS -I${LIB_OVR_DIR}/Include -I${LIB_OVR_DIR}/Src"
-LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
-#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lXrandr -lXinerama -lovr -lX11 -lrt"
+CFLAGS="$CFLAGS -I${LIB_OVR_DIR}/Include -I${LIB_OVR_DIR}/Src"
+LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lovr -lrt"
+# Debug:
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lovr -lrt"
+# For 32 bit:
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/i386 -lovr"
 # For sdk >= 0.5
-#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/x86_64/Release -lXrandr -lXinerama -lOVR -lX11 -lrt -ldl"
+#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/x86_64/Release -lOVR -lrt -ldl"
 
-CPPFLAGS="${CPPFLAGS} -DETR_DATA_DIR=\\\"$datadir\\\""
-
-# Request c++11 compatibility and profiling info
-CXXFLAGS="${CXXFLAGS} -std=c++11"
+# Request c++11 compatibility and profiling info.  NOTE CFLAGS -> CXXFLAGS
+CXXFLAGS="$CFLAGS -std=c++11"
 
 AC_CONFIG_FILES([
         Makefile

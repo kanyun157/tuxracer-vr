@@ -2,53 +2,75 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="ExtremeTuxRacer" />
+		<Option title="TuxRacerVR" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug x64">
-				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option platforms="Unix;Mac;" />
+				<Option output="TuxRacerVR" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option='-Ofast -fomit-frame-pointer -std=c++11' />
-					<Add directory="../../ovr_sdk_linux_0.4.4/LibOVR/Include" />
-					<Add directory="../../ovr_sdk_linux_0.4.4/LibOVR/Src" />
+					<Add option="-g3 -std=c++11" />
+					<Add directory="${OVR_ROOT}/LibOVR/Include" />
+					<Add directory="${OVR_ROOT}/LibOVR/Src" />
 					<Add directory="/usr/include/freetype2" />
 					<Add directory="/usr/include/SDL2" />
 				</Compiler>
 				<Linker>
-					<Add library="freetype.lib" />
-					<Add library="sdl.lib" />
-					<Add library="sdl_mixer.lib" />
-					<Add library="sdl_image.lib" />
-					<Add library="sdlmain.lib" />
-					<Add library="opengl32.lib" />
-					<Add library="glu32.lib" />
-					<Add directory="../../ovr_sdk_linux_0.4.4/LibOVR/Lib/Linux/Release/x86_64" />
+					<Add library="GLEW" />
+					<Add library="freetype" />
+					<Add library="ftgl" />
+					<Add library="SDL2" />
+					<Add library="pthread" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="ovr" />
+					<Add library="GL" />
+					<Add library="GLU" />
+					<Add library="Xrandr" />
+					<Add library="Xinerama" />
+					<Add library="X11" />
+					<Add library="rt" />
+					<Add library="gcc" />
+					<Add directory="${OVR_ROOT}/LibOVR/Lib/Linux/Release/x86_64" />
 				</Linker>
 			</Target>
 			<Target title="Release x64">
-				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option platforms="Unix;Mac;" />
+				<Option output="TuxRacerVR" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
-					<Add option="-DFTGL_LIBRARY_STATIC" />
-					<Add option="-DWIN32_LEAN_AND_MEAN" />
+					<Add option="-Ofast -fomit-frame-pointer -std=c++11" />
+					<Add directory="${OVR_ROOT}/LibOVR/Include" />
+					<Add directory="${OVR_ROOT}/LibOVR/Src" />
+					<Add directory="/usr/include/freetype2" />
+					<Add directory="/usr/include/SDL2" />
 				</Compiler>
 				<Linker>
-					<Add library="freetype.lib" />
-					<Add library="sdl.lib" />
-					<Add library="sdl_mixer.lib" />
-					<Add library="sdl_image.lib" />
-					<Add library="sdlmain.lib" />
-					<Add library="opengl32.lib" />
-					<Add library="glu32.lib" />
+					<Add library="GLEW" />
+					<Add library="freetype" />
+					<Add library="ftgl" />
+					<Add library="SDL2" />
+					<Add library="pthread" />
+					<Add library="SDL2_image" />
+					<Add library="SDL2_mixer" />
+					<Add library="ovr" />
+					<Add library="GL" />
+					<Add library="GLU" />
+					<Add library="Xrandr" />
+					<Add library="Xinerama" />
+					<Add library="X11" />
+					<Add library="rt" />
+					<Add library="pthread" />
+					<Add library="gcc" />
+					<Add directory="${OVR_ROOT}/LibOVR/Lib/Linux/Release/x86_64" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
-				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option output="TuxRacerVR" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -67,7 +89,7 @@
 				</Linker>
 			</Target>
 			<Target title="Debug Win32">
-				<Option output="ExtremeTuxRacer" prefix_auto="1" extension_auto="1" />
+				<Option output="TuxRacerVR" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
