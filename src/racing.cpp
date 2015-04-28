@@ -99,7 +99,7 @@ void CRacing::Keyb (unsigned int key, bool special, bool release, int x, int y) 
 		case SDLK_s:  if (!release) param.ipd_multiplier = max(1.f, param.ipd_multiplier-1); break;
 		case SDLK_a:  if (!release) param.player_frict_speed++; break;
 		case SDLK_d:  if (!release) param.player_frict_speed = max(1.f, param.player_frict_speed-1); break;
-		//case SDLK_t: trick_modifier = !release; break;
+		case SDLK_t: trick_modifier = !release; break;
 		// mode changing and other actions
 		case SDLK_ESCAPE: if (!release) {
 			g_game.raceaborted = true;
@@ -165,7 +165,7 @@ void CRacing::Jbutt (int button, int state) {
 	if (button == 0) {
 		key_charging = state != 0;
 	} else if (button == 1) {
-//		key_charging = (bool) state;
+		key_charging = (bool) state;
 	}
 }
 
@@ -210,24 +210,17 @@ void CRacing::Enter (void) {
 		param.view_mode = ABOVE; // first person/penguin
 	//}
 
-	double camera_angle = GetCameraAngle ();
-	double course_angle = Course.GetCourseAngle ();
-	slide_angle = course_angle + camera_angle;
-	printf ("course angle: %f (%f) camera: %f (%f) slide: %f (%f)\n",
-			course_angle, ANGLES_TO_RADIANS(course_angle),
-			camera_angle, ANGLES_TO_RADIANS(camera_angle),
-			slide_angle, ANGLES_TO_RADIANS(slide_angle));
-	slide_angle = ANGLES_TO_RADIANS(slide_angle);
+	slide_angle = ANGLES_TO_RADIANS(GetCameraAngle() + Course.GetCourseAngle());
 	slide_delta = param.slide_delta;
 
 	set_view_mode (ctrl, (TViewMode)param.view_mode);
 	left_turn = right_turn = false;
-	trick_modifier = true; // test
+	trick_modifier = false;
 
 	ctrl->turn_fact = 0.0;
 	ctrl->turn_animation = 0.0;
 	ctrl->is_braking = false;
-	ctrl->is_paddling = true;
+	ctrl->is_paddling = false;
 	ctrl->jumping = false;
 	ctrl->jump_charging = false;
 
@@ -340,8 +333,9 @@ void CalcFinishControls (CControl *ctrl, double timestep, bool airborne) {
 void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 	// jdt: disabling all tricks.. using left/right/roll to steer in air now.
 	//      also head pitch is reserved for jump charging.
-#if 0
-	if (airborne && trick_modifier) {
+	if (!trick_modifier) return;
+
+	if (airborne) {
 		// jdt: disabling tricks w/ keypad.. only perform w/ joystick or hmd lean.
 		if (/*left_turn ||*/ stick_turnfact < -2.0) ctrl->roll_left = true;
 		if (/*right_turn ||*/ stick_turnfact > 2.0) ctrl->roll_right = true;
@@ -363,7 +357,6 @@ void CalcTrickControls (CControl *ctrl, double time_step, bool airborne) {
 			ctrl->front_flip = ctrl->back_flip = false;
 		}
 	}
-#endif
 }
 
 // ====================================================================
@@ -382,20 +375,14 @@ void CRacing::Loop (double time_step) {
 	head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
 	Jaxis(0, -headRoll * 4.f);
 
-	// always paddle unless player is leaning back
-	//stick_braking = headPitch > -0.1;
-	//stick_paddling = headPitch < -0.2;
 	stick_braking = headPitch > slide_angle + slide_delta/2;
 	stick_paddling = headPitch < slide_angle - slide_delta/2;
 
-	if (g_game.game_type != CUPRACING) {
-		// jump charging with head-down.
-		// Keep charging until head rises up to 0' pitch.
-		if (headPitch < slide_angle - slide_delta || (ctrl->jump_charging && headPitch < slide_angle + slide_delta)) {
-			key_charging = true;
-		} else if (ctrl->jump_charging) {
-			key_charging = false; // jump
-		}
+	// jump charging with head-down. keep charging until head is lifted up.
+	if (headPitch < slide_angle - slide_delta || (ctrl->jump_charging && headPitch < slide_angle + slide_delta)) {
+		key_charging = true;
+	} else if (ctrl->jump_charging) {
+		key_charging = false; // jump
 	}
 
 	check_gl_error();
@@ -441,11 +428,11 @@ void CRacing::Loop (double time_step) {
 	// jdt: character geometry is expensive
 	if (character /*&& param.perf_level > 1*/) Char.Draw (g_game.char_id);
 
-	if (param.perf_level > 2) {
+	//if (param.perf_level > 2) {
 		UpdateWind (time_step);
 		UpdateSnow (time_step, ctrl);
 		DrawSnow (ctrl);
-	}
+	//}
 
 	// restore modelview for 2D gui
 	glPopMatrix ();

@@ -15,7 +15,7 @@ The open source downhill winter game with Oculus Rift support!  Please have pati
 
 ### Linux:
 * [TuxRacerVR_v0.64_linux64.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.64/TuxRacerVR_v0.64_linux64.zip)
-* Make sure the Oculus runtime is installed and running.
+* Make sure the Oculus runtime is installed and running and don't rotate dk2.
 * Download, unzip, and run ./TuxRacerVR from the extracted directory.
  * If you get this: "Error: [Context] Unable to obtain x11 visual from context", PLEASE report back if this helps:
   * OVR_FBCONFIG_OVERRIDE=1 ./TuxRacerVR
@@ -70,7 +70,6 @@ make
 src/etr
  ```
 
-* Don't rotate the rift if using extended mode. Keep it in its default portrait mode.
 * On Linux the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.
 * Please make sure your oculusd or ovrd service is running and issue src/etr from the root build directory.
 * Use F2 or F9 key to toggle to the rift and back.
@@ -112,7 +111,6 @@ If you want to lose your lunch.. accidentally set 'player_frict_speed' to someth
 * I've only been testing with open source radeon drivers.  Please let me know if other cards/drivers work or not.
 * Optimization is needed for higher detail levels, track marks, ice env maps, snow.
 * Skybox doesn't show up w/ fog.. and I can't render it up close because of stereo depth.
-* The snow particle system for GUI and racing needs a lot of attention to work w/ VR.
 * If it fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
  * Quick fix: OVR_FBCONFIG_OVERRIDE=1 ./TuxRacerVR
  * Occurs when using the xf86-video-ati open source radeon driver. See the following for a patch to the Oculus SDK:
