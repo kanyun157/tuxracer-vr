@@ -622,6 +622,9 @@ void DrawGUI() {
 				State::manager.CurrentState()->Mouse(0, 1, cursor_pos.x, cursor_pos.y);
 				focussedBeginTime = State::manager.ClockTime();
 				focussedPrev = -1;
+
+				// jdt: grr this damn oculus safety screen won't go away.
+				ovrHmd_DismissHSWDisplay(Winsys.hmd);
 			}
 		} else {
 			focussedBeginTime = State::manager.ClockTime();

@@ -95,6 +95,9 @@ struct TParam {
 	float   camera_distance;
 	float   camera_angle;
 	float   fly_amount;
+	float   fly_turn;
+	float   fly_speed;
+	float   slide_delta;
 	bool    dire_straits_tux; // tux rendered w/ cubes.
 
     TViewMode view_mode;

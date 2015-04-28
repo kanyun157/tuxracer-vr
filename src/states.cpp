@@ -85,6 +85,9 @@ void State::Manager::PollEvent() {
 						case SDLK_PRINTSCREEN: ScreenshotN(); break;
 						default: break;
 					}
+
+					// jdt: grr this damn oculus safety screen won't go away.
+					ovrHmd_DismissHSWDisplay(Winsys.hmd);
 					break;
 
 				case SDL_KEYUP:
@@ -92,6 +95,9 @@ void State::Manager::PollEvent() {
 					key = event.key.keysym.sym;
 					current->Keyb(key, key >= 256, true, x, y);
 					current->Keyb_spec(event.key.keysym, true);
+
+					// jdt: grr this damn oculus safety screen won't go away.
+					ovrHmd_DismissHSWDisplay(Winsys.hmd);
 					break;
 
 				case SDL_MOUSEBUTTONDOWN:

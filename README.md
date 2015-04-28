@@ -25,6 +25,29 @@ The open source downhill winter game with Oculus Rift support!  Please have pati
 ### OSX:
 * It should compile from source though I havn't tried yet. 
 
+## Gameplay
+Controls are all based on head movements.
+* Look at gui components and wait for a second to select them.
+* Lean left/right to control Tux's direction down the course.
+* Lean back to brake and slow down.
+* Protips:
+  * Don't paddle or brake on ice; Slide for more speed (not easy).
+  * Look down and back up to get more air during a jump.
+
+## Settings
+* F2 or F9 toggles the window to the Rift and back (ONLY for extended mode).
+* SPACE: recenter the view to the current HMD orientation.
+* Up/Down arrows change the distance behind tux.
+* Right/Left: change the angle above/behind tux.
+* h: cycle through different modes of heads up display. 
+ * hud cycles: Off -> World Relative -> FPS toggle -> Stuck to Face -> Off
+* w/s: increase/decrease IPD.
+* a/d: increase/decrease player speed.
+* '1,2,3,4' flip between preset camera positions.
+* F3-F8 toggles display of elements in the course.
+* ESC quits the level.
+
+
 ### Compile from source:
 * Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git g++
  * apt-get install git libsdl2-dev libftgl-dev libftgl2 libfreetype6-dev libglew-dev libvorbis-dev libjpeg8-dev libpng-dev libsmpeg-dev chrpath
@@ -85,32 +108,13 @@ src/etr
 
 If you want to lose your lunch.. accidentally set 'player_frict_speed' to something over 120.
 
-## Gameplay
-Controls are all based on head movements (hopefully).
-* Look at gui components and wait for a second to select them.
-* Lean left/right to control Tux's direction down the course.
-* Look down and pop up to get more air before a jump.
-* Lean back to brake and slow down.
-
-## Settings
-* F2 or F9 toggles the window to the Rift and back (ONLY for extended mode).
-* SPACE: recenter the view to the current HMD orientation.
-* Up/Down arrows change the distance behind tux.
-* Right/Left: change the angle above/behind tux.
-* h: cycle through different modes of heads up display. 
- * hud cycles: Off -> World Relative -> FPS toggle -> Stuck to Face -> Off
-* w/s: increase/decrease IPD.
-* a/d: increase/decrease player speed.
-* '1,2,3,4' flip between preset camera positions.
-* F3-F8 toggles display of elements in the course.
-* ESC quits the level.
-
 ## Things Needing Attention
 * I've only been testing with open source radeon drivers.  Please let me know if other cards/drivers work or not.
 * Optimization is needed for higher detail levels, track marks, ice env maps, snow.
 * Skybox doesn't show up w/ fog.. and I can't render it up close because of stereo depth.
 * The snow particle system for GUI and racing needs a lot of attention to work w/ VR.
 * If it fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
+ * Quick fix: OVR_FBCONFIG_OVERRIDE=1 ./TuxRacerVR
  * Occurs when using the xf86-video-ati open source radeon driver. See the following for a patch to the Oculus SDK:
  * https://forums.oculus.com/viewtopic.php?t=16664#p252973
 * Translations are behind.  Spanish, etc.  See data/translations for language files.

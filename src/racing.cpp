@@ -62,6 +62,8 @@ static bool key_braking;
 static bool stick_braking;
 static double charge_start_time;
 static bool trick_modifier;
+static double slide_angle; // pitch to center slide_delta on.
+static double slide_delta; // amount in degrees to allow sliding 
 
 static bool sky = true;
 static bool fog = true;
@@ -207,6 +209,16 @@ void CRacing::Enter (void) {
 	//if (param.view_mode < 0 || param.view_mode >= NUM_VIEW_MODES) {
 		param.view_mode = ABOVE; // first person/penguin
 	//}
+
+	double camera_angle = GetCameraAngle ();
+	double course_angle = Course.GetCourseAngle ();
+	slide_angle = course_angle + camera_angle;
+	printf ("course angle: %f (%f) camera: %f (%f) slide: %f (%f)\n",
+			course_angle, ANGLES_TO_RADIANS(course_angle),
+			camera_angle, ANGLES_TO_RADIANS(camera_angle),
+			slide_angle, ANGLES_TO_RADIANS(slide_angle));
+	slide_angle = ANGLES_TO_RADIANS(slide_angle);
+	slide_delta = param.slide_delta;
 
 	set_view_mode (ctrl, (TViewMode)param.view_mode);
 	left_turn = right_turn = false;
@@ -371,13 +383,15 @@ void CRacing::Loop (double time_step) {
 	Jaxis(0, -headRoll * 4.f);
 
 	// always paddle unless player is leaning back
-	stick_braking = headPitch > -0.1;
-	stick_paddling = headPitch < -0.2;
+	//stick_braking = headPitch > -0.1;
+	//stick_paddling = headPitch < -0.2;
+	stick_braking = headPitch > slide_angle + slide_delta/2;
+	stick_paddling = headPitch < slide_angle - slide_delta/2;
 
 	if (g_game.game_type != CUPRACING) {
 		// jump charging with head-down.
 		// Keep charging until head rises up to 0' pitch.
-		if (headPitch < -0.2 || (ctrl->jump_charging && headPitch < 0.1)) {
+		if (headPitch < slide_angle - slide_delta || (ctrl->jump_charging && headPitch < slide_angle + slide_delta)) {
 			key_charging = true;
 		} else if (ctrl->jump_charging) {
 			key_charging = false; // jump

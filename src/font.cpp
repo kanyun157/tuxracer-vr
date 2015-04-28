@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #endif
 
 #include "font.h"
+
 #ifdef WIN32
 #  include "ft_font.h"
 #else

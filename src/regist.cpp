@@ -51,9 +51,6 @@ void QuitRegistration () {
 }
 
 void CRegist::Keyb (unsigned int key, bool special, bool release, int x, int y) {
-    // jdt: grr this damn oculus safety screen won't go away.
-    ovrHmd_DismissHSWDisplay(Winsys.hmd);
-
 	TWidget* focussed = KeyGUI(key, 0, release);
 	if (release) return;
 	switch (key) {
@@ -80,9 +77,6 @@ void CRegist::Mouse (int button, int state, int x, int y) {
 }
 
 void CRegist::Motion (int x, int y) {
-    // jdt: grr this damn oculus safety screen won't go away.
-    //ovrHmd_DismissHSWDisplay(Winsys.hmd);
-
 	MouseMoveGUI(x, y);
 
 	if (param.ui_snow) push_ui_snow (cursor_pos);

@@ -44,6 +44,13 @@ Then edit the below functions:
 #include "translation.h"
 #include "physics.h"
 
+#define DEFAULT_CAMERA_DIST 3.5
+#define DEFAULT_CAMERA_ANGLE -26
+#define DEFAULT_FLY_AMOUNT 30
+#define DEFAULT_FLY_TURN 200
+#define DEFAULT_FLY_SPEED 100
+#define DEFAULT_SLIDE_DELTA 0.16
+
 TParam param;
 
 
@@ -98,9 +105,12 @@ void LoadConfigFile () {
 		//float distance_warp = param.ipd_multiplier/2.0f; // need radius
 		param.player_min_speed = SPFloatN(line, "player_min_speed", MIN_TUX_SPEED);
 		param.player_frict_speed = SPFloatN(line, "player_frict_speed", MIN_FRICT_SPEED); // * ((float)param.ipd_multiplier/2));
-		param.camera_distance = SPFloatN(line, "camera_distance", 3.5);
-		param.camera_angle = SPFloatN(line, "camera_angle", -26);
-		param.fly_amount = SPFloatN(line, "fly_amount", 30);
+		param.camera_distance = SPFloatN(line, "camera_distance", DEFAULT_CAMERA_DIST);
+		param.camera_angle = SPFloatN(line, "camera_angle", DEFAULT_CAMERA_ANGLE);
+		param.fly_amount = SPFloatN(line, "fly_amount", DEFAULT_FLY_AMOUNT);
+		param.fly_turn = SPFloatN(line, "fly_turn", DEFAULT_FLY_TURN);
+		param.fly_speed = SPFloatN(line, "fly_speed", DEFAULT_FLY_SPEED);
+		param.slide_delta = SPFloatN(line, "slide_delta", DEFAULT_SLIDE_DELTA);
 		param.dire_straits_tux = SPBoolN(line, "dire_straits_tux", 1);
 	}
 }
@@ -150,9 +160,12 @@ void SetConfigDefaults () {
 	//float distance_warp = param.ipd_multiplier/2.0f;
 	param.player_min_speed = MIN_TUX_SPEED;
 	param.player_frict_speed = MIN_FRICT_SPEED; // * distance_warp;
-	param.camera_distance = 3.5;
-	param.camera_angle = -26;
-	param.fly_amount = 30;
+	param.camera_distance = DEFAULT_CAMERA_DIST;
+	param.camera_angle = DEFAULT_CAMERA_ANGLE;
+	param.fly_amount = DEFAULT_FLY_AMOUNT;
+	param.fly_turn = DEFAULT_FLY_TURN;
+	param.fly_speed = DEFAULT_FLY_SPEED;
+	param.slide_delta = DEFAULT_SLIDE_DELTA;
 	param.dire_straits_tux = true;
 
 	param.console_dump = false; // true for fps,tree,item count dumps.
@@ -166,6 +179,11 @@ void AddItem (CSPList &list, const string& tag, const string& content) {
 
 void AddIntItem (CSPList &list, const string& tag, int val) {
 	string vs = Int_StrN (val);
+	AddItem (list, tag, vs);
+}
+
+void AddFloatItem (CSPList &list, const string& tag, float val) {
+	string vs = Float_StrN (val, 2);
 	AddItem (list, tag, vs);
 }
 
@@ -323,11 +341,14 @@ void SaveConfigFile () {
 	liste.Add ("");
 
 	AddComment (liste, "Gameplay settings.");
-	AddIntItem(liste, "ipd_multiplier", param.ipd_multiplier);
-	AddIntItem(liste, "player_frict_speed", param.player_frict_speed);
-	AddIntItem(liste, "camera_distance", param.camera_distance);
-	AddIntItem(liste, "camera_angle", param.camera_angle);
-	AddIntItem(liste, "fly_amount", param.fly_amount);
+	AddFloatItem(liste, "ipd_multiplier", param.ipd_multiplier);
+	AddFloatItem(liste, "player_frict_speed", param.player_frict_speed);
+	AddFloatItem(liste, "camera_distance", param.camera_distance);
+	AddFloatItem(liste, "camera_angle", param.camera_angle);
+	AddFloatItem(liste, "fly_amount", param.fly_amount);
+	AddFloatItem(liste, "fly_turn", param.fly_turn);
+	AddFloatItem(liste, "fly_speed", param.fly_speed);
+	AddFloatItem(liste, "slide_delta", param.slide_delta);
 	liste.Add ("");
 
 	AddComment (liste, "Render Tux with cubes to reduce polygon count [0,1]:");
@@ -401,7 +422,7 @@ void InitConfig (const char *arg0) {
 	param.ui_snow = true;
 	param.view_mode = FOLLOW;
 	param.display_fps = false;
-	param.show_hud = false; // jdt: the 2d hud messes w/ frame prediction.
+	param.show_hud = false;
 	param.attach_hud_to_face = false;
 
 	if (FileExists (param.configfile)) {

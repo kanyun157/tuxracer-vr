@@ -451,7 +451,7 @@ void CWinsys::ToggleHmdFullscreen()
 	}
 }
 
-const unsigned int maxFrames = 5; //50;
+const unsigned int maxFrames = 50;
 static unsigned int numFrames = 0;
 static float averagefps = 0;
 static float sumTime = 0;
