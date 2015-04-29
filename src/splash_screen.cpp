@@ -86,7 +86,8 @@ void CSplashScreen::Loop(double timestep) {
 	Players.LoadAvatars (); // before LoadPlayers !!!
 	Players.LoadPlayers ();
 
-	Env.LoadEnvironment (0, 1); // first location, cloudy.  displayed behind GUI
+	// jdt: gui looks good in sunny mode '1'
+	Env.LoadEnvironment (0, param.default_env);
 
 	State::manager.RequestEnterState (Regist);
 }

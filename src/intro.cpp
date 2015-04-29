@@ -114,7 +114,7 @@ void CIntro::Loop (double time_step) {
     SetupViewFrustum (ctrl);
 
 	Music.Update ();
-    Env.DrawSkybox (ctrl->viewpos);
+	Env.DrawSkyboxRacing (ctrl->viewpos);
 
 	Env.DrawFog ();
 	Env.SetupLight ();

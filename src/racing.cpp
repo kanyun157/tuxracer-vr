@@ -414,7 +414,11 @@ void CRacing::Loop (double time_step) {
 	UpdateTrackmarks (ctrl);
 
 	SetupViewFrustum (ctrl);
-	if (sky) Env.DrawSkybox (ctrl->viewpos);
+
+	// jdt: skybox with fog in front is a bummer in stereo.
+	// Need a new method for rendering skybox.
+	Env.DrawSkyboxRacing (ctrl->viewpos);
+
 	if (fog) Env.DrawFog ();
 	Env.SetupLight ();
 	if (terr) RenderCourse ();

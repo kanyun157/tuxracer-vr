@@ -48,8 +48,9 @@ Then edit the below functions:
 #define DEFAULT_CAMERA_ANGLE -26
 #define DEFAULT_FLY_AMOUNT 30
 #define DEFAULT_FLY_TURN 200
-#define DEFAULT_FLY_SPEED 100
+#define DEFAULT_FLY_SPEED 25
 #define DEFAULT_SLIDE_DELTA 0.16
+#define DEFAULT_ENV 2
 
 TParam param;
 
@@ -111,6 +112,7 @@ void LoadConfigFile () {
 		param.fly_turn = SPFloatN(line, "fly_turn", DEFAULT_FLY_TURN);
 		param.fly_speed = SPFloatN(line, "fly_speed", DEFAULT_FLY_SPEED);
 		param.slide_delta = SPFloatN(line, "slide_delta", DEFAULT_SLIDE_DELTA);
+		param.default_env = SPIntN(line, "default_env", DEFAULT_ENV);
 		param.dire_straits_tux = SPBoolN(line, "dire_straits_tux", 1);
 	}
 }
@@ -167,6 +169,8 @@ void SetConfigDefaults () {
 	param.fly_speed = DEFAULT_FLY_SPEED;
 	param.slide_delta = DEFAULT_SLIDE_DELTA;
 	param.dire_straits_tux = true;
+
+	param.default_env = DEFAULT_ENV;
 
 	param.console_dump = false; // true for fps,tree,item count dumps.
 }
@@ -353,6 +357,9 @@ void SaveConfigFile () {
 
 	AddComment (liste, "Render Tux with cubes to reduce polygon count [0,1]:");
 	AddIntItem(liste, "dire_straits_tux", param.dire_straits_tux);
+    liste.Add("");
+
+	AddIntItem(liste, "default_env", param.default_env);
     liste.Add("");
 
 	AddComment (liste, "Dump extra debug info to the console.");

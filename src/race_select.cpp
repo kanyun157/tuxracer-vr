@@ -54,6 +54,9 @@ static void UpdateInfo() {
 	}
 	else if(light->focus && light->GetValue() < 4) {
 		info = Trans.Text(71 + light->GetValue());
+		// jdt: load new environment immediately. 
+		// disabling because too slow to load new textures. 
+		//Env.LoadEnvironment (0, light->GetValue());
 	}
 	else if(snow->focus && snow->GetValue() < 4) {
 		info = Trans.Text(75 + snow->GetValue());

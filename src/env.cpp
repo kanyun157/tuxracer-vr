@@ -208,12 +208,18 @@ void CEnvironment::LoadLight () {
 }
 
 void CEnvironment::DrawSkyboxGui () {
-	DrawSkybox (TVector3(0,0,0));
+	DrawSkybox (TVector3(0,0,0), true);
 }
 
-void CEnvironment::DrawSkybox (const TVector3& pos) {
-	if (!Skybox) return;
-	ScopedRenderMode rm(SKY);
+void CEnvironment::DrawSkyboxRacing (const TVector3& pos) {
+	DrawSkybox (pos, false);
+}
+
+void CEnvironment::DrawSkybox (const TVector3& pos, bool textures) {
+	if (textures && !Skybox) return;
+	if (textures) ScopedRenderMode rm(SKY);
+	else { glDisable (GL_TEXTURE_2D); } // jdt: avoid unnecessary ogl state changes
+
 	GLfloat aa, bb;
 	aa = 0.005f;
 	bb = 0.995f;
@@ -221,15 +227,14 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	glColor4f (1.0, 1.0, 1.0, 1.0);
 	glPushMatrix();
 	glTranslatef (pos.x, pos.y, pos.z);
-	
+
 	// jdt: distance depends on IPD. and looks funny when too close.
 	// WOW fog is a real problem with stereo because I can't 
 	// render the skybox close enough to avoid being washed out.
 	GLfloat hypot = param.forward_clip_distance * 3;
 	glScalef (hypot, hypot, hypot); 
 
-	// front
-	Skybox[0].Bind();
+	if (textures) Skybox[0].Bind();
 	glBegin(GL_QUADS);
 		glTexCoord2f (aa, aa); glVertex3f (-1, -1, -1);
 		glTexCoord2f (bb, aa); glVertex3f ( 1, -1, -1);
@@ -238,7 +243,7 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	glEnd();
 
 	// left
-	Skybox[1].Bind();
+	if (textures) Skybox[1].Bind();
 	glBegin(GL_QUADS);
 		glTexCoord2f (aa, aa); glVertex3f (-1, -1,  1);
 		glTexCoord2f (bb, aa); glVertex3f (-1, -1, -1);
@@ -247,7 +252,7 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	glEnd();
 
 	// right
-	Skybox[2].Bind();
+	if (textures) Skybox[2].Bind();
 	glBegin(GL_QUADS);
 		glTexCoord2f (aa, aa); glVertex3f (1, -1, -1);
 		glTexCoord2f (bb, aa); glVertex3f (1, -1,  1);
@@ -259,7 +264,7 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 	// see game_config.cpp (param.full_skybox)
 	if (param.full_skybox) {
 		// top
-		Skybox[3].Bind();
+		if (textures) Skybox[3].Bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f (aa, aa); glVertex3f (-1, 1, -1);
 			glTexCoord2f (bb, aa); glVertex3f ( 1, 1, -1);
@@ -268,7 +273,7 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 		glEnd();
 
 		// bottom
-		Skybox[4].Bind();
+		if (textures) Skybox[4].Bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f (aa, aa); glVertex3f (-1, -1,  1);
 			glTexCoord2f (bb, aa); glVertex3f ( 1, -1,  1);
@@ -277,7 +282,7 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 		glEnd();
 
 		// back
-		Skybox[5].Bind();
+		if (textures) Skybox[5].Bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f (aa, aa); glVertex3f ( 1, -1, 1);
 			glTexCoord2f (bb, aa); glVertex3f (-1, -1, 1);
@@ -286,6 +291,8 @@ void CEnvironment::DrawSkybox (const TVector3& pos) {
 		glEnd();
 	}
 	glPopMatrix();
+
+	if (!textures) glEnable (GL_TEXTURE_2D);
 }
 
 void CEnvironment::DrawFog () {

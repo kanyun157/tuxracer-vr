@@ -588,12 +588,16 @@ void DrawCursor () {
 }
 
 void DrawCornerGUI () {
+	/* jdt: I don't like the corner sprites floating out there.
 	int ww = Winsys.resolution.width;
 	int hh = Winsys.resolution.height;
+	glTranslatef (0, 0, -0.1f);
 	Tex.Draw (BOTTOM_LEFT, 0, hh-256, 1);
 	Tex.Draw (BOTTOM_RIGHT, ww-256, hh-256, 1);
 	Tex.Draw (TOP_LEFT, 0, 0, 1);
 	Tex.Draw (TOP_RIGHT, ww-256, 0, 1);
+	glTranslatef (0, 0, 0.1);
+	*/
 }
 
 
