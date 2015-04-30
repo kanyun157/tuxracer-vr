@@ -48,9 +48,6 @@ static TTextButton* backButton;
 static TTextButton* retryButton;
 
 void QuitGameOver () {
-	// jdt: gui looks good in sunny mode '1'
-	Env.LoadEnvironment (0, param.default_env);
-
 	if (g_game.game_type == PRACTICING) {
 		State::manager.RequestEnterState (RaceSelect);
 	} else {

@@ -53,7 +53,7 @@ void InitGame (int argc, char **argv) {
 	g_game.mirror_id = false;
 	g_game.char_id = 0;
 	g_game.location_id = 0;
-	g_game.light_id = 1; // jdt: cloudy looks better than sunny in vr.
+	g_game.light_id = 0; // jdt: replaced sunny lighting params w/ cloudy.
 	g_game.snow_id = 0;
 	g_game.cup = 0;
 	g_game.race_id = 0;

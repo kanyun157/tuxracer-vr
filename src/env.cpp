@@ -380,11 +380,13 @@ bool CEnvironment::LoadEnvironment (size_t loc, size_t light) {
 	// remember: with (example) 3 locations and 4 lights there
 	// are 12 different environments
 	size_t env_id = loc * 100 + light;
+	static size_t prev_env_id = 9999;
 
-	if (env_id == EnvID) {
+	if (env_id == prev_env_id) {//EnvID) {
 		Message ("same environment");
 		return false;
 	}
+	prev_env_id = env_id; // jdt: remember previous environment
 
 	// Set directory. The dir is used several times.
 	EnvDir = GetDir (loc, light);
