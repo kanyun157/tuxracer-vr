@@ -91,7 +91,6 @@ void DrawTrees() {
 		}
 
 		cachedName = Course.GetCurrCourse()->name;
-		if (param.console_dump) printf("TREE CACHE FRAME!!!!\n");
         treesDirtyCount = 0;
 	}
 

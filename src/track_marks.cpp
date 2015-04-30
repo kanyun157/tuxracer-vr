@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "course.h"
 #include "physics.h"
 #include "view.h"
+#include "game_ctrl.h"
 #include <list>
 
 #define TRACK_WIDTH  0.7
@@ -93,7 +94,7 @@ static T decrementRingIterator(T q) {
 	return ret;
 }
 
-bool track_quad_visible(const track_quad_t &q)
+bool track_quad_visible(const track_quad_t &q, const CControl *ctrl)
 {
     TVector3 minquad(min(q.v1.x, min(q.v2.x, min(q.v3.x, q.v4.x))),
                      min(q.v1.y, min(q.v2.y, min(q.v3.y, q.v4.y))),
@@ -101,8 +102,19 @@ bool track_quad_visible(const track_quad_t &q)
     TVector3 maxquad(max(q.v1.x, max(q.v2.x, max(q.v3.x, q.v4.x))),
                      max(q.v1.y, max(q.v2.y, max(q.v3.y, q.v4.y))),
                      max(q.v1.z, max(q.v2.z, max(q.v3.z, q.v4.z))));
+	minquad.x -= 1;
+	minquad.y -= 1;
+	minquad.z -= 1;
 
-    return clip_aabb_to_view_frustum(minquad, maxquad) != NoClip;
+	maxquad.x += 1;
+	maxquad.y += 1;
+	maxquad.z += 1;
+
+	if (minquad.z > ctrl->viewpos.z + param.backward_clip_distance/2 ||
+		maxquad.z < ctrl->viewpos.z - param.forward_clip_distance/2)
+		return false;
+
+    return clip_aabb_to_view_frustum(minquad, maxquad) != NotVisible;
 }
 
 // --------------------------------------------------------------------
@@ -110,9 +122,9 @@ bool track_quad_visible(const track_quad_t &q)
 // --------------------------------------------------------------------
 
 void DrawTrackmarks() {
-	/* jdt: seeing crash on load level.. TODO turn back on and debug
-	if (param.perf_level < 3)
+	if (param.perf_level < 2)
 		return;
+	const CControl*	ctrl = Players.GetCtrl (g_game.player_id);
 
     TTexture* textures[NUM_TRACK_TYPES];
 
@@ -131,8 +143,8 @@ void DrawTrackmarks() {
 
 	for (list<track_quad_t>::const_iterator q = track_marks.quads.begin(); q != track_marks.quads.end(); ++q) {
 
-		// jdt: only draw quads within the view frustum
-		if (!track_quad_visible(*q)) {
+		// jdt: optimization hack for lack of scenegraph. 
+		if (!track_quad_visible(*q, ctrl)) {
 			qprev = q;
 			continue;
 		}
@@ -168,7 +180,6 @@ void DrawTrackmarks() {
 	}
 
 	glEnd();
-	*/
 #if 0
 		if ((q->track_type == TRACK_HEAD) || (q->track_type == TRACK_TAIL) || qprev == track_marks.quads.end()) {
 			glNormal3f (q->n1.x, q->n1.y, q->n1.z);
@@ -263,13 +274,18 @@ void break_track_marks() {
     continuing_track = false;
 }
 
+bool track_quads_too_close (const track_quad_t &q1, const track_quad_t &q2)
+{
+	const double maxdist_sqr = (TRACK_WIDTH/2) * (TRACK_WIDTH/2);
+	double d[3] = { q1.v3.x - q2.v3.x, q1.v3.y - q2.v3.y, q1.v3.z - q2.v3.z };
+	double dist = d[0]*d[0] + d[2]*d[2];
+	return dist < maxdist_sqr;
+}
+
 // --------------------------------------------------------------------
 //                      add_track_mark
 // --------------------------------------------------------------------
 void add_track_mark(const CControl *ctrl, int *id) {
-    if (param.perf_level < 3)
-		return;
-
 	TTerrType *TerrList = &Course.TerrList[0];
 
 	*id = Course.GetTerrainIdx (ctrl->cpos.x, ctrl->cpos.z, 0.5);
@@ -318,14 +334,9 @@ void add_track_mark(const CControl *ctrl, int *id) {
 		return;
     }
 
-	if(track_marks.quads.size() < MAX_TRACK_MARKS)
-		track_marks.quads.push_back(track_quad_t());
+	track_quad_t new_quad;
+	track_quad_t *q = &new_quad;
 	list<track_quad_t>::iterator qprev = track_marks.current_mark;
-	if(track_marks.current_mark == track_marks.quads.end())
-		track_marks.current_mark = track_marks.quads.begin();
-	else
-		track_marks.current_mark = incrementRingIterator(track_marks.current_mark);
-	list<track_quad_t>::iterator q = track_marks.current_mark;
 
     if (!continuing_track) {
 		q->track_type = TRACK_HEAD;
@@ -362,11 +373,22 @@ void add_track_mark(const CControl *ctrl, int *id) {
 		}
     }
     q->alpha = min ((2*comp_depth-dist_from_surface)/(4*comp_depth), 1.0);
+
+	// jdt: avoid layering quads too close together:
+	if (continuing_track && track_quads_too_close (*qprev, *q)) return;
+
+	if(track_marks.quads.size() < MAX_TRACK_MARKS)
+		track_marks.quads.push_back(*q);
+
+	if(track_marks.current_mark == track_marks.quads.end())
+		track_marks.current_mark = track_marks.quads.begin();
+	else
+		track_marks.current_mark = incrementRingIterator(track_marks.current_mark);
     continuing_track = true;
 }
 
 void UpdateTrackmarks(const CControl *ctrl) {
-	if (param.perf_level < 3)
+	if (param.perf_level < 2)
 		return;
 
 	int trackid;

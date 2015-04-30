@@ -41,6 +41,7 @@ Controls are all based on head movements.
 * Right/Left: change the angle above/behind tux.
 * h: cycle through different modes of heads up display. 
  * hud cycles: Off -> World Relative -> FPS toggle -> Stuck to Face -> Off
+* r: reset player location if stuck somewhere on the course.
 * w/s: increase/decrease IPD.
 * a/d: increase/decrease player speed.
 * '1,2,3,4' flip between preset camera positions.
