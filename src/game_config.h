@@ -99,6 +99,7 @@ struct TParam {
 	float   fly_speed;
 	float   slide_delta;
 	bool    dire_straits_tux; // tux rendered w/ cubes.
+	int     default_env; // cloudy, evening, etc
 
     TViewMode view_mode;
 };

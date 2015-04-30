@@ -48,12 +48,10 @@ static TTextButton* backButton;
 static TTextButton* retryButton;
 
 void QuitGameOver () {
-    // jdt: set skybox back to what it was.. The various
-    //      data/env bitmaps need a lot of work.  It would 
-    //      be neat to keep the environment for the GUI. 
-    Env.LoadEnvironment (0, 1); // cloudy default
+	// jdt: gui looks good in sunny mode '1'
+	Env.LoadEnvironment (0, param.default_env);
 
-    if (g_game.game_type == PRACTICING) {
+	if (g_game.game_type == PRACTICING) {
 		State::manager.RequestEnterState (RaceSelect);
 	} else {
 		State::manager.RequestEnterState (Event);
