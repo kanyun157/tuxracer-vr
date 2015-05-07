@@ -6,6 +6,9 @@
 *[name] Hippo Run [dir] hippo_run
 [desc] The author says: This is a fast course that makes you think. There are three major sections to the course. The first is a twisty ride over hills and ice. The second is up on top, and the third is the fastest part of all.
 
+*[name] Who Says Penguins Can't Fly? [dir] penguins_cant_fly
+[desc] A fast and stupid course but lot of people like it.
+
 *[name] Secret Valleys [dir] secret_valleys
 [desc]Hidden places, some of them not easy to discover. There are 10 groups of dead trees - try to find them.
 
@@ -29,12 +32,6 @@
 
 *[name] The Downhill Fear [dir] downhill_fear
 [desc] Downward the hill, sliding and jumping ...
-
-*[name] Who Says Penguins Can't Fly? [dir] penguins_cant_fly
-[desc] A fast and stupid course but lot of people like it.
-
-*[name] Wild Mountains [dir] wild_mountains
-[desc] Cleft mountains of ice and snow - bizarre and dangerous. If you like climbing you are encouraged to quit the paths. But be careful!
 
 *[name] Keep Your Country Tidy [dir] keep_country_tidy
 [desc] A long way to the end of the world.
@@ -65,4 +62,8 @@
 
 *[name] Challenge One [dir] challenge_one
 [desc] A dangerous path along the mountains. Try to catch more than 60 herrings. It is possible!
+
+*[name] Wild Mountains [dir] wild_mountains
+[desc] Cleft mountains of ice and snow - bizarre and dangerous. If you like climbing you are encouraged to quit the paths. But be careful!
+
 
