@@ -46,8 +46,8 @@ Controls are all based on head movements.
 * a/d: increase/decrease player speed.
 * '1,2,3,4' flip between preset camera positions.
 * F3-F8 toggles display of elements in the course.
-* ESC quits the level.
-
+* ESC to go back a screen or quit the game.
+* Delete the file config/options.txt to regenerate w/ defaults.
 
 ### Compile from source:
 * Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git g++
