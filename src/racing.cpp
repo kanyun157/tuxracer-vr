@@ -424,7 +424,7 @@ void CRacing::Loop (double time_step) {
 	if (terr) RenderCourse ();
 	DrawTrackmarks ();
 	if (trees) DrawTrees ();
-	if (param.perf_level > 2) {  // jdt: performance issue
+	if (param.perf_level > 2) {  // jdt: not even sure if track particles show up.
 		update_particles (time_step);
 		draw_particles (ctrl);
 	}
@@ -432,11 +432,11 @@ void CRacing::Loop (double time_step) {
 	// jdt: character geometry is expensive
 	if (character /*&& param.perf_level > 1*/) Char.Draw (g_game.char_id);
 
-	//if (param.perf_level > 2) {
+	if (param.perf_level > 2) {
 		UpdateWind (time_step);
 		UpdateSnow (time_step, ctrl);
 		DrawSnow (ctrl);
-	//}
+	}
 
 	// restore modelview for 2D gui
 	glPopMatrix ();

@@ -132,7 +132,6 @@ void DrawTrees() {
 		GLfloat treeHeight = tree.height;
 
 		//TVector3 normal(0, 0, 1);
-		//glNormal3f (normal.x, normal.y, normal.z);
 		// slower but better method of setting the normals
 		TVector3 normal = SubtractVectors (ctrl->viewpos, tree.pt);
 		NormVector (normal);

@@ -379,36 +379,42 @@ void DrawCube ()
 	glBegin(GL_QUADS);
 	{
 		// back (counter clockwise from outside)
+		glNormal3f ( 0, 0,  -1);
 		glVertex3f ( 1,  1, -1);
 		glVertex3f ( 1, -1, -1);
 		glVertex3f (-1, -1, -1);
 		glVertex3f (-1,  1, -1);
 
 		// left
+		glNormal3f (-1,  0,  0);
 		glVertex3f (-1,  1, -1);
 		glVertex3f (-1, -1, -1);
 		glVertex3f (-1, -1,  1);
 		glVertex3f (-1,  1,  1);
 
 		// right
+		glNormal3f (1,  0,  0);
 		glVertex3f (1,  1,  1);
 		glVertex3f (1, -1,  1);
 		glVertex3f (1, -1, -1);
 		glVertex3f (1,  1, -1);
 
 		// top
+		glNormal3f ( 0, 1,  0);
 		glVertex3f (-1, 1,  1);
 		glVertex3f ( 1, 1,  1);
 		glVertex3f ( 1, 1, -1);
 		glVertex3f (-1, 1, -1);
 
 		// bottom
+		glNormal3f ( 0, -1,  0);
 		glVertex3f (-1, -1, -1);
 		glVertex3f ( 1, -1, -1);
 		glVertex3f ( 1, -1,  1);
 		glVertex3f (-1, -1,  1);
 
 		// front
+		glNormal3f ( 0,  0, 1);
 		glVertex3f (-1, -1, 1);
 		glVertex3f ( 1, -1, 1);
 		glVertex3f ( 1,  1, 1);
@@ -447,6 +453,15 @@ void CCharShape::DrawNodes (const TCharNode *node) {
 	} else {
 		if (node->mat != NULL && useMaterials) mat = node->mat;
 		else mat = &TuxDefMat;
+	}
+
+	TCharMaterial square_spec = *mat;
+	if (param.dire_straits_tux) {
+		// jdt: distracting when tux is all box.
+		square_spec.specular.r *= 0.5;
+		square_spec.specular.g *= 0.5;
+		square_spec.specular.b *= 0.5;
+		mat = &square_spec;
 	}
 
     if (node->visible == true) {
