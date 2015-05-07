@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include "ogl.h"
 #include "physics.h"
 #include "winsys.h"
+#include "game_ctrl.h"
 
 #define MIN_CAMERA_HEIGHT  1.5
 #define ABSOLUTE_MIN_CAMERA_HEIGHT  0.3
@@ -188,34 +189,6 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 	}
     //glLoadIdentity(); // prevent this from clobering Oculus head orientation.
     glMultMatrixd ((double*) view_mat);
-
-    //
-    // jdt: At this point we have two independent modelview matrices:
-    //  GL_MODELVIEW: has both hmd and game-controlled transformations combined.
-    //  	- Left eye "cyclops" only right now.
-    //  stereo_gl_list: being compiled now only contains the later.
-    //  	- ie. the glMultMatrixd above is being recorded for playback twice later.
-    //
-    // We need to update ctrl->view_mat with the hmd transformation so that 
-    // frustum culling works correctly based on the players head orientation, etc.
-    //
-    float hmd_mat[16];
-    TMatrix transpose;
-    glGetFloatv (GL_MODELVIEW_MATRIX, hmd_mat); // hmd cyclops combined w/ character.
-    for (unsigned int i = 0; i < 16; i++) {
-    	((double*)transpose)[i] = hmd_mat[i];
-    }
-    
-    TransposeMatrix (transpose, ctrl->view_mat); // NOT recorded in display list.
-
-    // jdt: not perfect, but hmd positions aren't appreciable compared to viewpos.
-    // .. I'd be interested in better ways to set this up..
-    ctrl->view_mat[3][0] = ctrl->viewpos.x;
-    ctrl->view_mat[3][1] = ctrl->viewpos.y;
-    ctrl->view_mat[3][2] = ctrl->viewpos.z;
-    ctrl->view_mat[0][3] = 0.0;
-    ctrl->view_mat[0][3] = 0.0;
-    ctrl->view_mat[0][3] = 0.0;
 }
 
 TVector3 MakeViewVector () {
@@ -399,25 +372,69 @@ static char p_vertex_code[6];
 
 
 void SetupViewFrustum (const CControl *ctrl) {
-    double aspect = (double) Winsys.resolution.width /Winsys.resolution.height;
-    double fov = param.fov + 45; // huge fov fudge.. something is off elsewhere.
+    //double aspect = (double) Winsys.resolution.width /Winsys.resolution.height;
+    //double fov = param.fov + 45; // huge fov fudge.. something is off elsewhere.
 
 	double near_dist = NEAR_CLIP_DIST;
 	double far_dist = param.forward_clip_distance;
-    TVector3 origin(0., 0., 0.);
-    double half_fov = ANGLES_TO_RADIANS (fov * 0.5);
-    double half_fov_horiz = atan (tan (half_fov) * aspect);
+    //TVector3 origin(0., 0., 0.);
+    //double half_fov = ANGLES_TO_RADIANS (fov * 0.5);
+    //double half_fov_horiz = atan (tan (half_fov) * aspect);
+    //
+    // jdt: At this point we have two independent modelview matrices:
+    //  GL_MODELVIEW: has both hmd and game-controlled transformations combined.
+    //  	- Left eye "cyclops" only right now.
+    //  stereo_gl_list: being compiled now only contains the later.
+    //  	- ie. the glMultMatrixd above is being recorded for playback twice later.
+    //
+    // We need to update ctrl->view_mat with the hmd transformation so that 
+    // frustum culling works correctly based on the players head orientation, etc.
+    //
+    float mv_mat[16];
+    float frustum[16];
+    glGetFloatv (GL_MODELVIEW_MATRIX, mv_mat); // hmd cyclops combined w/ character.
 
-    frustum_planes[0] = MakePlane (0, 0, 1, near_dist);
-    frustum_planes[1] = MakePlane (0, 0, -1, -far_dist);
+	glMatrixMode (GL_PROJECTION);
+	glPushMatrix ();
+	glMultMatrixf (mv_mat);
+    glGetFloatv (GL_PROJECTION_MATRIX, frustum);
+	glPopMatrix ();
+	glMatrixMode (GL_MODELVIEW);
+
+	/* was in setup_view_matrix:
+    // jdt: not perfect, but hmd positions aren't appreciable compared to viewpos.
+    // .. I'd be interested in better ways to set this up..
+    ctrl->view_mat[3][0] = ctrl->viewpos.x;
+    ctrl->view_mat[3][1] = ctrl->viewpos.y;
+    ctrl->view_mat[3][2] = ctrl->viewpos.z;
+    ctrl->view_mat[0][3] = 0.0;
+    ctrl->view_mat[0][3] = 0.0;
+    ctrl->view_mat[0][3] = 0.0;
+	*/
+
+	float *m = frustum;
+    frustum_planes[0] = MakePlane (m[3]+m[2], m[7]+m[6], m[11]+m[10], near_dist); //m[15]+m[14]); // near
+    frustum_planes[1] = MakePlane (m[3]-m[2], m[7]-m[6], m[11]-m[10], -far_dist); //m[15]-m[14]); // far
+    frustum_planes[2] = MakePlane (m[3]-m[0], m[7]-m[4], m[11]-m[8], m[15]-m[12]); // right
+    frustum_planes[3] = MakePlane (m[3]+m[0], m[7]+m[4], m[11]+m[8], m[15]+m[12]); // left
+    frustum_planes[4] = MakePlane (m[3]+m[1], m[7]+m[5], m[11]+m[9], m[15]+m[13]); // bottom
+    frustum_planes[5] = MakePlane (m[3]-m[1], m[7]-m[5], m[11]-m[9], m[15]-m[13]); // top
+
+	// Normalize all plane normals
+	for(int i=0;i<6;i++)
+		NormVector (frustum_planes[i].nml);
+
+	/*
+    frustum_planes[0] = MakePlane (m[0][3]-m[0][0], m[7]-m[4], 1, near_dist); // near
+    frustum_planes[1] = MakePlane (0, 0, -1, -far_dist); // far
     frustum_planes[2]
 		= MakePlane (-cos(half_fov_horiz), 0, sin(half_fov_horiz), 0);
     frustum_planes[3]
 		= MakePlane (cos(half_fov_horiz), 0, sin(half_fov_horiz), 0);
     frustum_planes[4]
-		= MakePlane (0, cos(half_fov), sin(half_fov), 0);
+		= MakePlane (0, cos(half_fov), sin(half_fov), 0); // bot
     frustum_planes[5]
-		= MakePlane (0, -cos(half_fov), sin(half_fov), 0);
+		= MakePlane (0, -cos(half_fov), sin(half_fov), 0); // top
 
 	for (int i=0; i<6; i++) {
 		TVector3 pt = TransformPoint (ctrl->view_mat,
@@ -431,6 +448,7 @@ void SetupViewFrustum (const CControl *ctrl) {
 		    frustum_planes[i].nml,
 	    	SubtractVectors (pt, origin));
     }
+	*/
 
     for (int i=0; i<6; i++) {
 		p_vertex_code[i] = 0;
@@ -469,6 +487,7 @@ void DrawViewFrustum() {
 }
 
 clip_result_t clip_aabb_to_view_frustum (const TVector3& min, const TVector3& max) {
+	CControl *ctrl = Players.GetCtrl (g_game.player_id);
     bool intersect = false;
 
     for (int i=0; i<6; i++) {
@@ -489,6 +508,9 @@ clip_result_t clip_aabb_to_view_frustum (const TVector3& min, const TVector3& ma
 		    p.z = max.z;
 	    	n.z = min.z;
 		}
+
+		p = p - ctrl->viewpos;
+		n = n - ctrl->viewpos;
 
 		if (DotProduct (n, frustum_planes[i].nml) + frustum_planes[i].d > 0) {
 		    return NotVisible;
