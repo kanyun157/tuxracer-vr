@@ -295,7 +295,8 @@ void CWinsys::Init () {
 	Uint32 window_height = resolution.height;
 	Uint32 window_flags = SDL_WINDOW_OPENGL;
 	if (param.fullscreen) {
-		printf("Ignoring fullscreen option.  Use F9 to send window fullscreen to Rift\n");
+		// jdt: fullscreen option now controls whether to automatically send 
+		// window fullscreen to the rift in extended mode.
 		//window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		//window_width = window_height = 0; // don't switch display mode.
 	}
@@ -348,9 +349,11 @@ void CWinsys::Init () {
 	if (USE_JOYSTICK) InitJoystick ();
 	//	SDL_EnableUNICODE (1);
 
-	// jdt: put back in
 	init_shader_program(&fxaa_prog, "shaders/passthrough.vect", "shaders/fxaa.glsl");
 	init_shader_program(&passthrough_prog, "shaders/passthrough.vect", "shaders/passthrough.frag");
+
+	if (param.fullscreen && (hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
+		ToggleHmdFullscreen ();
 }
 
 void CWinsys::KeyRepeat (bool repeat) {

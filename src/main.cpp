@@ -79,6 +79,15 @@ int main( int argc, char **argv ) {
 
 	srand (time (NULL));
 	InitConfig (argv[0]);
+
+#ifdef OVR_OS_LINUX
+	if (param.ovr_fbconfig_override) {
+		// jdt: turn off for release!
+		// only useful with custom modified ovr sdk.
+		setenv ("OVR_FBCONFIG_OVERRIDE", "1", 0);
+	}
+#endif
+
 	InitGame (argc, argv);
 	Winsys.Init ();
     InitOpenglExtensions ();

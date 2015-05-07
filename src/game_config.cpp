@@ -47,10 +47,10 @@ Then edit the below functions:
 #define DEFAULT_CAMERA_DIST 3.5
 #define DEFAULT_CAMERA_ANGLE -26
 #define DEFAULT_FLY_AMOUNT 30
-#define DEFAULT_FLY_TURN 200
+#define DEFAULT_FLY_TURN 150
 #define DEFAULT_FLY_SPEED 25
-#define DEFAULT_SLIDE_DELTA 0.16
-#define DEFAULT_ENV 2
+#define DEFAULT_SLIDE_DELTA 0.25
+#define DEFAULT_ENV 0
 
 TParam param;
 
@@ -97,6 +97,8 @@ void LoadConfigFile () {
 		param.no_prediction = SPBoolN(line, "no_prediction", false);
 		param.no_timewarp = SPBoolN(line, "no_timewarp", false);
 		param.no_timewarp_spinwaits = SPBoolN(line, "no_timewarp_spinwaits", false);
+		param.ovr_fbconfig_override = SPBoolN(line, "ovr_fbconfig_override", 0);
+
 		param.no_hq_distortion = SPBoolN(line, "no_hq_distortion", true);
 		param.no_compute_shader = SPBoolN(line, "no_compute_shader", true);
 		param.no_restore = SPBoolN(line, "no_restore", false);
@@ -112,8 +114,8 @@ void LoadConfigFile () {
 		param.fly_turn = SPFloatN(line, "fly_turn", DEFAULT_FLY_TURN);
 		param.fly_speed = SPFloatN(line, "fly_speed", DEFAULT_FLY_SPEED);
 		param.slide_delta = SPFloatN(line, "slide_delta", DEFAULT_SLIDE_DELTA);
-		param.default_env = SPIntN(line, "default_env", DEFAULT_ENV);
 		param.dire_straits_tux = SPBoolN(line, "dire_straits_tux", 1);
+		param.default_env = SPIntN(line, "default_env", DEFAULT_ENV);
 	}
 }
 
@@ -157,6 +159,7 @@ void SetConfigDefaults () {
 	param.no_compute_shader = true;
 	param.no_restore = false;
 	param.use_fxaa = true;
+	param.ovr_fbconfig_override = false;
 
 	param.ipd_multiplier = 1;
 	//float distance_warp = param.ipd_multiplier/2.0f;
@@ -205,11 +208,12 @@ void SaveConfigFile () {
 	liste.Add ("# ------------------------------------------------------------------");
 	liste.Add ("");
 
-	AddComment (liste, "Full-screen mode [0...1]");
+	AddComment (liste, "Full-screen mode [0...1]. 1 will send window to Rift");
 	AddIntItem (liste, "fullscreen", param.fullscreen);
 	liste.Add ("");
 
 	AddComment (liste, "Screen resolution [0...9]");
+	AddComment (liste, "NOTE: This is currently ignored for Oculus Rift.");
 	AddComment (liste, "0 = auto, 1 = 800x600, 2 = 1024x768");
 	AddComment (liste, "3 = 1152x864, 4 = 1280x960, 5 = 1280x1024");
 	AddComment (liste, "6 = 1360x768, 7 = 1400x1050, 8 = 1440x900, 9=1680x1050");
@@ -330,7 +334,7 @@ void SaveConfigFile () {
 	AddIntItem (liste, "use_quad_scale", param.use_quad_scale);
 	liste.Add ("");
 
-	AddComment (liste, "Oculus Rift settings.");
+	AddComment (liste, "Oculus Rift settings:");
 	AddIntItem(liste, "no_vsync", param.no_vsync);
 	AddIntItem(liste, "no_prediction", param.no_prediction);
 	AddIntItem(liste, "no_timewarp", param.no_timewarp);
@@ -338,6 +342,7 @@ void SaveConfigFile () {
 	AddIntItem(liste, "no_hq_distortion", param.no_hq_distortion);
 	AddIntItem(liste, "no_compute_shader", param.no_compute_shader);
 	AddIntItem(liste, "no_restore", param.no_restore);
+	AddIntItem(liste, "ovr_fbconfig_override", param.ovr_fbconfig_override);
 	liste.Add ("");
 
 	AddComment (liste, "Antialiasing.");
@@ -356,9 +361,11 @@ void SaveConfigFile () {
 	liste.Add ("");
 
 	AddComment (liste, "Render Tux with cubes to reduce polygon count [0,1]:");
+	AddComment (liste, "NOTE: Set detail_level to 3 if this is off (not recommended).");
 	AddIntItem(liste, "dire_straits_tux", param.dire_straits_tux);
     liste.Add("");
 
+	AddComment (liste, "Default skybox environment. [0-3]:");
 	AddIntItem(liste, "default_env", param.default_env);
     liste.Add("");
 

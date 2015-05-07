@@ -100,6 +100,7 @@ struct TParam {
 	float   slide_delta;
 	bool    dire_straits_tux; // tux rendered w/ cubes.
 	int     default_env; // cloudy, evening, etc
+	bool    ovr_fbconfig_override; // set 1 for some linux drivers.
 
     TViewMode view_mode;
 };
