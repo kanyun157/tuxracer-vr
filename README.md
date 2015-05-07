@@ -2,7 +2,7 @@
 
 The open source downhill winter game with Oculus Rift support!  Please have patience and read the following to get it running acceptably (low latency).  WARNING: A decent gaming graphics card is necessary. Integrated graphics hardware, eg. most laptops, won't be fast enough.
 
-![screenshot](https://d11g5bl75h7gks.cloudfront.net/shareuploads/submissions/1429606941987m8gjnka9k9/screens/1429606941987m8gjnka9k9_1429607598190.jpg)
+[![TuxRacerVR Youtube Video](http://img.youtube.com/vi/sc76iido7fU/0.jpg)](http://www.youtube.com/watch?v=sc76iido7fU)
 
 ## Installation
 
