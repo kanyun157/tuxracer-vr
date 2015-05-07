@@ -86,18 +86,19 @@ void CHelp::Loop(double timestep) {
 	FT.AutoSizeN (3);
 	int offs = FT.AutoDistanceN (2);
 	FT.DrawString (xleft1, ytop, Trans.Text(44));
-	FT.DrawString (xleft1, ytop + offs, Trans.Text(45));
+//	FT.DrawString (xleft1, ytop + offs, Trans.Text(45));
 	FT.DrawString (xleft1, ytop + offs * 2, Trans.Text(46));
 	FT.DrawString (xleft1, ytop + offs * 3, Trans.Text(47));
 	FT.DrawString (xleft1, ytop + offs * 4, Trans.Text(48));
 	FT.DrawString (xleft1, ytop + offs * 5, Trans.Text(49));
-	FT.DrawString (xleft1, ytop + offs * 6, Trans.Text(50));
+//	FT.DrawString (xleft1, ytop + offs * 6, Trans.Text(50));
 	FT.DrawString (xleft1, ytop + offs * 7, Trans.Text(51));
-	FT.DrawString (xleft1, ytop + offs * 8,Trans.Text(52));
-	FT.DrawString (xleft1, ytop + offs * 9, Trans.Text(53));
-	FT.DrawString (xleft1, ytop + offs * 10, Trans.Text(54));
-	FT.DrawString (xleft1, ytop + offs * 11, Trans.Text(55));
-	FT.DrawString (xleft1, ytop + offs * 12, Trans.Text(56));
+	//FT.DrawString (xleft1, ytop + offs * 8,Trans.Text(52)); // SPACE/Jump
+	FT.DrawString (xleft1, ytop + offs * 8,Trans.Text(89)); // SPACE/Recenter
+//	FT.DrawString (xleft1, ytop + offs * 9, Trans.Text(53));
+//	FT.DrawString (xleft1, ytop + offs * 10, Trans.Text(54));
+//	FT.DrawString (xleft1, ytop + offs * 11, Trans.Text(55));
+//	FT.DrawString (xleft1, ytop + offs * 12, Trans.Text(56));
 
 	FT.DrawString (CENTER, AutoYPosN (90), Trans.Text(65));
 

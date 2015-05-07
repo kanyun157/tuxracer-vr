@@ -133,6 +133,7 @@ void CTranslation::SetDefaultTranslations () {
 	texts[86] = "Quick Race";
 	texts[87] = "IPD Multiplier";
 	texts[88] = "Player Speed";
+	texts[89] = "SPACE - Recenter HMD";
 }
 
 const string& CTranslation::Text (size_t idx) const {
