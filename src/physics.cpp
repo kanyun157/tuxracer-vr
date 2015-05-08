@@ -694,7 +694,9 @@ void CControl::UpdatePlayerPos (double timestep) {
     if (is_paddling) {
 		double factor;
 		factor = (g_game.time - paddle_time) / PADDLING_DURATION;
-		if (cairborne) {
+		// jdt: don't flap when only slightly off the ground.. it 
+		// looks like tux is having a seizure.
+		if (cairborne && ff.surfdistance > ff.comp_depth) {
 		    paddling_factor = 0;
 		    flap_factor = factor;
 		} else {
