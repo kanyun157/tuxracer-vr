@@ -47,7 +47,7 @@
 *[idx] 40 [engl] Race Over [trans] Fin de la carrera
 
 *[idx] 41 [engl] For more configuration options, please edit the [trans] Para más opciones de configuración, por favor edita
-*[idx] 42 [engl] file 'options.lst' and read the documentation. [trans] el archivo 'options.lst' y lee la documentación.
+*[idx] 42 [engl] file 'config/options.txt' and read the documentation. [trans] el archivo 'config/options.txt' y lee la documentación.
 
 *[idx] 43 [engl] Help [trans] Ayuda
 *[idx] 44 [engl] 1, 2, 3 - change view mode [trans] 1, 2, 3 - cambiar punto de vista
@@ -76,3 +76,29 @@
 *[idx] 66 [engl] Enter a name for the new player and select an avatar: [trans] Introduce el nombre del nuevo jugador y elige una imagen para mostrar:
 *[idx] 67 [engl] Loading resources, [trans] Cargando recursos,
 *[idx] 68 [engl] please wait [trans] por favor, espera
+*[idx] 69 [engl] Mirror track: Off [trans] Mirror track: Off
+*[idx] 70 [engl] Mirror track: On [trans] Mirror track: On
+
+*[idx] 71 [engl] Light: Sunny [trans] Sunny
+*[idx] 72 [engl] Light: Cloudy [trans] Cloudy
+*[idx] 73 [engl] Light: Evening [trans] Evening
+*[idx] 74 [engl] Light: Night [trans] Night
+
+*[idx] 75 [engl] Snow: No [trans] Snow: No
+*[idx] 76 [engl] Snow: A little [trans] Snow: A little
+*[idx] 77 [engl] Snow: Some [trans] Snow: Some 
+*[idx] 78 [engl] Snow: A lot [trans] Snow: A lot
+
+*[idx] 79 [engl] Wind: No [trans] Wind: No
+*[idx] 80 [engl] Wind: Breeze [trans] Wind: Breeze
+*[idx] 81 [engl] Wind: Strong [trans] Wind: Strong
+*[idx] 82 [engl] Wind: Blustery [trans] Wind: Blustery
+
+*[idx] 83 [engl] Randomize settings [trans] Randomize settings
+*[idx] 84 [engl] Race Again [trans] Race Again
+*[idx] 85 [engl] Retry [trans] Retry
+*[idx] 87 [engl] Quick Race [trans] Quick Race
+*[idx] 88 [engl] IPD Multiplier [trans] IPD Multiplier
+*[idx] 89 [engl] Player Speed [trans] Player Speed
+*[idx] 90 [engl] SPACE - Recenter HMD [trans] SPACE - Recenter HMD 
+

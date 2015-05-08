@@ -75,7 +75,7 @@ void CTranslation::SetDefaultTranslations () {
 	texts[40] = "Race Over";
 
 	texts[41] = "For more configuration options, please edit the";
-	texts[42] = "file 'options.lst' and read the documentation.";
+	texts[42] = "file 'config/options.txt' and read the documentation.";
 
 	texts[43] = "Help";
 	texts[44] = "1, 2, 3 - change view mode";
