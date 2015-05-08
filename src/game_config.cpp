@@ -65,7 +65,7 @@ void LoadConfigFile () {
 	for (size_t i=0; i<list.Count(); i++) {
 		const string& line = list.Line(i);
 
-		param.fullscreen = SPBoolN (line, "fullscreen", false);
+		param.fullscreen = SPBoolN (line, "fullscreen", true);
 		param.res_type = SPIntN (line, "res_type", 0);
 		param.perf_level = SPIntN (line, "detail_level", 0);
 		param.language = SPIntN (line, "language", 0);
@@ -120,7 +120,7 @@ void LoadConfigFile () {
 }
 
 void SetConfigDefaults () {
-	param.fullscreen = false;
+	param.fullscreen = true;
 	// jdt: default of 1920x1080 causes issues switching to rift.  
 	param.res_type = 0; // 0=auto / 1=800x600 / 2=1024x768 ...
 	param.perf_level = 1;	// detail level
