@@ -49,8 +49,9 @@ public:
 		void RequestEnterState(State& state) { next = &state; }
 		void RequestQuit() { quit = true; }
 		void Run(State& entranceState);
-		State* PreviousState() { return previous; }
-		State* CurrentState() { return current; }
+		State* PreviousState() const { return previous; }
+		State* CurrentState() const { return current; }
+		bool isGuiState() const;
 		float ClockTime() const { return clock_time; }
 	};
 	static Manager manager;

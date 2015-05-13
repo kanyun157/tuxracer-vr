@@ -171,6 +171,28 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 	// jdt: save the original env clipping plane for fog.
 	memcpy (ctrl->env_view_mat, ctrl->view_mat, sizeof(ctrl->view_mat));
 
+	if (abs(ctrl->viewdir.x) > EPS && abs(ctrl->viewdir.z) > EPS) {
+		view_z = ScaleVector (-1, ctrl->viewdir);
+		view_z.y = 0;
+		NormVector (view_z);
+		TVector3 view_x = CrossProduct (ctrl->viewup, view_z);
+		TVector3 view_y = CrossProduct (view_z, view_x);
+		NormVector (view_x);
+		NormVector (view_y);
+
+		ctrl->env_view_mat[0][0] = view_x.x;
+		ctrl->env_view_mat[0][1] = view_x.y;
+		ctrl->env_view_mat[0][2] = view_x.z;
+
+		ctrl->env_view_mat[1][0] = view_y.x;
+		ctrl->env_view_mat[1][1] = view_y.y;
+		ctrl->env_view_mat[1][2] = view_y.z;
+
+		ctrl->env_view_mat[2][0] = view_z.x;
+		ctrl->env_view_mat[2][1] = view_z.y;
+		ctrl->env_view_mat[2][2] = view_z.z;
+	}
+
 	// jdt: alternatively, load the modelview matrix at this point, and manually
 	// multiply the character's ctrl->view_mat after the glMultMatrixd below.
 

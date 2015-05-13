@@ -25,6 +25,8 @@ GNU General Public License for more details.
 #include "env.h"
 #include "physics.h"
 #include "game_ctrl.h"
+#include "states.h"
+
 #include <iostream>
 #include <cstdarg>
 #include <stack>
@@ -236,6 +238,17 @@ void SetupDisplay (ovrEyeType eye, bool skybox) {
 	// jdt: trick to render skybox without stereo.. up close to avoid fog.
 	if (skybox) {
 		glMultMatrixf(rot_mat);
+
+		CControl *ctrl = Players.GetCtrl (g_game.player_id);
+		if (ctrl && !State::manager.isGuiState()) {
+			TMatrix view_mat;
+			TransposeMatrix (ctrl->env_view_mat, view_mat);
+			view_mat[0][3] = 0;
+			view_mat[1][3] = 0;
+			view_mat[2][3] = 0;
+			glMultMatrixd ((double*)view_mat);
+		}
+
 		Env.DrawSkybox (TVector3(0,0,0), true);
 		glLoadIdentity();
 	}

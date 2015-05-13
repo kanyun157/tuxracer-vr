@@ -27,7 +27,12 @@ GNU General Public License for more details.
 #include "event.h"
 #include "view.h"
 #include "textures.h"
-
+#include "intro.h"
+#include "racing.h"
+#include "game_over.h"
+#include "paused.h"
+#include "reset.h"
+ 
 State::Manager State::manager(Winsys);
 
 State::Manager::~Manager() {
@@ -157,4 +162,10 @@ void State::Manager::CallLoopFunction() {
 	Winsys.RenderFrame(current);
 }
 
+bool State::Manager::isGuiState() const {
+	const State *current = CurrentState();
+	return current != &Racing && current != &Intro && 
+		current != &GameOver && current != &Paused &&
+		current != &Reset;
+}
 
