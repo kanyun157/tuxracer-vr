@@ -84,7 +84,7 @@ void CPaused::Loop (double time_step) {
     update_view (ctrl, 0);
     SetupViewFrustum (ctrl);
 
-    if (sky) Env.DrawSkybox (ctrl->viewpos);
+    if (sky) Env.DrawSkyboxRacing (ctrl->viewpos);
     if (fog) Env.DrawFog ();
 	Env.SetupLight ();
     if (terr) RenderCourse();

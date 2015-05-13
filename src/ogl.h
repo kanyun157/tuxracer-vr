@@ -75,7 +75,7 @@ void ClearDisplay ();
 void ClearRenderContext (const TColor& col);
 void SetupGuiDisplay (bool displayFrame=true);
 void SetupHudDisplay (bool attachToFace=false);
-void SetupDisplay (ovrEyeType eye);
+void SetupDisplay (ovrEyeType eye, bool skybox=false);
 void UpdateRenderTarget (unsigned int width, unsigned int height);
 void Reshape (int w, int h);
 

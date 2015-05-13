@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "spx.h"
 #include "view.h"
 #include "course.h"
+#include "winsys.h"
 
 // --------------------------------------------------------------------
 //					defaults
@@ -208,11 +209,14 @@ void CEnvironment::LoadLight () {
 }
 
 void CEnvironment::DrawSkyboxGui () {
-	DrawSkybox (TVector3(0,0,0), true);
+	// Skybox is now done from SetupDisplay in order to render it 
+	// up close, but from the same eye offset on both viewports
+	// ie. infinite stereo distance.
+	//DrawSkybox (TVector3(0,0,0), true);
 }
 
 void CEnvironment::DrawSkyboxRacing (const TVector3& pos) {
-	DrawSkybox (pos, false);
+	//DrawSkybox (pos, false);
 }
 
 void CEnvironment::DrawSkybox (const TVector3& pos, bool textures) {
@@ -220,19 +224,13 @@ void CEnvironment::DrawSkybox (const TVector3& pos, bool textures) {
 	if (textures) ScopedRenderMode rm(SKY);
 	else { glDisable (GL_TEXTURE_2D); } // jdt: avoid unnecessary ogl state changes
 
+	glDepthMask (GL_FALSE);
+
 	GLfloat aa, bb;
 	aa = 0.005f;
 	bb = 0.995f;
 
 	glColor4f (1.0, 1.0, 1.0, 1.0);
-	glPushMatrix();
-	glTranslatef (pos.x, pos.y, pos.z);
-
-	// jdt: distance depends on IPD. and looks funny when too close.
-	// WOW fog is a real problem with stereo because I can't 
-	// render the skybox close enough to avoid being washed out.
-	GLfloat hypot = param.forward_clip_distance * 3;
-	glScalef (hypot, hypot, hypot); 
 
 	if (textures) Skybox[0].Bind();
 	glBegin(GL_QUADS);
@@ -290,15 +288,15 @@ void CEnvironment::DrawSkybox (const TVector3& pos, bool textures) {
 			glTexCoord2f (aa, bb); glVertex3f ( 1,  1, 1);
 		glEnd();
 	}
-	glPopMatrix();
 
 	if (!textures) glEnable (GL_TEXTURE_2D);
+
+	glDepthMask (GL_TRUE);
 }
 
 void CEnvironment::DrawFog () {
-	/* jdt: fog plane still has an issue with hmd roll
-	if (!fog.is_on)
-		return;
+	// TODO jdt: fog plane still has an issue with hmd orientation
+	if (!fog.is_on) return;
 
     TPlane bottom_plane, top_plane;
     TVector3 left, right, vpoint;
@@ -306,10 +304,10 @@ void CEnvironment::DrawFog () {
     TVector3 bottomleft, bottomright;
 
 	// the clipping planes are calculated by view frustum (view.cpp)
-	const TPlane& leftclip = get_left_clip_plane ();
-	const TPlane& rightclip = get_right_clip_plane ();
-	const TPlane& farclip = get_far_clip_plane ();
-	const TPlane& bottomclip = get_bottom_clip_plane ();
+	const TPlane& leftclip = get_left_env_clip_plane ();
+	const TPlane& rightclip = get_right_env_clip_plane ();
+	const TPlane& farclip = get_far_env_clip_plane ();
+	const TPlane& bottomclip = get_bottom_env_clip_plane ();
 
 	// --------------- calculate the planes ---------------------------
 
@@ -370,7 +368,6 @@ void CEnvironment::DrawFog () {
 	    vpoint = AddVectors (topright, ScaleVector (3.0, rightvec));
     	glVertex3f (vpoint.x, vpoint.y, vpoint.z);
     glEnd();
-	*/
 }
 
 

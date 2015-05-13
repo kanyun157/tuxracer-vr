@@ -62,7 +62,7 @@ void CReset::Loop(double time_step) {
     glPushMatrix ();
     update_view (ctrl, EPS);
     SetupViewFrustum (ctrl);
-    Env.DrawSkybox (ctrl->viewpos);
+    Env.DrawSkyboxRacing (ctrl->viewpos);
     Env.DrawFog ();
 	Env.SetupLight ();	// and fog
     RenderCourse();

@@ -23,6 +23,8 @@ GNU General Public License for more details.
 #include "spx.h"
 #include "winsys.h"
 #include "env.h"
+#include "physics.h"
+#include "game_ctrl.h"
 #include <iostream>
 #include <cstdarg>
 #include <stack>
@@ -181,10 +183,12 @@ void SetupGuiDisplay(bool displayFrame) {
 		glDisable (GL_TEXTURE_2D);
 		glEnable (GL_DEPTH_TEST);
 		glDepthMask (GL_TRUE);
+		glDepthFunc (GL_ALWAYS);
 		glColor4f (0, 0, 0, 0.4);
 		glBegin(GL_QUADS);
 		{
 			GLfloat depth = -1; //-param.forward_clip_distance / 2;
+			glNormal3f (0, 0, 1);
 			glVertex3f (0, 0, depth);
 			glVertex3f (0, resy, depth);
 			glVertex3f (resx, resy, depth);
@@ -210,13 +214,13 @@ void SetupHudDisplay(bool attachToFace) {
     glTranslatef (-offsetx, -offsety, -offsety);
 }
 
-void SetupDisplay (ovrEyeType eye) {
+void SetupDisplay (ovrEyeType eye, bool skybox) {
     // we'll just have to use the projection matrix supplied by the oculus SDK for this eye
     // note that libovr matrices are the transpose of what OpenGL expects, so we have
     // to use glLoadTransposeMatrixf instead of glLoadMatrixf to load it.
     //
     //double far_clip = currentMode == GUI ? 2000.0f : param.forward_clip_distance + FAR_CLIP_FUDGE_AMOUNT;
-    double far_clip = 20000.0f; // jdt: trying to lessen the difference between GUI and 3D modes.
+    double far_clip = 2000.0f; // jdt: trying to lessen the difference between GUI and 3D modes.
     // jdt: increase near_clip to get better depth buffer resolution if we turn that on.
     ovrMatrix4f proj = ovrMatrix4f_Projection(Winsys.hmd->DefaultEyeFov[eye], NEAR_CLIP_DIST, far_clip, 1);
     glMatrixMode(GL_PROJECTION);
@@ -225,22 +229,31 @@ void SetupDisplay (ovrEyeType eye) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x * param.ipd_multiplier,
-            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y * param.ipd_multiplier,
-            Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z * param.ipd_multiplier);
+	// retrieve the orientation quaternion and convert it to a rotation matrix 
+	float rot_mat[16];
+	quat_to_matrix(&Winsys.eyePose[ovrEye_Left].Orientation.x, rot_mat);
 
-    // retrieve the orientation quaternion and convert it to a rotation matrix 
-    float rot_mat[16];
-    quat_to_matrix(&Winsys.eyePose[eye].Orientation.x, rot_mat);
-    glMultMatrixf(rot_mat);
-    // translate the view matrix with the positional tracking
-    glTranslatef(-Winsys.eyePose[eye].Position.x * param.ipd_multiplier,
+	// jdt: trick to render skybox without stereo.. up close to avoid fog.
+	if (skybox) {
+		glMultMatrixf(rot_mat);
+		Env.DrawSkybox (TVector3(0,0,0), true);
+		glLoadIdentity();
+	}
+
+	glTranslatef(Winsys.eye_rdesc[eye].HmdToEyeViewOffset.x * param.ipd_multiplier,
+			Winsys.eye_rdesc[eye].HmdToEyeViewOffset.y * param.ipd_multiplier,
+			Winsys.eye_rdesc[eye].HmdToEyeViewOffset.z * param.ipd_multiplier);
+
+	glMultMatrixf(rot_mat);
+
+	// translate the view matrix with the positional tracking
+	glTranslatef(-Winsys.eyePose[eye].Position.x * param.ipd_multiplier,
 			-Winsys.eyePose[eye].Position.y * param.ipd_multiplier,
 			-Winsys.eyePose[eye].Position.z * param.ipd_multiplier);
-    // move the camera to the eye level of the user
-    //glTranslate(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
+	// move the camera to the eye level of the user
+	//glTranslate(0, -ovrHmd_GetFloat(Winsys.hmd, OVR_KEY_EYE_HEIGHT, 1.65), 0);
 
-    glColor4f (1.0, 1.0, 1.0, 1.0);
+	glColor4f (1.0, 1.0, 1.0, 1.0);
 }
 
 // Ripped from:
@@ -299,9 +312,7 @@ void UpdateRenderTarget(unsigned int width, unsigned int height)
     fb_height = height;
 
     if(!fbo) {
-        fprintf(stderr,"jdt: Generating new Frame Buffer Objects. %ux%u\n", width, height);
-
-        // if fbo does not exist, then nothing does... create every opengl object
+        // if fbo does not exist, then nothing does. create opengl objects
         glGenFramebuffers(1, &fbo);
         glGenTextures(2, fb_tex);
         glGenRenderbuffers(1, &fb_depth);
@@ -492,7 +503,9 @@ void set_gl_options (TRenderMode mode)
 		glDisable (GL_TEXTURE_GEN_S);
 		glDisable (GL_TEXTURE_GEN_T);
 		glDisable (GL_COLOR_MATERIAL);
-		glDepthMask (GL_FALSE);
+		glDepthMask (GL_FALSE); // render skybox closer than other things
+		glDepthFunc (GL_ALWAYS);
+		//glDisable (GL_FOG);
 		glShadeModel (GL_SMOOTH);
 		glDepthFunc (GL_LEQUAL);
 		break;

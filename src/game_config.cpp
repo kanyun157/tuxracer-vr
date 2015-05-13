@@ -45,11 +45,11 @@ Then edit the below functions:
 #include "physics.h"
 
 #define DEFAULT_CAMERA_DIST 3.5
-#define DEFAULT_CAMERA_ANGLE -26
+#define DEFAULT_CAMERA_ANGLE -30
 #define DEFAULT_FLY_AMOUNT 30
 #define DEFAULT_FLY_TURN 150
 #define DEFAULT_FLY_SPEED 25
-#define DEFAULT_SLIDE_DELTA 0.25
+#define DEFAULT_SLIDE_DELTA 0.20
 #define DEFAULT_ENV 0
 
 TParam param;

@@ -108,6 +108,7 @@ public:
     TVector3 viewdir;
     TVector3 viewup;
     TMatrix view_mat;
+    TMatrix env_view_mat; // for fog planes
     bool view_init;
 	// main:
 	TVector3 cpos;

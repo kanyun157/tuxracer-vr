@@ -140,82 +140,85 @@ void interpolate_view_frame (const TVector3& up1, const TVector3& dir1,
 }
 
 void setup_view_matrix (CControl *ctrl, bool save_mat) {
-    TMatrix view_mat;
+	TMatrix view_mat;
 
-    TVector3 view_z = ScaleVector (-1, ctrl->viewdir);
-    TVector3 view_x = CrossProduct (ctrl->viewup, view_z);
-    TVector3 view_y = CrossProduct (view_z, view_x);
-    NormVector (view_z);
-    NormVector (view_x);
-    NormVector (view_y);
+	TVector3 view_z = ScaleVector (-1, ctrl->viewdir);
+	TVector3 view_x = CrossProduct (ctrl->viewup, view_z);
+	TVector3 view_y = CrossProduct (view_z, view_x);
+	NormVector (view_z);
+	NormVector (view_x);
+	NormVector (view_y);
 
-    MakeIdentityMatrix (ctrl->view_mat);
+	MakeIdentityMatrix (ctrl->view_mat);
 
-    ctrl->view_mat[0][0] = view_x.x;
-    ctrl->view_mat[0][1] = view_x.y;
-    ctrl->view_mat[0][2] = view_x.z;
+	ctrl->view_mat[0][0] = view_x.x;
+	ctrl->view_mat[0][1] = view_x.y;
+	ctrl->view_mat[0][2] = view_x.z;
 
-    ctrl->view_mat[1][0] = view_y.x;
-    ctrl->view_mat[1][1] = view_y.y;
-    ctrl->view_mat[1][2] = view_y.z;
+	ctrl->view_mat[1][0] = view_y.x;
+	ctrl->view_mat[1][1] = view_y.y;
+	ctrl->view_mat[1][2] = view_y.z;
 
-    ctrl->view_mat[2][0] = view_z.x;
-    ctrl->view_mat[2][1] = view_z.y;
-    ctrl->view_mat[2][2] = view_z.z;
+	ctrl->view_mat[2][0] = view_z.x;
+	ctrl->view_mat[2][1] = view_z.y;
+	ctrl->view_mat[2][2] = view_z.z;
 
-    ctrl->view_mat[3][0] = ctrl->viewpos.x;
-    ctrl->view_mat[3][1] = ctrl->viewpos.y;
-    ctrl->view_mat[3][2] = ctrl->viewpos.z;
-    ctrl->view_mat[3][3] = 1;
+	ctrl->view_mat[3][0] = ctrl->viewpos.x;
+	ctrl->view_mat[3][1] = ctrl->viewpos.y;
+	ctrl->view_mat[3][2] = ctrl->viewpos.z;
+	ctrl->view_mat[3][3] = 1;
 
-    // jdt: alternatively, load the modelview matrix at this point, and manually
-    // multiply the character's ctrl->view_mat after the glMultMatrixd below.
+	// jdt: save the original env clipping plane for fog.
+	memcpy (ctrl->env_view_mat, ctrl->view_mat, sizeof(ctrl->view_mat));
 
-    TransposeMatrix (ctrl->view_mat, view_mat);
+	// jdt: alternatively, load the modelview matrix at this point, and manually
+	// multiply the character's ctrl->view_mat after the glMultMatrixd below.
 
-    view_mat[0][3] = 0;
-    view_mat[1][3] = 0;
-    view_mat[2][3] = 0;
+	TransposeMatrix (ctrl->view_mat, view_mat);
 
-    TVector3 viewpt_in_view_frame = TransformPoint (view_mat, ctrl->viewpos);
+	view_mat[0][3] = 0;
+	view_mat[1][3] = 0;
+	view_mat[2][3] = 0;
 
-    view_mat[3][0] = -viewpt_in_view_frame.x;
-    view_mat[3][1] = -viewpt_in_view_frame.y;
-    view_mat[3][2] = -viewpt_in_view_frame.z;
+	TVector3 viewpt_in_view_frame = TransformPoint (view_mat, ctrl->viewpos);
+
+	view_mat[3][0] = -viewpt_in_view_frame.x;
+	view_mat[3][1] = -viewpt_in_view_frame.y;
+	view_mat[3][2] = -viewpt_in_view_frame.z;
 
 	if (save_mat) {
 		memcpy(stationary_matrix, view_mat, 16*sizeof(**view_mat));
 	}
-    //glLoadIdentity(); // prevent this from clobering Oculus head orientation.
-    glMultMatrixd ((double*) view_mat);
+	//glLoadIdentity(); // prevent this from clobering Oculus head orientation.
+	glMultMatrixd ((double*) view_mat);
 
-    //
-    // jdt: At this point we have two independent modelview matrices:
-    //  GL_MODELVIEW: has both hmd and game-controlled transformations combined.
-    //  	- Left eye "cyclops" only right now.
-    //  stereo_gl_list: being compiled now only contains the later.
-    //  	- ie. the glMultMatrixd above is being recorded for playback twice later.
-    //
-    // We need to update ctrl->view_mat with the hmd transformation so that 
-    // frustum culling works correctly based on the players head orientation, etc.
-    //
-    float hmd_mat[16];
-    TMatrix transpose;
-    glGetFloatv (GL_MODELVIEW_MATRIX, hmd_mat); // hmd cyclops combined w/ character.
-    for (unsigned int i = 0; i < 16; i++) {
-    	((double*)transpose)[i] = hmd_mat[i];
-    }
-    
-    TransposeMatrix (transpose, ctrl->view_mat); // NOT recorded in display list.
+	//
+	// jdt: At this point we have two independent modelview matrices:
+	//  GL_MODELVIEW: has both hmd and game-controlled transformations combined.
+	//  	- Left eye "cyclops" only right now.
+	//  stereo_gl_list: being compiled now only contains the later.
+	//  	- ie. the glMultMatrixd above is being recorded for playback twice later.
+	//
+	// We need to update ctrl->view_mat with the hmd transformation so that 
+	// frustum culling works correctly based on the players head orientation, etc.
+	//
+	float hmd_mat[16];
+	TMatrix transpose;
+	glGetFloatv (GL_MODELVIEW_MATRIX, hmd_mat); // hmd cyclops combined w/ character.
+	for (unsigned int i = 0; i < 16; i++) {
+		((double*)transpose)[i] = hmd_mat[i];
+	}
 
-    // jdt: not perfect, but hmd positions aren't appreciable compared to viewpos.
-    // .. I'd be interested in better ways to set this up..
-    ctrl->view_mat[3][0] = ctrl->viewpos.x;
-    ctrl->view_mat[3][1] = ctrl->viewpos.y;
-    ctrl->view_mat[3][2] = ctrl->viewpos.z;
-    ctrl->view_mat[0][3] = 0.0;
-    ctrl->view_mat[0][3] = 0.0;
-    ctrl->view_mat[0][3] = 0.0;
+	TransposeMatrix (transpose, ctrl->view_mat); // NOT recorded in display list.
+
+	// jdt: not perfect, but hmd positions aren't appreciable compared to viewpos.
+	// .. I'd be interested in better ways to set this up..
+	ctrl->view_mat[3][0] = ctrl->viewpos.x;
+	ctrl->view_mat[3][1] = ctrl->viewpos.y;
+	ctrl->view_mat[3][2] = ctrl->viewpos.z;
+	ctrl->view_mat[0][3] = 0.0;
+	ctrl->view_mat[0][3] = 0.0;
+	ctrl->view_mat[0][3] = 0.0;
 }
 
 TVector3 MakeViewVector () {
@@ -396,6 +399,7 @@ void update_view (CControl *ctrl, double dt) {
 
 static TPlane frustum_planes[6];
 static char p_vertex_code[6];
+static TPlane env_planes[6];
 
 
 void SetupViewFrustum (const CControl *ctrl) {
@@ -439,6 +443,27 @@ void SetupViewFrustum (const CControl *ctrl) {
 		if (frustum_planes[i].nml.y > 0) p_vertex_code[i] |= 2;
 		if (frustum_planes[i].nml.z > 0) p_vertex_code[i] |= 1;
     }
+
+	// Old frustum planes for fog (environment clipping):
+	env_planes[0] = MakePlane (0, 0, 1, near_dist);
+	env_planes[1] = MakePlane (0, 0, -1, -far_dist);
+	env_planes[2] = MakePlane (-cos(half_fov_horiz), 0, sin(half_fov_horiz), 0);
+	env_planes[3] = MakePlane (cos(half_fov_horiz), 0, sin(half_fov_horiz), 0);
+	env_planes[4] = MakePlane (0, cos(half_fov), sin(half_fov), 0);
+	env_planes[5] = MakePlane (0, -cos(half_fov), sin(half_fov), 0);
+
+	for (int i=0; i<6; i++) {
+		TVector3 pt = TransformPoint (ctrl->env_view_mat,
+			AddVectors (origin, ScaleVector (
+			-env_planes[i].d, env_planes[i].nml)));
+
+		env_planes[i].nml = TransformVector (
+			ctrl->env_view_mat, env_planes[i].nml);
+
+		env_planes[i].d = -DotProduct (
+			env_planes[i].nml,
+			SubtractVectors (pt, origin));
+	}
 }
 
 void DrawViewFrustum() {
@@ -506,3 +531,9 @@ const TPlane& get_far_clip_plane() { return frustum_planes[1]; }
 const TPlane& get_left_clip_plane() { return frustum_planes[2]; }
 const TPlane& get_right_clip_plane() { return frustum_planes[3]; }
 const TPlane& get_bottom_clip_plane() { return frustum_planes[5]; }
+
+const TPlane& get_far_env_clip_plane() { return env_planes[1]; }
+const TPlane& get_left_env_clip_plane() { return env_planes[2]; }
+const TPlane& get_right_env_clip_plane() { return env_planes[3]; }
+const TPlane& get_bottom_env_clip_plane() { return env_planes[5]; }
+

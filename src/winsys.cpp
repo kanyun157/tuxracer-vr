@@ -150,15 +150,9 @@ void CWinsys::OvrConfigureRendering()
 	// jdt: fb_width, etc declared in ogl.h
 	fb_width = eyeres[0].w + eyeres[1].w;
 	fb_height = eyeres[0].h > eyeres[1].h ? eyeres[0].h : eyeres[1].h;
-	printf("fb_width: %d\n", fb_width);
-	printf("fb_height: %d\n", fb_height);
 
 	fbo = fb_tex[0] = fb_tex[1] = fb_depth = 0;
 	UpdateRenderTarget(fb_width, fb_height);
-
-	printf("fb_tex_width: %d\n", fb_tex_width); // firmware major: 2
-	printf("fb_tex_height: %d\n", fb_tex_height); // minor: 12
-	printf("fb_tex: %d\n", fb_tex[1]);
 
 	// fill in the ovrGLTexture structures that describe our render target texture
 	for(int i=0; i<2; i++) {
@@ -483,7 +477,7 @@ void LookAtSelection(ovrEyeType eye)
 {
 	int idx = eye == ovrEye_Left ? 0 : 1;
 
-	SetupDisplay (eye);
+	SetupDisplay (eye, false); // false to not render skybox
 	SetupGuiDisplay (false); // false to not render the background frame again.
 
 	GLdouble modelview[16];
@@ -536,7 +530,7 @@ void CWinsys::RenderFrame(State *current)
 
 	// Set modelview to "cyclops" mode for non-opengl geometry culling (UpdateCourse).
 	// jdt: we just use the left eye for now. (might want to average values for both)
-	SetupDisplay (ovrEye_Left);
+	SetupDisplay (ovrEye_Left, false);
 
 	glNewList(stereo_gl_list, GL_COMPILE);
 	current->Loop(g_game.time_step);
@@ -554,7 +548,7 @@ void CWinsys::RenderFrame(State *current)
 			glViewport(fb_width/2, 0, fb_width/2, fb_height);
 		}
 
-		SetupDisplay (eye);
+		SetupDisplay (eye, true); // renders skybox also
 
 		glCallList(stereo_gl_list);
 
@@ -573,10 +567,11 @@ void CWinsys::RenderFrame(State *current)
 	{
 		float eps = 100.f;
 		if (abs(lookAtPos[0].x) > 0 && abs(lookAtPos[0].y) > 0) {
-// jdt: only using one eye for now... for performance
-//			if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps && abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
+			// jdt: only using one eye for now... for performance
+			//if (abs(lookAtPos[0].x - lookAtPos[1].x) < eps &&
+			//    abs(lookAtPos[0].y - lookAtPos[1].y) < eps) {
 				lookAtValid = true;
-//			}
+			//}
 		}
 	}
 

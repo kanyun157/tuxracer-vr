@@ -49,4 +49,9 @@ const TPlane& get_left_clip_plane();
 const TPlane& get_right_clip_plane();
 const TPlane& get_bottom_clip_plane();
 
+const TPlane& get_far_env_clip_plane();
+const TPlane& get_left_env_clip_plane();
+const TPlane& get_right_env_clip_plane();
+const TPlane& get_bottom_env_clip_plane();
+
 #endif
