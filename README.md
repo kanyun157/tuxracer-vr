@@ -2,7 +2,10 @@
 
 The open source downhill winter game with Oculus Rift support!  Please have patience and read the following to get it running acceptably (low latency).  WARNING: A decent gaming graphics card is necessary. Integrated graphics hardware, eg. most laptops, won't be fast enough.
 
-![TuxRacerVR Screenshot](https://d11g5bl75h7gks.cloudfront.net/shareuploads/submissions/1429606941987m8gjnka9k9/screens/1429606941987m8gjnka9k9_1429607598190.jpg)
+![TuxRacerVR Logo](http://jdtaylor.org/oculus_share_primary_evening.jpg)
+
+
+![TuxRacerVR Screenshot](https://d11g5bl75h7gks.cloudfront.net/shareuploads/apps/1431560364519m4cifz85mi/screens/1429606941987m8gjnka9k9_1429607620160.jpg)
 
 Watch on Youtube:
 
@@ -115,7 +118,8 @@ If you want to lose your lunch.. accidentally set 'player_frict_speed' to someth
 ## Things Needing Attention
 * I've only been testing with open source radeon drivers.  Please let me know if other cards/drivers work or not.
 * Optimization is needed for higher detail levels, track marks, ice env maps, snow.
-* Skybox doesn't show up w/ fog.. and I can't render it up close because of stereo depth.
+* Fog planes vary in brightness with hmd pitch. 
+* There's no fog planes behind the player.. only down the course.
 * If it fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
  * Quick fix: OVR_FBCONFIG_OVERRIDE=1 ./TuxRacerVR
  * Occurs when using the xf86-video-ati open source radeon driver. See the following for a patch to the Oculus SDK:
