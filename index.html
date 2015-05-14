@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -23,8 +23,8 @@
         </header>
 
         <section id="downloads" class="clearfix">
-          <a href="https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.63/TuxRacerVR_v0.63_hsw.zip" id="download-zip" class="button"><span>Windows</span></a>
-          <a href="https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.64/TuxRacerVR_v0.64_linux64.zip" id="download-tar-gz" class="button"><span>Linux</span></a>
+          <a href="https://github.com/jdtaylor/tuxracer-vr/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/jdtaylor/tuxracer-vr/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
           <a href="https://github.com/jdtaylor/tuxracer-vr" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
 
@@ -37,7 +37,13 @@
 
 <p>The open source downhill winter game with Oculus Rift support!  Please have patience and read the following to get it running acceptably (low latency).  WARNING: A decent gaming graphics card is necessary. Integrated graphics hardware, eg. most laptops, won't be fast enough.</p>
 
-<p><img src="https://d11g5bl75h7gks.cloudfront.net/shareuploads/submissions/1429606941987m8gjnka9k9/screens/1429606941987m8gjnka9k9_1429607598190.jpg" alt="screenshot"></p>
+<p><img src="http://jdtaylor.org/oculus_share_primary_evening.jpg" alt="TuxRacerVR Logo"></p>
+
+<p><img src="https://d11g5bl75h7gks.cloudfront.net/shareuploads/apps/1431560364519m4cifz85mi/screens/1429606941987m8gjnka9k9_1429607620160.jpg" alt="TuxRacerVR Screenshot"></p>
+
+<p>Watch on Youtube:</p>
+
+<p><a href="http://www.youtube.com/watch?v=sc76iido7fU"><img src="http://img.youtube.com/vi/sc76iido7fU/0.jpg" alt="TuxRacerVR Youtube Video"></a></p>
 
 <h2>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
@@ -58,7 +64,7 @@
 
 <ul>
 <li><a href="https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.64/TuxRacerVR_v0.64_linux64.zip">TuxRacerVR_v0.64_linux64.zip</a></li>
-<li>Make sure the Oculus runtime is installed and running.</li>
+<li>Make sure the Oculus runtime is installed and running and don't rotate dk2.</li>
 <li>Download, unzip, and run ./TuxRacerVR from the extracted directory.
 
 <ul>
@@ -75,6 +81,47 @@
 
 <ul>
 <li>It should compile from source though I havn't tried yet. </li>
+</ul>
+
+<h2>
+<a id="gameplay" class="anchor" href="#gameplay" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gameplay</h2>
+
+<p>Controls are all based on head movements.</p>
+
+<ul>
+<li>Look at gui components and wait for a second to select them.</li>
+<li>Lean left/right to control Tux's direction down the course.</li>
+<li>Lean back to brake and slow down.</li>
+<li>Protips:
+
+<ul>
+<li>Don't paddle or brake on ice; Slide for more speed (not easy).</li>
+<li>Look down and back up to get more air during a jump.</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="settings" class="anchor" href="#settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Settings</h2>
+
+<ul>
+<li>F2 or F9 toggles the window to the Rift and back (ONLY for extended mode).</li>
+<li>SPACE: recenter the view to the current HMD orientation.</li>
+<li>Up/Down arrows change the distance behind tux.</li>
+<li>Right/Left: change the angle above/behind tux.</li>
+<li>h: cycle through different modes of heads up display. 
+
+<ul>
+<li>hud cycles: Off -&gt; World Relative -&gt; FPS toggle -&gt; Stuck to Face -&gt; Off</li>
+</ul>
+</li>
+<li>r: reset player location if stuck somewhere on the course.</li>
+<li>w/s: increase/decrease IPD.</li>
+<li>a/d: increase/decrease player speed.</li>
+<li>'1,2,3,4' flip between preset camera positions.</li>
+<li>F3-F8 toggles display of elements in the course.</li>
+<li>ESC to go back a screen or quit the game.</li>
+<li>Delete the file config/options.txt to regenerate w/ defaults.</li>
 </ul>
 
 <h3>
@@ -114,8 +161,7 @@ make
 src/etr
 </code></pre>
 </li>
-<li><p>Don't rotate the rift if using extended mode. Keep it in its default portrait mode.</p></li>
-<li>On Linux the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.</li>
+<li><p>On Linux the Oculus SDK only supports extended mode.. whether using Xinerama or as separate displays via the DISPLAY environment variable.</p></li>
 <li>Please make sure your oculusd or ovrd service is running and issue src/etr from the root build directory.</li>
 <li>Use F2 or F9 key to toggle to the rift and back.</li>
 <li>If you get poor &lt;75 fps performance, try disabling vsync in the configuration file.  In the ~/.etr/options file change '[no_vsync] 0' to '[no_vsync] 1'</li>
@@ -153,46 +199,13 @@ src/etr
 <p>If you want to lose your lunch.. accidentally set 'player_frict_speed' to something over 120.</p>
 
 <h2>
-<a id="gameplay" class="anchor" href="#gameplay" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gameplay</h2>
-
-<p>Controls are all based on head movements (hopefully).</p>
-
-<ul>
-<li>Look at gui components and wait for a second to select them.</li>
-<li>Lean left/right to control Tux's direction down the course.</li>
-<li>Look down and pop up to get more air before a jump.</li>
-<li>Lean back to brake and slow down.</li>
-</ul>
-
-<h2>
-<a id="settings" class="anchor" href="#settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Settings</h2>
-
-<ul>
-<li>F2 or F9 toggles the window to the Rift and back (ONLY for extended mode).</li>
-<li>SPACE: recenter the view to the current HMD orientation.</li>
-<li>Up/Down arrows change the distance behind tux.</li>
-<li>Right/Left: change the angle above/behind tux.</li>
-<li>h: cycle through different modes of heads up display. 
-
-<ul>
-<li>hud cycles: Off -&gt; World Relative -&gt; FPS toggle -&gt; Stuck to Face -&gt; Off</li>
-</ul>
-</li>
-<li>w/s: increase/decrease IPD.</li>
-<li>a/d: increase/decrease player speed.</li>
-<li>'1,2,3,4' flip between preset camera positions.</li>
-<li>F3-F8 toggles display of elements in the course.</li>
-<li>ESC quits the level.</li>
-</ul>
-
-<h2>
 <a id="things-needing-attention" class="anchor" href="#things-needing-attention" aria-hidden="true"><span class="octicon octicon-link"></span></a>Things Needing Attention</h2>
 
 <ul>
 <li>I've only been testing with open source radeon drivers.  Please let me know if other cards/drivers work or not.</li>
 <li>Optimization is needed for higher detail levels, track marks, ice env maps, snow.</li>
-<li>Skybox doesn't show up w/ fog.. and I can't render it up close because of stereo depth.</li>
-<li>The snow particle system for GUI and racing needs a lot of attention to work w/ VR.</li>
+<li>Fog planes vary in brightness with hmd pitch. </li>
+<li>There's no fog planes behind the player.. only down the course.</li>
 <li>If it fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
 
 <ul>
