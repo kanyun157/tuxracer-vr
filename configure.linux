@@ -1,0 +1,2 @@
+CXXFLAGS="-march=native -Ofast -fomit-frame-pointer" ./configure --prefix=${HOME}/download/src/tuxracer-vr --datadir=${HOME}/download/src/tuxracer-vr/data
+#CXXFLAGS="-Ofast -march=native" ./configure --prefix=${HOME}/download/src/tuxracer-vr --datadir=${HOME}/download/src/tuxracer-vr/data
