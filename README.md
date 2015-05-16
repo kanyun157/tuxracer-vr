@@ -14,14 +14,14 @@ Watch on Youtube:
 ## Installation
 
 ### Windows:
-* [TuxRacerVR_v0.63.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.63/TuxRacerVR_v0.63.zip)
+* [TuxRacerVR_v0.65.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.65/TuxRacerVR_v0.65.zip)
 * Make sure the Oculus runtime is installed and running in either extended or direct-to-rift mode.
 * Download, unzip, and run TuxRacerVR.exe from the extracted directory.
 * If in extended mode, use F2 or F9 key to toggle between the Rift and back.  Direct-to-rift should "Just Work" (no need for F9 key) and mirror to both displays.
 * See config/options.txt for performance tweaks if needed (see below).
 
 ### Linux:
-* [TuxRacerVR_v0.64_linux64.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.64/TuxRacerVR_v0.64_linux64.zip)
+* [TuxRacerVR_v0.65-linux.zip](https://github.com/jdtaylor/tuxracer-vr/releases/download/v0.65/TuxRacerVR_v0.65-linux.zip)
 * Make sure the Oculus runtime is installed and running and don't rotate dk2.
 * Download, unzip, and run ./TuxRacerVR from the extracted directory.
  * If you get this: "Error: [Context] Unable to obtain x11 visual from context", PLEASE report back if this helps:
