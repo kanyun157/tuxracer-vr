@@ -233,7 +233,7 @@ void SetupDisplay (ovrEyeType eye, bool skybox) {
 
 	// retrieve the orientation quaternion and convert it to a rotation matrix 
 	float rot_mat[16];
-	quat_to_matrix(&Winsys.eyePose[ovrEye_Left].Orientation.x, rot_mat);
+	quat_to_matrix(&Winsys.eyePose[eye].Orientation.x, rot_mat);
 
 	// jdt: trick to render skybox without stereo.. up close to avoid fog.
 	if (skybox) {
@@ -243,9 +243,12 @@ void SetupDisplay (ovrEyeType eye, bool skybox) {
 		if (ctrl && !State::manager.isGuiState()) {
 			TMatrix view_mat;
 			TransposeMatrix (ctrl->env_view_mat, view_mat);
-			view_mat[0][3] = 0;
+			view_mat[0][3] = 0;  // remove translation
 			view_mat[1][3] = 0;
 			view_mat[2][3] = 0;
+			view_mat[3][0] = 0;
+			view_mat[3][1] = 0;
+			view_mat[3][2] = 0;
 			glMultMatrixd ((double*)view_mat);
 		}
 

@@ -25,6 +25,14 @@ GNU General Public License for more details.
 #include "physics.h"
 #include "winsys.h"
 
+// TODO: abstract out. oculus being dicks wrt Linux
+#include "OVR_Version.h"
+#if OVR_MAJOR_VERSION < 5
+# include "Kernel/OVR_Math.h"
+#else
+# include "Extras/OVR_Math.h"
+#endif
+
 #define MIN_CAMERA_HEIGHT  1.5
 #define ABSOLUTE_MIN_CAMERA_HEIGHT  0.3
 //#define CAMERA_ANGLE_ABOVE_SLOPE 10
@@ -141,8 +149,8 @@ void interpolate_view_frame (const TVector3& up1, const TVector3& dir1,
 
 void setup_view_matrix (CControl *ctrl, bool save_mat) {
 	TMatrix view_mat;
-
-	TVector3 view_z = ScaleVector (-1, ctrl->viewdir);
+	TVector3 viewdir = ctrl->viewdir;
+	TVector3 view_z = ScaleVector (-1, viewdir);
 	TVector3 view_x = CrossProduct (ctrl->viewup, view_z);
 	TVector3 view_y = CrossProduct (view_z, view_x);
 	NormVector (view_z);
@@ -168,14 +176,16 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 	ctrl->view_mat[3][2] = ctrl->viewpos.z;
 	ctrl->view_mat[3][3] = 1;
 
-	// jdt: save the original env clipping plane for fog.
+
 	memcpy (ctrl->env_view_mat, ctrl->view_mat, sizeof(ctrl->view_mat));
 
-	if (abs(ctrl->viewdir.x) > EPS && abs(ctrl->viewdir.z) > EPS) {
-		view_z = ScaleVector (-1, ctrl->viewdir);
-		view_z.y = 0;
+	// for skybox:
+	if (abs(viewdir.x) > EPS && abs(viewdir.z) > EPS)
+	{
+		view_z = ScaleVector (-1, viewdir);
+		view_z.y = 0; // remove pitch
 		NormVector (view_z);
-		TVector3 view_x = CrossProduct (ctrl->viewup, view_z);
+		TVector3 view_x = CrossProduct (ctrl->viewup, view_z); // jdt: check
 		TVector3 view_y = CrossProduct (view_z, view_x);
 		NormVector (view_x);
 		NormVector (view_y);
@@ -191,6 +201,29 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 		ctrl->env_view_mat[2][0] = view_z.x;
 		ctrl->env_view_mat[2][1] = view_z.y;
 		ctrl->env_view_mat[2][2] = view_z.z;
+	}
+
+	{ // mainly for fog planes:
+		float headYaw, headPitch, headRoll;
+		OVR::Quatf head_orient = Winsys.trackingState.HeadPose.ThePose.Orientation;
+		head_orient.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headYaw, &headPitch, &headRoll);
+
+		TMatrix yaw;
+		MakeRotationMatrix (yaw, RADIANS_TO_ANGLES(headYaw), 'y');
+		TMatrix pitch;
+		MakeRotationMatrix (pitch, RADIANS_TO_ANGLES(headPitch), 'x');
+
+		MakeIdentityMatrix (ctrl->env_hmd_mat);
+		MultiplyMatrices (ctrl->env_hmd_mat, ctrl->env_hmd_mat, yaw);
+		MultiplyMatrices (ctrl->env_hmd_mat, ctrl->env_hmd_mat, pitch);
+		MultiplyMatrices (ctrl->env_hmd_mat, ctrl->env_hmd_mat, ctrl->env_view_mat);
+
+		ctrl->env_hmd_mat[3][0] = ctrl->viewpos.x;
+		ctrl->env_hmd_mat[3][1] = ctrl->viewpos.y;
+		ctrl->env_hmd_mat[3][2] = ctrl->viewpos.z;
+		ctrl->env_hmd_mat[0][3] = 0.0;
+		ctrl->env_hmd_mat[1][3] = 0.0;
+		ctrl->env_hmd_mat[2][3] = 0.0;
 	}
 
 	// jdt: alternatively, load the modelview matrix at this point, and manually
@@ -239,8 +272,8 @@ void setup_view_matrix (CControl *ctrl, bool save_mat) {
 	ctrl->view_mat[3][1] = ctrl->viewpos.y;
 	ctrl->view_mat[3][2] = ctrl->viewpos.z;
 	ctrl->view_mat[0][3] = 0.0;
-	ctrl->view_mat[0][3] = 0.0;
-	ctrl->view_mat[0][3] = 0.0;
+	ctrl->view_mat[1][3] = 0.0;
+	ctrl->view_mat[2][3] = 0.0;
 }
 
 TVector3 MakeViewVector () {
@@ -475,12 +508,12 @@ void SetupViewFrustum (const CControl *ctrl) {
 	env_planes[5] = MakePlane (0, -cos(half_fov), sin(half_fov), 0);
 
 	for (int i=0; i<6; i++) {
-		TVector3 pt = TransformPoint (ctrl->env_view_mat,
+		TVector3 pt = TransformPoint (ctrl->env_hmd_mat,
 			AddVectors (origin, ScaleVector (
 			-env_planes[i].d, env_planes[i].nml)));
 
 		env_planes[i].nml = TransformVector (
-			ctrl->env_view_mat, env_planes[i].nml);
+			ctrl->env_hmd_mat, env_planes[i].nml);
 
 		env_planes[i].d = -DotProduct (
 			env_planes[i].nml,
@@ -493,7 +526,7 @@ void DrawViewFrustum() {
 
 	double near_dist = NEAR_CLIP_DIST * 1.01;
 	double far_dist = param.forward_clip_distance * 0.99;
-	double fov = param.fov - 20;
+	double fov = param.fov;
     double half_fov = ANGLES_TO_RADIANS (fov * 0.5);
     double half_fov_horiz = atan (tan (half_fov) * aspect);
 
@@ -502,8 +535,8 @@ void DrawViewFrustum() {
 	double xfar = far_dist * tan(half_fov_horiz);
 	double yfar = far_dist * tan(half_fov);
 
+	glColor4f (1.0, 0, 0, 1.0);
 	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
 	glVertex3f(xnear, ynear, -near_dist);
 	glVertex3f(xfar, yfar, -far_dist);
 	glVertex3f(xnear, -ynear, -near_dist);
@@ -511,6 +544,18 @@ void DrawViewFrustum() {
 	glVertex3f(-xnear, ynear, -near_dist);
 	glVertex3f(-xfar, yfar, -far_dist);
 	glVertex3f(-xnear, -ynear, -near_dist);
+	glVertex3f(-xfar, -yfar, -far_dist);
+
+	glVertex3f(-xfar, -yfar, -far_dist);
+	glVertex3f(-xfar, yfar, -far_dist);
+
+	glVertex3f(-xfar, yfar, -far_dist);
+	glVertex3f(xfar, yfar, -far_dist);
+
+	glVertex3f(xfar, yfar, -far_dist);
+	glVertex3f(xfar, -yfar, -far_dist);
+
+	glVertex3f(xfar, -yfar, -far_dist);
 	glVertex3f(-xfar, -yfar, -far_dist);
 	glEnd();
 }

@@ -31,6 +31,7 @@ GNU General Public License for more details.
 #include "states.h"
 #include "racing.h"
 #include "intro.h"
+#include "view.h"
 #include "SDL2/SDL_syswm.h"
 #include <iostream>
 
@@ -548,7 +549,7 @@ void CWinsys::RenderFrame(State *current)
 			glViewport(fb_width/2, 0, fb_width/2, fb_height);
 		}
 
-		SetupDisplay (eye, true); // renders skybox also
+		SetupDisplay (eye, true);
 
 		glCallList(stereo_gl_list);
 

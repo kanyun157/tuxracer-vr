@@ -295,7 +295,6 @@ void CEnvironment::DrawSkybox (const TVector3& pos, bool textures) {
 }
 
 void CEnvironment::DrawFog () {
-	// TODO jdt: fog plane still has an issue with hmd orientation
 	if (!fog.is_on) return;
 
     TPlane bottom_plane, top_plane;
@@ -304,10 +303,10 @@ void CEnvironment::DrawFog () {
     TVector3 bottomleft, bottomright;
 
 	// the clipping planes are calculated by view frustum (view.cpp)
-	const TPlane& leftclip = get_left_env_clip_plane ();
-	const TPlane& rightclip = get_right_env_clip_plane ();
-	const TPlane& farclip = get_far_env_clip_plane ();
-	const TPlane& bottomclip = get_bottom_env_clip_plane ();
+	TPlane leftclip = get_left_env_clip_plane ();
+	TPlane rightclip = get_right_env_clip_plane ();
+	TPlane farclip = get_far_env_clip_plane ();
+	TPlane bottomclip = get_bottom_env_clip_plane ();
 
 	// --------------- calculate the planes ---------------------------
 
