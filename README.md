@@ -9,7 +9,7 @@ The open source downhill winter game with Oculus Rift support!  Please have pati
 
 Watch on Youtube:
 
-[![TuxRacerVR Youtube Video](http://img.youtube.com/vi/sc76iido7fU/0.jpg)](http://www.youtube.com/watch?v=sc76iido7fU)
+[![TuxRacerVR Youtube Video](http://img.youtube.com/vi/sc76iido7fU/0.jpg)](http://www.youtube.com/watch?v=O-XAEVjydhQ)
 
 ## Installation
 
