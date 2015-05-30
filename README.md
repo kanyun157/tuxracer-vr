@@ -118,8 +118,6 @@ If you want to lose your lunch.. accidentally set 'player_frict_speed' to someth
 ## Things Needing Attention
 * I've only been testing with open source radeon drivers.  Please let me know if other cards/drivers work or not.
 * Optimization is needed for higher detail levels, track marks, ice env maps, snow.
-* Fog planes vary in brightness with hmd pitch. 
-* There's no fog planes behind the player.. only down the course.
 * If it fails to start with: 'Error: [Context] Unable to obtain x11 visual from context'
  * Quick fix: OVR_FBCONFIG_OVERRIDE=1 ./TuxRacerVR
  * Occurs when using the xf86-video-ati open source radeon driver. See the following for a patch to the Oculus SDK:
@@ -133,6 +131,6 @@ If you want to lose your lunch.. accidentally set 'player_frict_speed' to someth
 * My public key can be found at http://jdtaylor.org
 
 ## Donations:
-* If you like what you see and would like to support more Free Software for VR; please send bitcoin: ![12ptLNTGD16itaG9mXQxYRaExwXr3aVyFd](bitcoin:12ptLNTGD16itaG9mXQxYRaExwXr3aVyFd?label=TuxRacerVR+Donations)
+* If you like what you see and would like to support more Free Software for VR; please send bitcoin: 12ptLNTGD16itaG9mXQxYRaExwXr3aVyFd
 ![TuxRacerVR BTC Donation QR Code](http://jdtaylor.org/tuxracer-vr-btc-donations_128.png)
 
