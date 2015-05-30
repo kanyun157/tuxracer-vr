@@ -133,5 +133,6 @@ If you want to lose your lunch.. accidentally set 'player_frict_speed' to someth
 * My public key can be found at http://jdtaylor.org
 
 ## Donations:
-* If you like what you see and would like to support more Free Software for VR; please send bitcoin: 12ptLNTGD16itaG9mXQxYRaExwXr3aVyFd
+* If you like what you see and would like to support more Free Software for VR; please send bitcoin: ![12ptLNTGD16itaG9mXQxYRaExwXr3aVyFd](bitcoin:12ptLNTGD16itaG9mXQxYRaExwXr3aVyFd?label=TuxRacerVR+Donations)
+![TuxRacerVR BTC Donation QR Code](http://jdtaylor.org/tuxracer-vr-btc-donations_128.png)
 
