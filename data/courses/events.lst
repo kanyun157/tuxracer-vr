@@ -19,11 +19,27 @@
 *[struct] 0 [race] race_pathofdaggers [course] path_of_daggers [light] evening [snow] 0 [wind] 0
 [herring] 34 38 42 [time] 149 132 128
 
+*[struct] 0 [race] race_bumpy_ride_vr [course] bumpy_ride [light] evening [snow] 0 [wind] 0
+[herring] 13 16 17 [time] 35 31 28
+
+*[struct] 0 [race] race_quiet_river_vr [course] quiet_river [light] evening [snow] 0 [wind] 0
+[herring] 30 35 40 [time] 60 55 50
+
+*[struct] 0 [race] race_hippo_run [course] hippo_run [light] evening [snow] 0 [wind] 0
+[herring] 60 65 70 [time] 135 130 125 
+
+*[struct] 0 [race] race_penguins_cant_fly [course] penguins_cant_fly [light] cloudy [snow] 0 [wind] 0
+[herring] 38 40 42 [time] 73 71 69 
+
 # ---------------------------------------------------------------------
 # cups [struct] 1:
 # name and desc are only for display on menu screen, use [cup] for access
 # [cup] must be unique in this lise
 # ---------------------------------------------------------------------
+
+*[struct] 1 [cup] vrcup [name] Oculus Cup 
+[num] 4 [1] race_bumpy_ride_vr [2] race_quiet_river_vr [3] race_hippo_run [4] race_penguins_cant_fly
+[desc] Courses best for the VR experience.
 
 *[struct] 1 [cup] canadian [name] Canadian Cup
 [num] 3 [1] race_bunnyhill [2] race_twistyslope [3] race_bumpyride
@@ -37,6 +53,9 @@
 # events [struct] 2:
 # name is only only for displaying on menu screen, use [event] for access
 # ---------------------------------------------------------------------
+
+*[struct] 2 [event] oculus [name] Tux Racer VR
+[num] 1 [1] vrcup
 
 *[struct] 2 [event] classics [name] Tux Racer Classics
 [num] 2 [1] canadian [2] swiss
