@@ -28,6 +28,10 @@ class CEvent : public State {
 	void Mouse(int button, int state, int x, int y);
 	void Motion(int x, int y);
 public:
+    void InitCupRacing();
+    void UpdateCupRacing();
+    void StartRace();
+    bool isLastRace();
 };
 
 extern CEvent Event;

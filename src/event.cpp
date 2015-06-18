@@ -47,7 +47,7 @@ static size_t curr_race = 0;
 static size_t curr_bonus = 0;
 static TWidget* textbuttons[3];
 
-void StartRace () {
+void CEvent::StartRace () {
 	if (ready > 0) {
 		State::manager.RequestEnterState (EventSelect);
 		return;
@@ -105,7 +105,7 @@ void CEvent::Motion (int x, int y) {
 	if (param.ui_snow) push_ui_snow (cursor_pos);
 }
 
-void InitCupRacing () {
+void CEvent::InitCupRacing () {
 	ecup = g_game.cup;
 	curr_race = 0;
 	curr_bonus = ecup->races.size();
@@ -113,11 +113,15 @@ void InitCupRacing () {
 	curr_focus = 0;
 }
 
-void UpdateCupRacing () {
+bool CEvent::isLastRace () {
 	size_t lastrace = ecup->races.size() - 1;
+	return curr_race == lastrace;
+}
+
+void CEvent::UpdateCupRacing () {
 	curr_bonus += g_game.race_result;
 	if (g_game.race_result >= 0) {
-		if (curr_race < lastrace) curr_race++; else ready = 1;
+		if (!isLastRace()) curr_race++; else ready = 1;
 	} else {
 		if (curr_bonus == 0) ready = 2;
 	}
@@ -153,10 +157,10 @@ void CEvent::Enter () {
 
 	ResetGUI ();
 	int siz = FT.AutoSizeN (5);
-	textbuttons[1] = AddTextButton (Trans.Text(8), area.left + 100, AutoYPosN (65), siz);
+	textbuttons[1] = AddTextButton (Trans.Text(8), area.left + 100, AutoYPosN (70), siz);
 	double len = FT.GetTextWidth (Trans.Text(13));
-	textbuttons[0] = AddTextButton (Trans.Text(13), area.right -len - 100, AutoYPosN (65), siz);
-	textbuttons[2] = AddTextButton (Trans.Text(15), CENTER, AutoYPosN (65), siz);
+	textbuttons[0] = AddTextButton (Trans.Text(13), area.right -len - 100, AutoYPosN (70), siz);
+	textbuttons[2] = AddTextButton (Trans.Text(15), CENTER, AutoYPosN (70), siz);
 
 	Music.Play (param.menu_music, -1);
 	if (ready < 1) curr_focus = textbuttons[0]; else curr_focus = textbuttons[2];
@@ -218,14 +222,14 @@ void CEvent::Loop (double timestep) {
 		info += "   " + Int_StrN (ecup->races[curr_race]->herrings.i);
 		info += "   " + Int_StrN (ecup->races[curr_race]->herrings.j);
 		info += "   " + Int_StrN (ecup->races[curr_race]->herrings.k);
-		FT.DrawString (CENTER, framebottom+15, info);
+		FT.DrawString (CENTER, framebottom+10, info);
 
 		info = Trans.Text(12);
 		info += "   " + Float_StrN (ecup->races[curr_race]->time.x, 0);
 		info += "   " + Float_StrN (ecup->races[curr_race]->time.y, 0);
 		info += "   " + Float_StrN (ecup->races[curr_race]->time.z, 0);
 		info += "  " + Trans.Text(14);
-		FT.DrawString (CENTER, framebottom+15+ddd, info);
+		FT.DrawString (CENTER, framebottom+10+ddd, info);
 
 	} else if (ready == 1) {		// cup successfully finished
 		FT.AutoSizeN (5);

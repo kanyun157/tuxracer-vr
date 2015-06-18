@@ -86,6 +86,7 @@ public:
 	const TColor& ParticleColor () const { return fog.part_color; }
 	size_t GetEnvIdx (const string& tag) const;
 	size_t GetLightIdx (const string& tag) const;
+    size_t GetCurEnv () const { return EnvID; }
 };
 
 extern CEnvironment Env;

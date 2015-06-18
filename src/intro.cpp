@@ -60,6 +60,8 @@ void CIntro::Enter() {
 	SetCameraDistance (param.camera_distance);
 	SetCameraAngle (param.camera_angle);
 
+    CourseRenderReset ();
+
 	startframe = Char.GetKeyframe (g_game.char_id, START);
 	if (startframe->loaded) {
 //		startframe->Init (ctrl->cpos, -0.05);

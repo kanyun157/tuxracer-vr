@@ -202,6 +202,8 @@ void SetSoundVolumes () {
 void CRacing::Enter (void) {
 	CControl *ctrl = Players.GetCtrl (g_game.player_id);
 
+    CourseRenderReset ();
+
 	SetCameraDistance (param.camera_distance);
 	SetCameraAngle (param.camera_angle);
 

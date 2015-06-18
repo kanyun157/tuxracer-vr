@@ -36,6 +36,9 @@ GNU General Public License for more details.
 
 #define TEX_SCALE 6
 static const bool clip_course = true;
+static bool courseRenderReset = true;
+
+void CourseRenderReset () { courseRenderReset = true; }
 
 void setup_course_tex_gen () {
     static GLfloat xplane[4] = {1.0 / TEX_SCALE, 0.0, 0.0, 0.0 };
@@ -81,7 +84,9 @@ void DrawTrees() {
 	static list<TCollidable*> treeCache;
 	static unsigned int treesDirtyCount = 0; // how many frames since cache of trees was updated.
 	static string cachedName;
-	if (treesDirtyCount++ == 30 || !treeCache.size() || cachedName != Course.GetCurrCourse()->name) {
+	if (courseRenderReset || treesDirtyCount++ == 30 || !treeCache.size() ||
+        cachedName != Course.GetCurrCourse()->name)
+    {
 		treeCache.clear();
 		int i = 0;
 		while(i < numTrees && treeLocs[i].pt.z > ctrl->viewpos.z + bwd_clip_limit) i++;
@@ -92,6 +97,7 @@ void DrawTrees() {
 
 		cachedName = Course.GetCurrCourse()->name;
         treesDirtyCount = 0;
+        courseRenderReset = false;
 	}
 
 	vector<TCollidable*> trees;

@@ -46,6 +46,7 @@ static CKeyframe *final_frame;
 static int highscore_pos = 999;
 static TTextButton* backButton;
 static TTextButton* retryButton;
+static TTextButton* continueButton;
 
 void QuitGameOver () {
 	if (g_game.game_type == PRACTICING) {
@@ -66,7 +67,15 @@ void CGameOver::Mouse (int button, int state, int x, int y) {
 		if (focussed == backButton) {
 			QuitGameOver ();
 		} else if (focussed == retryButton) {
+            CourseRenderReset ();
 			State::manager.RequestEnterState (Loading);
+		} else if (focussed == continueButton) {
+            if (Event.isLastRace()) {
+                State::manager.RequestEnterState (Event);
+            } else {
+                Event.UpdateCupRacing();
+                Event.StartRace();
+            }
 		}
 	}
 }
@@ -189,6 +198,7 @@ void GameOverMessage (const CControl *ctrl) {
 void CGameOver::Enter() {
 	Sound.HaltAll ();
 	ResetGUI ();
+    CourseRenderReset ();
 
 	if (!g_game.raceaborted) highscore_pos = Score.CalcRaceResult ();
 
@@ -225,15 +235,21 @@ void CGameOver::Enter() {
 	int top = AutoYPosN (30);
 	int siz = FT.AutoSizeN (10);
 	backButton = AddTextButton (Trans.Text(8), CENTER, top, siz);
-	if (g_game.game_type != CUPRACING || g_game.race_result < 0) {
-		// Player failed so offer retry button
+	//if (g_game.game_type != CUPRACING || g_game.race_result < 0) {
+    {
+		// Always provide retry button.. even if player succeeded.
 		string retryTxt;
 		if (param.language == 0 || param.language == Trans.GetLangIdx("de_DE"))
 			retryTxt = Trans.Text(84); // Retry / Race Again
 		else
 			retryTxt = Trans.Text(13); // Race!
-		retryButton = AddTextButton (retryTxt, CENTER, top + 100, siz);
+		retryButton = AddTextButton (retryTxt, CENTER, top + 75, siz);
 	}
+
+    if (g_game.game_type == CUPRACING && g_game.race_result >= 0) {
+        // quick next-level button for ppl in a hurry
+        continueButton = AddTextButton(Trans.Text(9), CENTER, top + 150, siz);
+    }
 }
 
 
@@ -276,8 +292,6 @@ void CGameOver::Loop(double time_step) {
 	if (final_frame == NULL || !final_frame->active) {
 		SetupGuiDisplay ();
 		GameOverMessage (ctrl);
-		//DrawWidgetFrame (backButton);
-		//DrawWidgetFrame (retryButton);
 		DrawGUI ();
 	} else {
 		if (param.show_hud) {

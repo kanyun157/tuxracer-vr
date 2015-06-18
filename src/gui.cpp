@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include "font.h"
 #include "winsys.h"
 #include "states.h"
+#include "env.h" // TODO: doesn't belong here
 #include <list>
 #include <vector>
 
@@ -582,7 +583,10 @@ void DrawCursor () {
 	int res = 32; // jdt: proper query
 	//TTexture* reticleTex = Tex.GetTexture (LOOK_RETICLE);
 	float size = CURSOR_SIZE * (double)Winsys.resolution.width / 14000; // ?
-	Tex.SetColor(TColor(focussedPrct, focussedPrct, 1, 1));
+	if (Env.GetCurEnv() == 2 || Env.GetCurEnv() == 3)
+        Tex.SetColor(TColor(1 - focussedPrct, 1 - focussedPrct, 1, 1));
+    else
+        Tex.SetColor(TColor(focussedPrct, focussedPrct, 1, 1));
 	Tex.Draw (LOOK_RETICLE, cursor_pos.x -(res/2 * size), cursor_pos.y -(res/2 * size), size);
 	Tex.SetColor(TColor(1, 1, 1, 1));
 }

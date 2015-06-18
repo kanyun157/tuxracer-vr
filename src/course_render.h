@@ -25,4 +25,6 @@ void setup_course_tex_gen ();
 void RenderCourse ();
 void DrawTrees ();
 
+void CourseRenderReset ();
+
 #endif
