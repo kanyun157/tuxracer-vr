@@ -1,13 +1,16 @@
 #*[name] Test Course [dir] course
 
 *[name] Quiet River [dir] quiet_river
-[desc]This one is willingly a very fast and technical ride. Keeping the pace and getting all the herrings will be quite tricky (yes, it _is_ possible) and it's easyer to "fall" of the frosen rivver than to come back on it.
+[desc]This one is a very fast and technical ride. Keeping the pace and getting all the herrings will be quite tricky (yes, it _is_ possible) and it's easier to fall off the frozen river than to get back on it.
 
 *[name] Hippo Run [dir] hippo_run
 [desc] The author says: This is a fast course that makes you think. There are three major sections to the course. The first is a twisty ride over hills and ice. The second is up on top, and the third is the fastest part of all.
 
 *[name] Who Says Penguins Can't Fly? [dir] penguins_cant_fly
 [desc] A fast and stupid course but lot of people like it.
+
+*[name] Frozen Lakes [dir] frozen_lakes
+[desc] A cold, silent world of rocks and ice. Regard your speed when you cross the lakes.
 
 *[name] Secret Valleys [dir] secret_valleys
 [desc]Hidden places, some of them not easy to discover. There are 10 groups of dead trees - try to find them.
@@ -56,9 +59,6 @@
 
 *[name] Explore The Mountains [dir] explore_mountains
 [desc] If you don't reach time and herring try to find another way through the mountains.
-
-*[name] Frozen Lakes [dir] frozen_lakes
-[desc] A cold, silent world of rocks and ice. Regard your speed when you cross the lakes.
 
 *[name] Challenge One [dir] challenge_one
 [desc] A dangerous path along the mountains. Try to catch more than 60 herrings. It is possible!

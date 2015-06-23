@@ -98,13 +98,17 @@ TTextButton* AddTextButtonN (const string& text, int x, int y, int rel_ftsize) {
 
 
 TTextField::TTextField(int x, int y, int width, int height, const string& text_)
-	: TWidget(x, y, width, height)
+    : TWidget(x, y, width, height)
 	, text(text_)
 	, cursorPos(0)
 	, maxLng(32)
 	, time(0.0)
 	, cursor(false)
 {
+	double len = FT.GetTextWidth (text);
+	if (x == CENTER) position.x = (int)((Winsys.resolution.width - len) / 2);
+
+	mouseRect.left = position.x-20;
 }
 
 void TTextField::Draw() const {

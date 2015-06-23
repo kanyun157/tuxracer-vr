@@ -26,7 +26,7 @@
 [herring] 30 35 40 [time] 60 55 50
 
 *[struct] 0 [race] race_hippo_run [course] hippo_run [light] evening [snow] 0 [wind] 0
-[herring] 60 65 70 [time] 135 130 125 
+[herring] 55 65 70 [time] 140 135 130
 
 *[struct] 0 [race] race_penguins_cant_fly [course] penguins_cant_fly [light] cloudy [snow] 0 [wind] 0
 [herring] 38 40 42 [time] 73 71 69 

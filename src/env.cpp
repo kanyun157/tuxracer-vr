@@ -379,7 +379,6 @@ bool CEnvironment::LoadEnvironment (size_t loc, size_t light) {
 	static size_t prev_env_id = 9999;
 
 	if (env_id == prev_env_id) {//EnvID) {
-		Message ("same environment");
 		return false;
 	}
 	prev_env_id = env_id; // jdt: remember previous environment

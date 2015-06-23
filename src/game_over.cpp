@@ -39,6 +39,7 @@ GNU General Public License for more details.
 #include "winsys.h"
 #include "physics.h"
 #include "loading.h"
+#include "course.h"
 
 CGameOver GameOver;
 
@@ -47,6 +48,7 @@ static int highscore_pos = 999;
 static TTextButton* backButton;
 static TTextButton* retryButton;
 static TTextButton* continueButton;
+static TTextField* hintText;
 
 void QuitGameOver () {
 	if (g_game.game_type == PRACTICING) {
@@ -235,9 +237,8 @@ void CGameOver::Enter() {
 	int top = AutoYPosN (30);
 	int siz = FT.AutoSizeN (10);
 	backButton = AddTextButton (Trans.Text(8), CENTER, top, siz);
-	//if (g_game.game_type != CUPRACING || g_game.race_result < 0) {
+	if (g_game.game_type != CUPRACING || g_game.race_result < 0)
     {
-		// Always provide retry button.. even if player succeeded.
 		string retryTxt;
 		if (param.language == 0 || param.language == Trans.GetLangIdx("de_DE"))
 			retryTxt = Trans.Text(84); // Retry / Race Again
@@ -246,9 +247,27 @@ void CGameOver::Enter() {
 		retryButton = AddTextButton (retryTxt, CENTER, top + 75, siz);
 	}
 
-    if (g_game.game_type == CUPRACING && g_game.race_result >= 0) {
-        // quick next-level button for ppl in a hurry
-        continueButton = AddTextButton(Trans.Text(9), CENTER, top + 150, siz);
+    if (!g_game.raceaborted && g_game.game_type == CUPRACING) {
+        if (g_game.race_result >= 0) {
+            // quick next-level button for ppl in a hurry
+            continueButton = AddTextButton(Trans.Text(9), CENTER, top + 150, siz);
+        } else {
+            string hintStr;
+            // provide hints for failed runs
+            if (g_game.time > g_game.time_req.x) {
+                if (Course.GetCurrCourse()->name != "Bumpy Ride") {
+                    hintStr = "Tip: Slide on ice for faster speeds.";
+                } else {
+                    hintStr = "Tip: Skip some herrings for quicker times.";
+                }
+            } else {
+                hintStr = "Tip: Lean back to slow down and collect more herring.";
+            }
+
+            int frameWidth = FT.AutoSizeN (hintStr.size()) * Winsys.scale * 2;
+            int frameHeight = 50 * Winsys.scale;
+            hintText = AddTextField(hintStr, CENTER, top + 200, frameWidth, frameHeight);
+        }
     }
 }
 
