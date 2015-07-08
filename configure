@@ -6397,13 +6397,13 @@ LIBS="$LIBS -lGLU"
 # Set OVR_ROOT to your oculus ovr_sdk_linux_0.4.4 path.
 LIB_OVR_DIR="${OVR_ROOT}/LibOVR"
 CFLAGS="$CFLAGS -I${LIB_OVR_DIR}/Include -I${LIB_OVR_DIR}/Src"
-LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lovr -lrt"
+LIBS="-L${LIB_OVR_DIR}/Lib/Linux/Release/x86_64 -lovr -lpthread -lrt $LIBS"
 # Debug:
-#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lovr -lrt"
+#LIBS="-L${LIB_OVR_DIR}/Lib/Linux/Debug/x86_64 -lovr -lpthread -lrt $LIBS"
 # For 32 bit:
-#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/Release/i386 -lovr"
+#LIBS="-L${LIB_OVR_DIR}/Lib/Linux/Release/i386 -lovr -lpthread $LIBS"
 # For sdk >= 0.5
-#LIBS="$LIBS -L${LIB_OVR_DIR}/Lib/Linux/x86_64/Release -lOVR -lrt -ldl"
+#LIBS="-L${LIB_OVR_DIR}/Lib/Linux/x86_64/Release -lOVR -lpthread -lrt -ldl $LIBS"
 
 # Request c++11 compatibility and profiling info.  NOTE CFLAGS -> CXXFLAGS
 CXXFLAGS="$CFLAGS -std=c++11"
