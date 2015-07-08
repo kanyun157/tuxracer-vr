@@ -58,7 +58,7 @@ Controls are all based on head movements.
 
 ### Compile from source:
 * Dependencies: sdl2 sdl2-mixer sdl2-image ftgl freetype glew git g++
- * apt-get install git libsdl2-dev libftgl-dev libftgl2 libfreetype6-dev libglew-dev libvorbis-dev libjpeg8-dev libpng-dev libsmpeg-dev chrpath
+ * apt-get install git libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libftgl-dev libftgl2 libfreetype6-dev libglew-dev libvorbis-dev libjpeg8-dev libpng-dev libsmpeg-dev chrpath
  * optional but recommended for changes to configure.ac: autotools-dev libltdl-dev automake autoconf
  * For older debian (squeeze or wheezy) follow: http://backports.debian.org/Instructions/
    * apt-get -t wheezy-backports install "libsdl2-dev"
