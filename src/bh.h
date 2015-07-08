@@ -103,9 +103,9 @@ GNU General Public License for more details.
 // --------------------------------------------------------------------
 
 #include "version.h"
-#define PROG_NAME "ETR"
-#define PACKAGE "etr"
-#define WINDOW_TITLE "Extreme Tux Racer " ETR_VERSION_STRING
+#define PROG_NAME "TuxRacerVR"
+#define PACKAGE "tuxracervr"
+#define WINDOW_TITLE "TuxRacerVR" ETR_VERSION_STRING
 
 using namespace std;
 

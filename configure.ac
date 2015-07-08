@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([etr], [0.6.3], [https://sourceforge.net/apps/phpbb/extremetuxracer])
+AC_INIT([TuxRacerVR], [0.6.4], [https://github.com/jdtaylor/tuxracer-vr])
 AC_CONFIG_SRCDIR([src/gui.cpp])
 AC_CONFIG_HEADERS([src/etr_config.h])
 

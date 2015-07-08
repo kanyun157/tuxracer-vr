@@ -71,8 +71,9 @@ Controls are all based on head movements.
 sudo apt-get install git
 git clone https://github.com/jdtaylor/tuxracer-vr.git
 export OVR_ROOT="/path/to/your/compiled/oculus/ovr_sdk_linux_0.4.4"
-export CXXFLAGS="-Ofast -fomit-frame-pointer -march=native" 
+export CFLAGS="-Ofast -fomit-frame-pointer -march=native" 
 cd tuxracer-vr
+./bootstrap
 ./configure
 make 
 src/etr
